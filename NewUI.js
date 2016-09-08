@@ -23,7 +23,7 @@ createSetting('lastCell', 'Last Cell', 'Begin Toxic or Void after this cell in t
 createSetting('AutoHeirlooms', 'ATs Heirlooms', 'AT: Automatically evaluate and carry the best heirlooms, and recommend upgrades for equipped items. AutoHeirlooms will only change carried items when the heirlooms window is not open. Carried items will be compared and swapped with the types that are already carried. If a carry spot is empty, it will be filled with the best shield (if available). Evaluation is based ONLY on the following mods (listed in order of priority, high to low): Void Map Drop Chance/Trimp Attack, Crit Chance/Crit Damage, Miner Efficiency/Metal Drop, Farmer/Lumberjack/Dragimp Efficiency. For the purposes of carrying, rarity trumps all of the stat evaluations. Empty mod slots are valued at the average value of the best missing mod.', 'boolean', false);
 createSetting('gsForEqWs', 'GS for EQ/WS ratio', 'Minimum owned Gigastations before ratio of Best Equipment to Warpstation cost is used to buy Warpstations. Default value of 1000 essentially turns this off.', 'value', 1000);
 createSetting('eqWsRatio', 'EQ/WS ratio', 'Best Equipment to Warpstation cost ratio for buying Warpstations.  Default value of 5 means no Warpstations will be bought until the Best Equipment improvement costs more than 5 times the Warpstation cost.', 'value', 5);
-createSetting('ignoreAllButDagger', 'Ignore all but dagger', 'Level up only dagger', 'boolean', true);
+createSetting('ignoreAllButDagger', 'Level up only dagger', 'Level up only dagger', 'boolean', true);
 saveSettings();
 updateValueFields();
 
