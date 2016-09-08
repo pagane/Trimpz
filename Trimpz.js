@@ -882,12 +882,10 @@ function FindBestEquipmentToLevel(filterOnStat) {
                 if (currentEquip.healthCalculated){
                     continue;
                 }
-//                if (currentEquip.prestige<game.equipment["Dagger"].prestige-1) continue;
-                if (anEquipment != "Dagger") continue;
+                if (trimpzSettings["ignoreAllButDagger"].value && anEquipment != "Dagger") continue;
+                else if (currentEquip.prestige<game.equipment["Dagger"].prestige-1) continue;
             }
         }
-        
-//        if (currentEquip.prestige<game.equipment["Dagger"].prestige-1) continue;
         
         cost = GetNonUpgradePrice(currentEquip);
         multiplier = currentEquip.healthCalculated ? 1 / 8 : 1;
@@ -2530,7 +2528,7 @@ function ableToGetChronoUpgrade()
 		/*if (game.global.formation == 4)*/ chronoImpLoot *= 2;
         eqCost = FindAndBuyEquipment("Attack", true);
         
-        if (game.resources['metal'].owned+chronoImpLoot>eqCost*1.5) return true;
+        if (game.resources['metal'].owned+chronoImpLoot>eqCost) return true;
     }
     return false;
 }
