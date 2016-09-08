@@ -50,5 +50,5 @@ Some of the Features:
 
 
 Use this bookmarklet to run the script while you're at https://trimps.github.io/# :
-javascript:document.body.appendChild(document.createElement('script')).setAttribute('src','https://rawgit.com/driderr/Trimpz/master/Trimpz.js');void(0);
+javascript:document.body.appendChild(document.createElement('script')).setAttribute('src','https://rawgit.com/pagane/Trimpz/highhe/Trimpz.js');void(0);
 
