@@ -172,7 +172,7 @@ function saveSettings() {
 function initializeUiAndSettings() {
     "use strict";
     loadPageVariables();
-    document.head.appendChild(document.createElement('script')).src = 'https://rawgit.com/driderr/AutoTrimps/TrimpzUI/NewUI.js';
+    document.head.appendChild(document.createElement('script')).src = 'https://rawgit.com/pagane/Trimpz/highhe/NewUI.js';
 }
 
 function setMapRunStatus(status){
@@ -195,6 +195,7 @@ function CanBuyNonUpgrade(nonUpgradeItem, ratio) {
     "use strict";
     var aResource; //JSLint insisted I move declaration to top...
     var needed;
+    if (typeof nonUpgradeItem == 'undefined') return false;
     for (aResource in nonUpgradeItem.cost) {
         needed = nonUpgradeItem.cost[aResource];
         if (typeof needed[1] != 'undefined') {
@@ -347,6 +348,7 @@ function AssignFreeWorkers() {
         "Lumberjack" : 0,
         "Farmer" : 0
     };
+    if (game.global.world < 5) return;
     if (trimps.owned === 0 || game.global.firing) {
         return;
     }
@@ -507,12 +509,12 @@ function UpgradeStorage() {
         storageBuilding = game.buildings[storage];
         if (owned > storageBuilding.cost[resource]() &&
             storageBuilding.locked === 0 && !queueContainsItem(storage))
-            if (owned > 0.9 * maxResource) {
+            if (owned > 0.8 * maxResource) {
                 buyBuilding(storage, true, true);
             } else if ((game.global.mapsActive && game.unlocks.imps.Jestimp)) {
                 jestImpLoot = simpleSeconds(resource, 45);
                 jestImpLoot = scaleToCurrentMap(jestImpLoot);
-                if (jestImpLoot + owned > 0.9 * maxResource) {
+                if (jestImpLoot + owned > 0.85 * maxResource) {
                     buyBuilding(storage, true, true);
                 }
             }
@@ -526,10 +528,7 @@ function ClickAllNonEquipmentUpgrades() {
         if (upgrade === "Gigastation"){
             continue;
         }
-        if (upgrade === "Potency" && !trimpzSettings["ignoreBreedForNurseries"].value){
-            continue;
-        }
-        if (trimpzSettings["skipShieldBlock"].value === true && upgrade === "Shieldblock"){
+        if (upgrade === "Shieldblock"){
             continue;
         }
         if (typeof game.upgrades[upgrade].prestiges == 'undefined' && game.upgrades[upgrade].locked === 0) {
@@ -622,12 +621,8 @@ function RestoreWorkerFocus() {
     }
 }
 
-/**
- * @return {boolean}
- */
 function CanBuyWarpstationSoon(){
     "use strict";
-    //return CanBuyNonUpgrade(game.buildings.Warpstation, 2) === true;
     var MaxMinutesToWait = 2;
     var buildstring = canAffordBuilding("Warpstation",false,true);
 
@@ -652,9 +647,6 @@ function CanBuyWarpstationSoon(){
     return !(minutes > MaxMinutesToWait || minutes2 > MaxMinutesToWait);
 }
 
-/**
- * @return {boolean} return.collectingForNonEquipment Is it collecting for upgrade?
- */
 function UpgradeNonEquipment() {
     "use strict";
     var upgrade;
@@ -667,13 +659,10 @@ function UpgradeNonEquipment() {
                 || (CanBuyWarpstationSoon() && CanBuyNonUpgrade(game.buildings.Warpstation, 2) === true) )){ //ratio 2 for "can buy soon"
                 continue;
             }
-
             if (upgrade == 'Coordination' && !canAffordCoordinationTrimps()) continue;
-            if (trimpzSettings["skipShieldBlock"].value === true && upgrade === "Shieldblock"){
+            if (upgrade === "Shieldblock"){
                 continue;
             }
-            if (upgrade === "Potency" && !ShouldLowerBreedWithoutGeneticists() && !trimpzSettings["ignoreBreedForNurseries"].value)
-                continue;
             for (aResource in game.upgrades[upgrade].cost.resources) {
                 needed = game.upgrades[upgrade].cost.resources[aResource];
                 if (typeof needed[1] != 'undefined') {
@@ -725,13 +714,7 @@ function UpgradeAndGather() {
         (game.global.buildingsQueue[0] !== "Trap.1") || game.global.buildingsQueue.length > 1)) {
         setGather("buildings");
     }
-    else if (game.resources.trimps.owned < game.resources.trimps.realMax() &&
-        game.buildings.Trap.owned > 0 &&
-        GetBreedSpeed() < trimpzSettings["minBreedingSpeed"].value){
-        setGather("trimps");
-//        } else if (game.global.buildingsQueue.length > 0) {
-//            ClickButton("buildingsCollectBtn");
-    } else if (game.global.turkimpTimer > 0) {
+    else if (game.global.turkimpTimer > 0) {
         setGather("metal");
     } else {
         setGather("science");
@@ -820,29 +803,20 @@ function BuyBuildings() {
 
     var targetBreedTime = trimpzSettings["targetBreedTime"].value;
     var targetBreedTimeHysteresis = trimpzSettings["targetBreedTimeHysteresis"].value;
-    if (trimpzSettings["ignoreBreedForNurseries"].value){
+    if (!(game.global.mapsActive === true && game.global.preMapsActive === false)){
         game.global.buyAmt = 'Max';
         game.global.maxSplit = constants.getNurseryCostRatio();
         BuyBuilding("Nursery", constants.getNurseryCostRatio());
+        game.global.maxSplit = constants.getTributeCostRatio();
+        BuyBuilding("Tribute", constants.getTributeCostRatio());
         game.global.buyAmt = 1;
         game.global.maxSplit = 1;
     }
-    else if (ShouldLowerBreedWithoutGeneticists()){
-        BuyBuilding("Nursery", constants.getNurseryCostRatio());
-    }
-
-    game.global.buyAmt = 'Max';
-    game.global.maxSplit = constants.getTributeCostRatio();
-    BuyBuilding("Tribute", constants.getTributeCostRatio());
-    game.global.buyAmt = 1;
-    game.global.maxSplit = 1;
-
-    if (game.global.world > 10 &&
-        (game.resources.trimps.owned !== game.resources.trimps.realMax() &&
-        game.global.lastBreedTime / 1000 > targetBreedTime - getRemainingTimeForBreeding() + trimpzSettings["targetBreedTimeHysteresis"].value &&
-        game.jobs.Geneticist.owned < 10 ||
-        game.resources.trimps.soldiers === 0)){
-        return;
+    else
+    {
+        if (ShouldLowerBreedWithoutGeneticists())
+            BuyBuilding("Nursery", constants.getNurseryCostRatio());
+        BuyBuilding("Tribute", constants.getTributeCostRatio());
     }
 
     BuyBuilding("Hut", constants.getHousingCostRatio());
@@ -851,82 +825,40 @@ function BuyBuildings() {
     BuyBuilding("Hotel", constants.getHousingCostRatio());
     BuyBuilding("Resort", constants.getHousingCostRatio());
     BuyBuilding("Gateway", constants.getHousingCostRatio());
-    BuyBuilding("Wormhole", 1, trimpzSettings["maxWormholes"].value);
     if (game.buildings.Warpstation.locked === 1 || GetNonUpgradePrice(game.buildings.Warpstation, "gems") > GetNonUpgradePrice(game.buildings.Collector) * game.buildings.Warpstation.increase.by / game.buildings.Collector.increase.by) {
         BuyBuilding("Collector", 1);
     }
 
-    if (trimpzSettings["runMapsOnlyWhenNeeded"].value){
-        var returnNumAttacks = true;
-        var maxAttacksToKill = trimpzSettings["maxAttacksToKill"].value;
-        var bossBattle = canTakeOnBoss(returnNumAttacks);
-        var reallyNeedDamage = bossBattle.attacksToKillBoss > maxAttacksToKill * 3;
-        var reallyNeedHealth = bossBattle.attacksToKillSoldiers <= 1;
-        if ((reallyNeedDamage || reallyNeedHealth) && GetNonUpgradePrice(game.buildings.Warpstation, "metal") > game.resources.metal.owned * 0.1) {
-            return;
-        }
-    }
     if (game.upgrades.Gigastation.done === game.upgrades.Gigastation.allowed && game.upgrades.Gigastation.done >= trimpzSettings["gsForEqWs"].value) {
-        var eqCost = FindAndBuyEquipment([], "Attack", true);
+        var eqCost = FindAndBuyEquipment("Attack", true);
         if (eqCost !== 0 && eqCost < GetNonUpgradePrice(game.buildings.Warpstation, "metal") * trimpzSettings["eqWsRatio"].value){
             return;
         }
     }
-    while (BuyBuilding("Warpstation", 1,undefined,false)){}
-}
-
-function TurnOnAutoBuildTraps() {
-    "use strict";
-    if (game.buildings.Trap.owned < constants.getNumTrapsForAutoTrapping() &&
-        game.global.trapBuildAllowed &&
-        !game.global.trapBuildToggled &&
-        GetBreedSpeed() < trimpzSettings["minBreedingSpeed"].value) {
-        toggleAutoTrap();
-    } else if (game.global.trapBuildToggled &&
-        (game.buildings.Trap.owned >= constants.getNumTrapsForAutoTrapping() || GetBreedSpeed() > trimpzSettings["minBreedingSpeed"].value)){
-        toggleAutoTrap();
-    }
+    
+    game.global.buyAmt = 'Max';
+    buyBuilding("Warpstation", true, true);
+    game.global.buyAmt = 1;
 }
 
 function BuyShield() {
     "use strict";
     var shieldUpgrade = game.upgrades.Supershield;
     var shield = game.equipment.Shield;
-    var costOfNextLevel;
-    var limitEquipment = trimpzSettings["limitEquipment"].value;
 
-    if (trimpzSettings["runMapsOnlyWhenNeeded"].value){
-        var stat = shield.blockNow ? "block" : "health";
-        var upgradeStats = GetRatioForEquipmentUpgrade("Supershield",shield);
+    var stat = shield.blockNow ? "block" : "health";
+    var upgradeStats = GetRatioForEquipmentUpgrade("Supershield",shield);
 
-        if (shield[stat + "Calculated"]/GetNonUpgradePrice(shield) > upgradeStats.gainPerMetal && //level up (don't feel like renaming gainPerMetal...)
-            (!limitEquipment || shield.level < constants.getMaxLevel())){
-            if (shield.locked === 0 && CanBuyNonUpgrade(shield, constants.getShieldCostRatio()) === true){
-                buyEquipment("Shield", true, true);
-            }
-        } else { //upgrade
-            if (shieldUpgrade.locked === 0 && canAffordTwoLevel(shieldUpgrade)){
-                buyUpgrade("Supershield", true, true);  //Upgrade!
-            }
-        }
-        return;
+    if (shieldUpgrade.locked === 0 && canAffordTwoLevel(shieldUpgrade)){
+        buyUpgrade("Supershield", true, true);  //Upgrade!
     }
-
-    if (shieldUpgrade.locked === 0 && CanAffordEquipmentUpgrade("Supershield") === true) {
-        costOfNextLevel = Math.ceil(getNextPrestigeCost("Supershield") * (Math.pow(1 - game.portal.Artisanistry.modifier, game.portal.Artisanistry.level)));
-        var costOfTwoLevels = costOfNextLevel * (1 + game.equipment.Shield.cost.wood[1]);
-        if (game.resources.wood.owned * constants.getShieldCostRatio() > costOfTwoLevels) {
-            buyUpgrade("Supershield", true, true);  //Upgrade!
-            buyEquipment("Shield", true, true);  //Buy a level!
+    else if (shield[stat + "Calculated"]/GetNonUpgradePrice(shield) > upgradeStats.gainPerMetal){ //level up (don't feel like renaming gainPerMetal...)
+        if (shield.locked === 0 && CanBuyNonUpgrade(shield, constants.getShieldCostRatio()) === true){
+            buyEquipment("Shield", true, true);
         }
-    }
-
-    if (shield.locked === 0 && CanBuyNonUpgrade(shield, constants.getShieldCostRatio()) === true &&
-        (!limitEquipment || shield.level < constants.getMaxLevel() )) {
-        buyEquipment("Shield", true, true);
     }
 }
-function FindBestEquipmentToLevel(debugHpToAtkRatio, filterOnStat) {
+function FindBestEquipmentToLevel(filterOnStat) {
     "use strict";
     var anEquipment;
     var bestEquipGainPerMetal = 0;
@@ -941,9 +873,6 @@ function FindBestEquipmentToLevel(debugHpToAtkRatio, filterOnStat) {
         if (currentEquip.locked === 1 || anEquipment === "Shield" || (constants.getShouldSkipHpEquipment() === true && typeof currentEquip.health != 'undefined')) {
             continue;
         }
-        if (trimpzSettings["limitEquipment"].value && currentEquip.level >= constants.getMaxLevel()) {
-            continue;
-        }
         if (filterOnStat){
             if (filterOnStat === "Health"){
                 if (!currentEquip.healthCalculated){
@@ -953,12 +882,16 @@ function FindBestEquipmentToLevel(debugHpToAtkRatio, filterOnStat) {
                 if (currentEquip.healthCalculated){
                     continue;
                 }
+//                if (currentEquip.prestige<game.equipment["Dagger"].prestige-1) continue;
+                if (anEquipment != "Dagger") continue;
             }
         }
+        
+//        if (currentEquip.prestige<game.equipment["Dagger"].prestige-1) continue;
+        
         cost = GetNonUpgradePrice(currentEquip);
         multiplier = currentEquip.healthCalculated ? 1 / 8 : 1;
         gainPerMetal = (currentEquip.healthCalculated || currentEquip.attackCalculated) * multiplier / cost;
-        debugHpToAtkRatio.push([anEquipment, gainPerMetal * 1000000]);
         if (gainPerMetal > bestEquipGainPerMetal) {
             bestEquipGainPerMetal = gainPerMetal;
             bestEquipment = anEquipment;
@@ -986,7 +919,7 @@ function GetRatioForEquipmentUpgrade(upgrade, currentEquip) {
     };
 }
 
-function FindBestEquipmentUpgrade(debugHpToAtkRatio, filterOnStat) {
+function FindBestEquipmentUpgrade(filterOnStat) {
     "use strict";
     var gainPerMetal;
     var cost;
@@ -1019,7 +952,6 @@ function FindBestEquipmentUpgrade(debugHpToAtkRatio, filterOnStat) {
             upgradeStats = GetRatioForEquipmentUpgrade(upgrade, currentEquip);
             gainPerMetal = upgradeStats.gainPerMetal;
             cost = upgradeStats.cost;
-            debugHpToAtkRatio.push([upgrade, gainPerMetal * 1000000]);
             if (gainPerMetal > bestUpgradeGainPerMetal) {
                 bestUpgradeGainPerMetal = gainPerMetal;
                 bestUpgrade = upgrade;
@@ -1035,23 +967,14 @@ function FindBestEquipmentUpgrade(debugHpToAtkRatio, filterOnStat) {
 }
 function BuyEquipmentOrUpgrade(bestEquipGainPerMetal, bestUpgradeGainPerMetal, bestEquipment, bestUpgrade, bestUpgradeCost) {
     "use strict";
-    if (bestEquipGainPerMetal > bestUpgradeGainPerMetal) { //better to level
-        if (CanBuyNonUpgrade(game.equipment[bestEquipment], constants.getEquipmentCostRatio()) === true) {
-            if (trimpzSettings["runMapsOnlyWhenNeeded"].value){ //only buy if ratio is better than its associated upgrade's ratio
-                var upgrade = Object.keys(game.upgrades).filter(function(a){return game.upgrades[a].prestiges === bestEquipment;})[0];
-                var upgradeStats = GetRatioForEquipmentUpgrade(upgrade, game.equipment[bestEquipment]);
-                if (upgradeStats.gainPerMetal < bestEquipGainPerMetal) {
-                    //console.debug("Best buy " + bestEquipment);
-                    buyEquipment(bestEquipment, true, true);
-                }
-            } else {
-                buyEquipment(bestEquipment, true, true);
-            }
-        }
-    } else { //better to upgrade
-        if (CanAffordEquipmentUpgrade(bestUpgrade) === true && bestUpgradeCost < game.resources.metal.owned * constants.getEquipmentCostRatio()) {
-            //console.debug("Upgraded " + bestUpgrade);
-            buyUpgrade(bestUpgrade, true, true);
+    if (CanAffordEquipmentUpgrade(bestUpgrade) === true && bestUpgradeCost < game.resources.metal.owned * constants.getEquipmentCostRatio()) {
+        buyUpgrade(bestUpgrade, true, true);
+    }
+    else if (CanBuyNonUpgrade(game.equipment[bestEquipment], constants.getEquipmentCostRatio()) === true) {
+        var upgrade = Object.keys(game.upgrades).filter(function(a){return game.upgrades[a].prestiges === bestEquipment;})[0];
+        var upgradeStats = GetRatioForEquipmentUpgrade(upgrade, game.equipment[bestEquipment]);
+        if (upgradeStats.gainPerMetal < bestEquipGainPerMetal) {
+            buyEquipment(bestEquipment, true, true);
         }
     }
 }
@@ -1091,13 +1014,13 @@ function BuyCheapEquipmentUpgrades() {
     }
 }
 
-function FindAndBuyEquipment(debugHpToAtkRatio, stat, justgetcost) {
+function FindAndBuyEquipment(stat, justgetcost) {
     "use strict";
-    var retFBETL = FindBestEquipmentToLevel(debugHpToAtkRatio, stat);
+    var retFBETL = FindBestEquipmentToLevel(stat);
     var bestEquipGainPerMetal = retFBETL.bestEquipGainPerMetal;
     var bestEquipment = retFBETL.bestEquipment;
 
-    var retFBEU = FindBestEquipmentUpgrade(debugHpToAtkRatio, stat);
+    var retFBEU = FindBestEquipmentUpgrade(stat);
     var bestUpgradeGainPerMetal = retFBEU.bestUpgradeGainPerMetal;
     var bestUpgrade = retFBEU.bestUpgrade;
     var bestUpgradeCost = retFBEU.bestUpgradeCost;
@@ -1114,24 +1037,14 @@ function FindAndBuyEquipment(debugHpToAtkRatio, stat, justgetcost) {
 
 function BuyMetalEquipment() {
     "use strict";
-    var debugHpToAtkRatio = [];
-
-    if (trimpzSettings["runMapsOnlyWhenNeeded"].value){
-        var returnNumAttacks = true;
-        var bossBattle = canTakeOnBoss(returnNumAttacks);
-        var needDamage = bossBattle.attacksToKillBoss > trimpzSettings["maxAttacksToKill"].value;
-        var needHealth = bossBattle.attacksToKillSoldiers < trimpzSettings["minAttackstoDie"].value;
-
-        if (needDamage || !needHealth){
-            FindAndBuyEquipment(debugHpToAtkRatio, "Attack");
-        }
-        if (needHealth){
-            FindAndBuyEquipment(debugHpToAtkRatio, "Health");
-        }
-    } else { //probably get rid of this either way, comparison of hp to atk sucks (relationship is way too complex for a multiplier)
-        FindAndBuyEquipment(debugHpToAtkRatio);
-    }
-    BuyCheapEquipment();
+    var attacksToDie = canTakeOnBoss();
+    var needHealth = attacksToDie.attacksToKillSoldiers < trimpzSettings["minAttackstoDie"].value;
+    
+    if (needHealth)
+        FindAndBuyEquipment("Health");
+    else
+        FindAndBuyEquipment("Attack");
+        
     BuyCheapEquipmentUpgrades();
 }
 
@@ -1143,6 +1056,9 @@ function CanAffordEquipmentUpgrade(upgrade) {
     var canBuyUpgrade = true;
     var aResource;
     var needed;
+    
+    if (typeof upgrade=='undefined') return false;
+    
     for (aResource in game.upgrades[upgrade].cost.resources) {
         if (aResource === "metal" || aResource === "wood") {
             continue;
@@ -1187,10 +1103,9 @@ function getBossAttack(isVoidBoss) {
 function getBossHealth(isVoidBoss) {
     "use strict";
     if (isVoidBoss){
-        return getMaxEnemyHealthForLevel(game.global.world, true, "Cthulimp") * (game.global.world <= 59 ? 3 : 5.4);
+        return getAverageEnemyHealthForLevel(game.global.world, false, true) * 5;
     } else {
-        var cell = game.global.gridArray[99];
-        return getMaxEnemyHealthForLevel(game.global.world, false, cell.name);
+        return getAverageEnemyHealthForLevel(game.global.world, false, false) * 5;
     }
 }
 
@@ -1204,102 +1119,34 @@ function getSoldierAttack(world, calcForMap){
     return calculateDamageLocal(baseAttack, true, world, calcForMap);
 }
 
-function canTakeOnBoss(returnNumAttacks){
+function getSoldierCritAttack(world, calcForMap){
+    "use strict";
+    var baseAttack = game.global.soldierCurrentAttack;
+    if (game.global.formation === ScryerIndex)
+    {
+        baseAttack *= 8;  //Dominance is the normal stance.  Fix calculation if scrying.
+    }
+    return calculateDamageLocal(baseAttack, true, world, calcForMap) * getPlayerCritDamageMult();
+}
+
+function canTakeOnBoss(){
     "use strict";
 
     if (game.global.lastClearedCell === -1) {
-        if (returnNumAttacks){
-            return {
-                attacksToKillBoss: 1,
-                attacksToKillSoldiers: 9999
-            }
-        }
-        else {
-            return true;
-        }
+        return 9999;
     }
-    var isVoidBoss = trimpzSettings["farmForVoid"].value && trimpzSettings["voidLevel"].value === game.global.world && game.global.lastClearedCell > 70;
 
-    var bossAttackBase = getBossAttack(isVoidBoss);
-    var bossHealth = getBossHealth(isVoidBoss);
-    var soldierAttack = getSoldierAttack(game.global.world, false);
+    var bossAttackBase = getBossAttack(false);
     var soldierHealth = game.global.soldierHealthMax;
-
     var attackAndBlock = bossAttackBase - game.global.soldierCurrentBlock;
     if (game.global.brokenPlanet){
         var overpower = (game.global.formation == 3) ? bossAttackBase * 0.1 : bossAttackBase * 0.2;
         if (attackAndBlock < overpower) attackAndBlock = overpower;
     }
     if (attackAndBlock < 0) attackAndBlock = 1; //1 to prevent divide by 0
-    var bossAttack = attackAndBlock;
 
-    if (game.global.challengeActive == "Toxicity" || game.global.challengeActive == "Nom") {
-        if (!returnNumAttacks) {
-            bossAttack += game.global.soldierHealthMax * 0.05;
-        }
-    }
-
-    var attacksToKillBoss = bossHealth/soldierAttack;
-    var attacksToKillSoldiers = soldierHealth/bossAttack;
-    var numberOfDeaths = attacksToKillBoss/attacksToKillSoldiers;
-
-    if (returnNumAttacks) {
-        return {
-            attacksToKillBoss: attacksToKillBoss,
-            attacksToKillSoldiers: attacksToKillSoldiers
-        }
-    }
-
-    if (attacksToKillSoldiers < 1)
-        return false;
-    if (numberOfDeaths > trimpzSettings["numberOfDeathsAllowedToKillBoss"].value)
-        return false;
-
-    if (game.global.challengeActive == "Nom" && numberOfDeaths > 1){
-        var cbossAttackBase = bossAttackBase;
-        var cbossHealth = bossHealth;
-        var csoldierAttack = soldierAttack;
-        var cattacksToKillSoldiers = attacksToKillSoldiers;
-
-        for (var i = 0; i < numberOfDeaths; i++){
-            cbossHealth -= (cattacksToKillSoldiers - 1) * csoldierAttack;
-            cbossHealth += 0.05 * bossHealth;
-            if (cbossHealth <= 0){
-                return true;
-            }
-            cbossAttackBase *= 1.25;
-
-            var cattackAndBlock = cbossAttackBase - game.global.soldierCurrentBlock;
-            if (game.global.brokenPlanet){
-                var coverpower = (game.global.formation == 3) ? cbossAttackBase * 0.1 : cbossAttackBase * 0.2;
-                if (cattackAndBlock < coverpower) cattackAndBlock = coverpower;
-            }
-            if (cattackAndBlock < 0) cattackAndBlock = 1;
-            var cbossAttack = cattackAndBlock;
-            cbossAttack += game.global.soldierHealthMax * 0.05;
-            cattacksToKillSoldiers = soldierHealth/cbossAttack;
-            if (cattacksToKillSoldiers < 1)
-                return false;
-        }
-        return false;
-    }
-    return true;
+    return soldierHealth/attackAndBlock;
 }
-
-function ableToRunHigherVoidMap()
-{
-    "use strict";
-    var bossHealth = getBossHealth(true);
-    var soldierAttack = getSoldierAttack(game.global.world, true);
-    var bossHealthMultiplier;
-    if (game.talents.voidPower)
-        bossHealthMultiplier = game.talents.voidPower2 ? 2.15 : 2.52;
-    else
-        bossHealthMultiplier = 2.8;
-
-    return soldierAttack > bossHealth * bossHealthMultiplier ;
-}
-
 
 function GotoMapsScreen() {
     "use strict";
@@ -1333,7 +1180,7 @@ function RunNewMap(zoneToCreate) {
     }
     var cost = updateMapCost(true);
     if (cost * 4 < game.resources.fragments.owned){
-        document.getElementById("biomeAdvMapsSelect").value = "Mountain";
+        document.getElementById("biomeAdvMapsSelect").value = "Plentiful";
     }
     cost = updateMapCost(true);
     if (cost * 4 < game.resources.fragments.owned){
@@ -1373,7 +1220,7 @@ function RunNewMapForLoot(zoneToCreate) {
     var size = 0;   //0-9
     var difficulty = 9; //0-9
     var loot = 9; //0-9
-    var biome = "Mountain";
+    var biome = "Plentiful";
 
     document.getElementById("difficultyAdvMapsRange").value = difficulty;
     adjustMap('difficulty', difficulty);
@@ -1559,23 +1406,84 @@ function getMaxEnemyHealthForLevel(worldLevel, calcForMap, enemyName) {  //adapt
     return amt;
 }
 
-function getLevelOfOneShotMap(ratio){
+function getAverageEnemyHealthForLevel(worldLevel, isMap, isVoid) {  //adapted from Trimps getEnemyHealth() & startFight()
     "use strict";
-    var soldierAttack = getSoldierAttack(game.global.world, true);
-    if (trimpzSettings["scryerMaps"].value && game.global.world > 180)
+    var world = worldLevel;
+    var level = isMap ? 20 : 90;
+    var difficulty = isVoid ? 4 : 0.8;
+    var badCoord = 1;
+    
+    if (game.global.challengeActive == "Coordinate")
     {
-        soldierAttack /= 8; //Maps will be run with less attack in Scryer formation.
+	    for (var x = 0; x < world - 1; x++)
+		    badCoord = Math.ceil(badCoord * 1.25);
+	}
+
+    var amt = 0;
+	amt += 130 * Math.sqrt(world) * Math.pow(3.265, world / 2);
+	amt -= 110;
+	if (world == 1 || world == 2 && level < 10){
+		amt *= 0.6;
+	amt = (amt * 0.25) + ((amt * 0.72) * (level / 100));
+	}
+	else if (world < 60)
+		amt = (amt * 0.4) + ((amt * 0.4) * (level / 110));
+	else{
+		amt = (amt * 0.5) + ((amt * 0.8) * (level / 100));
+		amt *= Math.pow(1.1, world - 59);
+	}
+	if (world < 60) amt *= 0.75;		
+	if (world > 5 && (isMap || isVoid)) amt *= 1.1;
+	
+	var corruptionStart = getCorruptionStart(true);
+	if (!isMap && !isVoid && world >= corruptionStart)
+		amt *= getCorruptScale("health");
+		
+    if (game.global.challengeActive == "Coordinate") amt *= badCoord;
+    if (isMap || isVoid) {
+        amt *= difficulty;
+		if (isVoid && world >= corruptionStart)
+			amt *= (getCorruptScale("health") / 2).toFixed(1);
     }
+	if (game.global.challengeActive == "Meditate" || game.global.challengeActive == "Toxicity" || game.global.challengeActive == "Balance") amt *= 2;
+	
+	return Math.floor(amt);
+}
+
+function getLevelOfOverkillMap(){
+    "use strict";
+    var soldierAttack = getSoldierCritAttack(game.global.world, true);
+    var enemyHealth;
+    
+    if (game.unlocks.imps.Titimp) soldierAttack *= 2;
+    
+    if (game.global.formation == 2)
+        soldierAttack /= 8; //Maps will be run with less attack in Scryer formation.
 
     for (var mapLevel = game.global.world; mapLevel > 6; mapLevel--) {
-        var maxEnemyHealth = getMaxEnemyHealthForLevel(mapLevel, true, "Mountimp");
-        if (soldierAttack >= maxEnemyHealth * ratio){
+        enemyHealth = getAverageEnemyHealthForLevel(mapLevel, true, false);
+        soldierAttack -= enemyHealth;
+        if (soldierAttack < 1) continue;
+        if (soldierAttack * game.portal.Overkill.level * 0.005 >= enemyHealth) return mapLevel;
+    }
+    return 6;
+
+}
+
+function getLevelOfOneShotMap(){
+    "use strict";
+    var soldierAttack = getSoldierAttack(game.global.world, true);
+    if (game.global.formation == 2)
+        soldierAttack /= 8; //Maps will be run with less attack in Scryer formation.
+
+    for (var mapLevel = game.global.world; mapLevel > 6; mapLevel--) {
+        var maxEnemyHealth = getAverageEnemyHealthForLevel(mapLevel, true, false);
+        if (soldierAttack >= maxEnemyHealth){
             return mapLevel;
         }
     }
     return 6;
 }
-
 function getCurrentAvailableDrops(){
     return addSpecials(true,true,{ id: "map999", name: "My Map", location: "Sea", clears: 0, level: game.global.world, difficulty: 1.11, size: 40, loot: 1.2, noRecycle: false });
 }
@@ -1673,13 +1581,9 @@ function getNumberOfUpgradesOnHand() {
 
 function ManageRepeatMaps() {
     var prestige;
-    var bossBattle;
-    var needDamage;
-    var needHealth;
-    var reallyNeedDamage;
-    var reallyNeedHealth;
     var mapLevelWithDrop;
     var shouldRepeat = false;
+    var mapBonus = game.global.mapBonus;
 
     if (mapRunStatus) {
         if (mapRunStatus === "Prestige") {
@@ -1691,44 +1595,17 @@ function ManageRepeatMaps() {
             }
         }
         else if (mapRunStatus === "Bonus") {
-            var mapBonus = game.global.mapBonus;
             if (mapBonus < 9) {
-                bossBattle = canTakeOnBoss(true);
-                bossBattle.attacksToKillBoss *= (mapBonus + 5)/(mapBonus + 6);
-                needDamage = bossBattle.attacksToKillBoss > trimpzSettings["maxAttacksToKill"].value;
-                needHealth = bossBattle.attacksToKillSoldiers < trimpzSettings["minAttackstoDie"].value;
-                if (needDamage || needHealth) {
-                    shouldRepeat = true;
-                }
+                shouldRepeat = !ableToOneShotAllMobs();
             }
         }
         else if (mapRunStatus === "Loot") {
-            bossBattle = canTakeOnBoss(true);
-            reallyNeedDamage = bossBattle.attacksToKillBoss > trimpzSettings["maxAttacksToKill"].value * 3;
-            reallyNeedHealth = bossBattle.attacksToKillSoldiers <= 1;
-            if (reallyNeedDamage || reallyNeedHealth) {
-                shouldRepeat = true;
-            }
+            shouldRepeat = !ableToOneShotAllMobs() || reallyNeedLoot();
         }
-        else if (mapRunStatus === "OldBonus") {
-            if (!canTakeOnBoss() && game.global.mapBonus < 9) {
-                shouldRepeat = true;
-            }
-        }
-        else if (mapRunStatus === "OldLoot") {
-            if (!canTakeOnBoss()) {
-                shouldRepeat = true;
-            }
-        }
-        else if (mapRunStatus === "OldEqOnHand") {
-            var upgradesOnHand = getNumberOfUpgradesOnHand();
-            if (upgradesOnHand < trimpzSettings["minimumUpgradesOnHand"].value - 1) {
-                mapLevelWithDrop = getMinLevelOfMapWithDrops();
-                if (mapLevelWithDrop === getCurrentMapObject().level) {
-                    shouldRepeat = true;
-                }
-            }
-        }
+        else if(trimpzSettings["shouldMaxOutToxicityHelium"].value && game.global.challengeActive === 'Toxicity' && game.global.lastClearedCell > trimpzSettings["lastCell"].value && game.challenges.Toxicity.stacks < 1500 && game.global.world >= trimpzSettings["zoneToStartMaxingAt"].value)
+            shouldRepeat = true;
+
+        if (!ableToOverkillAllMobs() && ableToGetChronoUpgrade() && mapBonus < 9) shouldRepeat = true;
     }
     if (game.global.repeatMap !== shouldRepeat) {
         repeatClicked();
@@ -1751,20 +1628,10 @@ function RunPrimaryUniqueMaps(){
             }
         }
     }
-
-    if (game.talents.blacksmith.purchased && game.buildings.Nursery.locked && game.buildings.Collector.locked && game.global.world > 50){
+    
+    if (game.talents.blacksmith.purchased && game.buildings.Nursery.locked && game.global.world ===47){
         RunNewMap(game.global.world);
         return true;
-    }
-
-    if (game.upgrades.Shieldblock.done === 0 && game.upgrades.Shieldblock.locked === 1 && trimpzSettings["skipShieldBlock"].value === false) {
-        for (map in game.global.mapsOwnedArray) {
-            theMap = game.global.mapsOwnedArray[map];
-            if (theMap.name === "The Block" && addSpecials(true, true, theMap) > 0){
-                RunMap(theMap);
-                return true;
-            }
-        }
     }
 
     if (game.global.challengeActive === "Electricity" && game.global.world >= 80) {
@@ -1777,7 +1644,7 @@ function RunPrimaryUniqueMaps(){
         }
     }
 
-    if ((trimpzSettings["runBionicWonderland"].value || game.global.challengeActive == "Crushed") && bionicDone === false && game.global.world >= 125) {
+    if (game.global.challengeActive == "Crushed" && bionicDone === false && game.global.world >= 125) {
         for (map in game.global.mapsOwnedArray) {
             theMap = game.global.mapsOwnedArray[map];
             if (theMap.name === "Bionic Wonderland"){
@@ -1812,20 +1679,17 @@ function RunPrestigeMaps(){
     var oneShotMapLevel;
     var mapLevelToRun;
     var prestige;
+    
     prestige = trimpzSettings["prestige"].value;
 
-
-    if (game.global.world != trimpzSettings["voidLevel"].value && ~~((game.global.world-1)/10) === ~~((trimpzSettings["voidLevel"].value-1)/10))
+    if (game.global.world > trimpzSettings["dominanceLevel"].value && ableToRunHigherVoidMap() === true && !(!isPrestigeFull(null,prestige) && game.global.world%10==0))
         return false;
-    if (trimpzSettings["staggerVoid"].value && game.global.world > trimpzSettings["voidLevel"].value && ableToRunHigherVoidMap() === true && !(!isPrestigeFull(null,prestige) && game.global.world%10==0))
-        return false;
-
     if (prestige !== "Off" && game.mapUnlocks[prestige].last <= game.global.world - 5 && !isPrestigeFull(null,prestige)){
         if (game.options.menu.mapLoot.enabled != 1)
             toggleSetting("mapLoot");
         mapLevelWithDrop = game.mapUnlocks[prestige].last + 5;
         siphonMapLevel = game.global.world - game.portal.Siphonology.level;
-        oneShotMapLevel = getLevelOfOneShotMap(trimpzSettings["oneShotRatio"].value);
+        oneShotMapLevel = game.portal.Overkill.level ? getLevelOfOverkillMap() : getLevelOfOneShotMap();
         mapLevelToRun = Math.max(oneShotMapLevel, siphonMapLevel, mapLevelWithDrop);
         setMapRunStatus("Prestige");
         for (map in game.global.mapsOwnedArray){ //look for an existing map first
@@ -1847,67 +1711,12 @@ function RunPrestigeMaps(){
 /**
  * @return {boolean}
  */
-function RunBetterMaps(){
-    var bossBattle;
-    var needDamage;
-    var needHealth;
-    var reallyNeedDamage;
-    var reallyNeedHealth;
-    var siphonMapLevel;
-    var oneShotMapLevel;
-    var mapLevelToRun;
-
-    if (trimpzSettings["runMapsOnlyWhenNeeded"].value){
-        if (game.global.lastClearedCell < 98 && game.global.mapsUnlocked) {
-            if (game.global.lastLowGen === 0 && game.jobs.Geneticist.locked === 0 && trimpzSettings["targetBreedTime"].value > 0) {
-                if (game.global.preMapsActive === true) {
-                    RunWorld();
-                }
-                return true;
-            }
-            var returnNumAttacks = true;
-            var maxAttacksToKill = trimpzSettings["maxAttacksToKill"].value;
-            bossBattle = canTakeOnBoss(returnNumAttacks);
-            needDamage = bossBattle.attacksToKillBoss > maxAttacksToKill;
-            needHealth = bossBattle.attacksToKillSoldiers < trimpzSettings["minAttackstoDie"].value;
-            reallyNeedDamage = bossBattle.attacksToKillBoss > maxAttacksToKill * 3;
-            reallyNeedHealth = bossBattle.attacksToKillSoldiers <= 1;
-            if (!needDamage && !needHealth) {
-                if (game.global.preMapsActive === true) {
-                    RunWorld();
-                }
-                return true;
-            }
-            if (game.options.menu.mapLoot.enabled != 1)
-                toggleSetting("mapLoot");
-            //if (needHealth)console.debug("Health low: " + bossBattle.attacksToKillSoldiers + " hits");
-            //if (reallyNeedHealth)console.debug("Health  really low");
-            //if (needDamage)console.debug("Dmg  low: " + bossBattle.attacksToKillBoss + " hits");
-            //if (reallyNeedDamage)console.debug("Dmg  really low");
-            oneShotMapLevel = getLevelOfOneShotMap(trimpzSettings["oneShotRatio"].value);
-            if (game.global.mapBonus < 10) {
-                siphonMapLevel = game.global.world - game.portal.Siphonology.level;
-                var minimumDropsLevel = getMinLevelOfMapWithDrops();
-                var availableDrops = getCurrentAvailableDrops();
-                var prestigeFull = isPrestigeFull(needDamage ? "Attack" : "Health");
-                if (availableDrops && !prestigeFull) {
-                    mapLevelToRun = Math.max(oneShotMapLevel, siphonMapLevel, minimumDropsLevel, 6);
-                } else {
-                    mapLevelToRun = Math.max(oneShotMapLevel, siphonMapLevel, 6);
-                }
-                setMapRunStatus("Bonus");
-                //console.debug("Bonus run @" + game.global.world + " atk:" + bossBattle.attacksToKillBoss + " hlth:" + bossBattle.attacksToKillSoldiers + " gen:" + game.global.lastLowGen);
-                FindAndRunSmallMap(mapLevelToRun);
-                return true;
-            } else if ((reallyNeedDamage || reallyNeedHealth) && (game.global.challengeActive !== "Lead" || game.global.world % 2 === 1)) {
-                setMapRunStatus("Loot");
-                FindAndRunLootMap(oneShotMapLevel);
-                return true;
-            }
-        }
-        if (game.global.preMapsActive === true){
-            RunWorld();
-        }
+function RunUpgradeMaps(){
+    
+    if (!ableToOverkillAllMobs() && ableToGetChronoUpgrade())
+    {
+        setMapRunStatus("Upgrade");
+        FindAndRunSmallMap(game.global.world);
         return true;
     }
     return false;
@@ -1916,69 +1725,51 @@ function RunBetterMaps(){
 /**
  * @return {boolean}
  */
-function RunOldMaps(){
-    if (trimpzSettings["doRunMapsForBonus"].value && game.global.lastClearedCell < 98 && game.global.world > 10){
-        if (!canTakeOnBoss()){
-            var mapLevel;
-            if (game.global.mapBonus < 10){
-                mapLevel = game.global.world - game.portal.Siphonology.level;
-                setMapRunStatus("OldBonus");
-                FindAndRunSmallMap(mapLevel);
-                return true;
+function RunBetterMaps(){
+    var siphonMapLevel;
+    var oneShotMapLevel;
+    var mapLevelToRun;
+
+    if (game.global.lastClearedCell < 98 && game.global.mapsUnlocked) {
+        if (game.global.lastLowGen === 0 && game.jobs.Geneticist.locked === 0 && trimpzSettings["targetBreedTime"].value > 0) {
+            if (game.global.preMapsActive === true) {
+                RunWorld();
             }
-            if (trimpzSettings["doRunMapsForEquipment"].value){
-                var oneShotRatio = trimpzSettings["oneShotRatio"].value;
-                mapLevel = getLevelOfOneShotMap(oneShotRatio);
-                setMapRunStatus("OldLoot");
-                FindAndRunLootMap(mapLevel);
-                return true;
-            }
+            return false;
         }
-    }
-    return false;
-}
-
-function RunAllUniqueAndEqOnHandMaps(){
-    var map;
-    var theMap;
-    var itemsAvailable;
-    var mapLevelWithDrop;
-    var itemsAvailableInNewMap = getCurrentAvailableDrops();
-    if (game.global.preMapsActive === true && itemsAvailableInNewMap === 0){
-        RunWorld();
-        return;
-    }
-    if (itemsAvailableInNewMap === 0){
-        return;
-    }
-
-    var uniqueMapIndex = mapsWithDesiredUniqueDrops.indexOf(game.global.world); //Run new map if on zone with unique map drop then remove
-    if (uniqueMapIndex > -1 && itemsAvailableInNewMap > 0){
-        mapsWithDesiredUniqueDrops.splice(uniqueMapIndex,1);
-        RunNewMap(game.global.world);
-        return;
-    }
-
-    var totalUpgrades = getNumberOfUpgradesOnHand();
-    if (totalUpgrades < trimpzSettings["minimumUpgradesOnHand"].value){
-        mapLevelWithDrop = getMinLevelOfMapWithDrops();
-        setMapRunStatus("OldEqOnHand");
-        for (map in game.global.mapsOwnedArray){ //look for an existing map first
-            theMap = game.global.mapsOwnedArray[map];
-            if (uniqueMaps.indexOf(theMap.name) > -1 || theMap.name.indexOf("Bionic Wonderland") > -1){
-                continue;
+        if (ableToOneShotAllMobs()) {
+            if (game.global.preMapsActive === true) {
+                RunWorld();
             }
-            itemsAvailable = addSpecials(true,true,game.global.mapsOwnedArray[map]);
-            if (itemsAvailable > 0 && theMap.level === mapLevelWithDrop) {
-                RunMap(game.global.mapsOwnedArray[map]);
-                return;
-            }
+            return false;
         }
-        RunNewMap(mapLevelWithDrop);
+        if (game.options.menu.mapLoot.enabled != 1)
+            toggleSetting("mapLoot");
+        oneShotMapLevel = game.portal.Overkill.level ? getLevelOfOverkillMap() : getLevelOfOneShotMap();
+        if (game.global.mapBonus < 10) {
+            siphonMapLevel = game.global.world - game.portal.Siphonology.level;
+            var minimumDropsLevel = getMinLevelOfMapWithDrops();
+            var availableDrops = getCurrentAvailableDrops();
+            var prestigeFull = isPrestigeFull("Attack");
+            if (availableDrops && !prestigeFull) {
+                mapLevelToRun = Math.max(oneShotMapLevel, siphonMapLevel, minimumDropsLevel, 6);
+            } else {
+                mapLevelToRun = Math.max(oneShotMapLevel, siphonMapLevel, 6);
+            }
+            if (game.talents.mapLoot.purchased && mapLevelToRun == game.global.world) mapLevelToRun--;
+            setMapRunStatus("Bonus");
+            FindAndRunSmallMap(mapLevelToRun);
+            return true;
+        } else if (reallyNeedLoot() && (game.global.challengeActive !== "Lead" || game.global.world % 2 === 1)) {
+            setMapRunStatus("Loot");
+            FindAndRunLootMap(oneShotMapLevel);
+            return true;
+        }
     }
     if (game.global.preMapsActive === true){
         RunWorld();
     }
+    return false;
 }
 
 function RunMaps() {
@@ -1997,15 +1788,15 @@ function RunMaps() {
         repeatClicked();
     }
 
-    if (game.global.preMapsActive === false && game.resources.trimps.owned < game.resources.trimps.realMax() && game.resources.trimps.soldiers !== 0) {
+    if (game.global.preMapsActive === false && game.resources.trimps.owned < game.resources.trimps.realMax() && game.resources.trimps.soldiers !== 0 && game.global.world!=47) {
         return;
     }
+    if (game.global.lastClearedCell > 30) return;
 
     if (RunPrimaryUniqueMaps()) return;
     if (RunPrestigeMaps()) return;
     if (RunBetterMaps()) return;
-    if (RunOldMaps()) return;
-    RunAllUniqueAndEqOnHandMaps();
+    if (RunUpgradeMaps()) return;
 }
 
 function ReallocateWorkers() {
@@ -2042,7 +1833,7 @@ function CheckLateGame() {
         cancelTooltip();
     else if(game.global.spireActive && document.getElementById("tipTitle").innerHTML == "Spire")
         cancelTooltip();
-
+        
     if (game.global.world === 1 && helium !== -1) {
         constants = constantsSets[0];
         constantsIndex = 0;
@@ -2114,7 +1905,7 @@ function CheckPortal() {
     var map;
     var theMap;
     var itemsAvailable;
-    if (game.global.world >= trimpzSettings["portalAt"].value - 2 && !game.global.portalActive)
+    if (game.global.world >= trimpzSettings["portalAt"].value - 2 && !game.global.portalActive && (game.resources.trimps.soldiers === 0 || game.resources.trimps.owned === game.resources.trimps.realMax()))
     {
         if (game.global.mapsActive)
             return false;
@@ -2184,25 +1975,19 @@ function CheckPortal() {
 
 function CheckFormation() {
     "use strict";
-    if (game.global.world < 70 || trimpzSettings["manualFormation"].value)
+    if (game.global.world < 60)
     {
         return;
     }
-
-    var currentFormation = game.global.formation;
-    var nextFormation;
-
-    if (game.global.world > 180 && game.global.mapsActive === true && game.global.preMapsActive === false && trimpzSettings["scryerMaps"].value && getCurrentMapObject().location !== "Void")
-    {
-        nextFormation = ScryerIndex;
-    } else
-    {
-        nextFormation = DominanceIndex;
-    }
-
-    if (nextFormation !== currentFormation){
-        setFormation(nextFormation);
-    }
+    
+    if (game.global.world===200 && (game.global.lastClearedCell+1) >= trimpzSettings["spireDominance"].value)
+        setFormation("2");
+    else if (game.global.world >= trimpzSettings["dominanceLevel"].value && game.global.mapsActive === false)
+        setFormation("2");
+    else if (game.global.mapsActive === true && game.global.preMapsActive === false && getCurrentMapObject().location === "Void")
+        setFormation("2");
+    else
+        setFormation("4");
 }
 
 function FireGeneticists() {
@@ -2237,7 +2022,7 @@ function MaxToxicStacks() {
         return;
     }
     if(trimpzSettings["shouldMaxOutToxicityHelium"].value && game.global.challengeActive === 'Toxicity' && game.global.lastClearedCell > trimpzSettings["lastCell"].value && game.challenges.Toxicity.stacks < 1500 && game.global.world >= trimpzSettings["zoneToStartMaxingAt"].value) {
-        var mapLevel = getLevelOfOneShotMap(trimpzSettings["oneShotRatio"].value);
+        var mapLevel = game.portal.Overkill.level ? getLevelOfOverkillMap() : getLevelOfOneShotMap();
         var theMap;
         for (var map in game.global.mapsOwnedArray) {
             theMap = game.global.mapsOwnedArray[map];
@@ -2252,17 +2037,24 @@ function MaxToxicStacks() {
 
 function RunVoidMaps() {
     "use strict";
-    if (game.global.mapsActive === true && game.global.preMapsActive === false) { //no map ability(wait one) or already running a map(repeat should be off)
+    if (game.global.mapsActive === true && game.global.preMapsActive === false){ //no map ability(wait one) or already running a map(repeat should be off)
+        if (getCurrentMapObject().location == "Void")
+        {
+            if (ableToRunHigherVoidMap() === true)
+                game.options.menu.repeatVoids.enabled = 0;
+            else
+                game.options.menu.repeatVoids.enabled = 1;
+            toggleSetting("repeatVoids", null, false, true);
+        }
         return;
     }
-    if (trimpzSettings["onlyVoidLevel"].value && game.global.world > trimpzSettings["voidLevel"].value)
-        return;
-    if (trimpzSettings["voidLevel"].value && ((game.global.lastClearedCell > trimpzSettings["lastCell"].value && getRemainingTimeForBreeding() < 1) || game.global.lastClearedCell > 96) && game.global.world >= trimpzSettings["voidLevel"].value) {
-        if (!trimpzSettings["staggerVoid"].value || !ableToRunHigherVoidMap()) {
+    if(trimpzSettings["dominanceLevel"].value && ((game.global.lastClearedCell > trimpzSettings["lastCell"].value && getRemainingTimeForBreeding()<1) || (game.global.lastClearedCell > 98 && getRemainingTimeForBreeding()<5)) && game.global.world >= trimpzSettings["dominanceLevel"].value) {
+        if (ableToRunHigherVoidMap() === false)
+        {
             var theMap;
             for (var map in game.global.mapsOwnedArray) {
                 theMap = game.global.mapsOwnedArray[map];
-                if (theMap.location == 'Void') {
+                if (theMap.location == 'Void'){
                     RunMap(theMap);
                     return;
                 }
@@ -2271,31 +2063,22 @@ function RunVoidMaps() {
     }
 }
 
-function RespecPheremones() {
-    var doRespec = trimpzSettings["respecPheromones"].value;
-    if (doRespec && respecDone === false && game.global.world >= 10 && game.portal.Pheromones.level > 1 && game.global.canRespecPerks){
-        respecDone = true;
-        respecAmount = game.portal.Pheromones.level;
-        trimpzSettings["respecAmount"].value = respecAmount;
-        saveSettings();
-        ClickButton("pastUpgradesBtn");
-        ClickButton("respecPortalBtn");
-        ClickButton("ptabRemove");
-        while (game.portal.Pheromones.level + game.portal.Pheromones.levelTemp > 0) {
-            ClickButton("Pheromones");
-        }
-        ClickButton("ptabRemove");
-        ClickButton("Pheromones");
-        ClickButton("activatePortalBtn");
-        tooltip("hide");
-    } else if ((doRespec || respecAmount > 0) && game.portal.Pheromones.level < respecAmount && game.global.heliumLeftover > getPortalUpgradePrice("Pheromones")){
-        if (ShouldLowerBreedWithoutGeneticists()) {
-            ClickButton("pastUpgradesBtn");
-            ClickButton("Pheromones");
-            ClickButton("activatePortalBtn");
-            tooltip("hide");
-        }
-    }
+function ableToRunHigherVoidMap()
+{
+    var enemyHealth = getAverageEnemyHealthForLevel(game.global.world+1, false, true);
+    var soldierAttack = getSoldierCritAttack(game.global.world, true);
+    
+    if (game.unlocks.imps.Titimp) soldierAttack *= 2;
+
+    if (game.talents.voidPower.purchased){
+		soldierAttack *= (game.talents.voidPower2.purchased) ? 1.35 : 1.15;
+	}
+	if (canAffordCoordinationTrimps()) soldierAttack *= 1.25;
+	soldierAttack -= enemyHealth;
+    if (soldierAttack < 1) return false;
+    if (soldierAttack * game.portal.Overkill.level * 0.005 >= enemyHealth) return true;
+        
+    return false;
 }
 
 function TurnOffIncompatibleSettings() {
@@ -2320,17 +2103,6 @@ function FocusOnBreeding(){
         ReallocateWorkers();
     }
 }
-
-function BuyGoldenUpgrade() {
-    buyGoldenUpgrade('Helium')
-}
-
-function Shriek() {
-    if (game.global.spireActive && !game.global.useShriek){
-        magnetoShriek();
-    }
-}
-
 
 //Start
 (function () {
@@ -2368,9 +2140,8 @@ function MainLoop(){
     if (CheckPortal() === true){
         return;
     }
-    TurnOnAutoBuildTraps();
     BuyGoldenUpgrade();
-    Shriek();
++   Shriek();
     AssignFreeWorkers();
     Fight();
     UpgradeStorage();
@@ -2382,12 +2153,11 @@ function MainLoop(){
         return;
     }
     var collectingForUpgrade = UpgradeAndGather();
-    RespecPheremones();
     FireGeneticists();
     if (collectingForUpgrade === false) { //allow resources to accumulate for upgrades if true
+        BuyMetalEquipment();
         BuyBuildings();
         BuyShield();
-        BuyMetalEquipment();
     }
     FocusOnBreeding();
     RunMaps();
@@ -2713,4 +2483,75 @@ function checkForMod(what, loom, location){
         if (heirloom.mods[mod][0] == what) return true;
     }
     return false;
+}
+
+function Shriek() {
+    //exit if the cooldown is active, or we havent unlocked robotrimp.
+    if (game.global.roboTrimpCooldown > 0 || !game.global.roboTrimpLevel) return;
+    //activate the button when we are above the cutoff zone, and we are out of cooldown (and the button is inactive)
+    if (game.global.world >= 200 && !game.global.useShriek){
+        magnetoShriek();
+    }
+}
+
+function BuyGoldenUpgrade()
+{
+    if (getAvailableGoldenUpgrades() == 0) return;       //if we have nothing to buy, exit.
+    //buy one upgrade per loop.
+    buyGoldenUpgrade("Helium");
+}
+
+function ableToOverkillAllMobs()
+{
+    var enemyHealth = getAverageEnemyHealthForLevel(game.global.world, false, false);
+    var soldierAttack = getSoldierAttack(game.global.world, true);
+
+    if (game.global.formation == 4 && !(game.global.mapsActive === true && game.global.preMapsActive === false)) soldierAttack/=8;
+
+	soldierAttack -= enemyHealth;
+    if (soldierAttack < 1) return false;
+    if (soldierAttack * game.portal.Overkill.level * 0.005 >= enemyHealth) return true;
+        
+    return false;
+}
+
+function ableToGetChronoUpgrade()
+{
+    var chronoImpLoot;
+    var eqCost;
+    
+    if (game.unlocks.imps.Chronoimp)
+    {
+        chronoImpLoot = simpleSeconds('metal', 5);
+		chronoImpLoot = Math.round(chronoImpLoot * 1.85);
+		if (game.unlocks.impCount.Magnimp) chronoImpLoot *= Math.pow(1.003, game.unlocks.impCount.Magnimp);
+		if (game.portal.Looting.level) chronoImpLoot += (chronoImpLoot * game.portal.Looting.level * game.portal.Looting.modifier);
+		if (game.portal.Looting_II.level) chronoImpLoot *= (1 + (game.portal.Looting_II.level * game.portal.Looting_II.modifier));
+		/*if (game.global.formation == 4)*/ chronoImpLoot *= 2;
+        eqCost = FindAndBuyEquipment("Attack", true);
+        
+        if (game.resources['metal'].owned+chronoImpLoot>eqCost*1.5) return true;
+    }
+    return false;
+}
+
+function ableToOneShotAllMobs()
+{
+    var enemyHealth = getAverageEnemyHealthForLevel(game.global.world, false, false);
+    var soldierAttack = getSoldierCritAttack(game.global.world, true);
+
+    if (game.global.formation == 4 && !(game.global.mapsActive === true && game.global.preMapsActive === false)) soldierAttack/=8;
+    
+    if (game.global.mapsActive === true && game.global.preMapsActive === false)
+        soldierAttack *= (1 + (0.2 * (game.global.mapBonus + 1)));
+    else
+        soldierAttack *= (1 + (0.2 * game.global.mapBonus));
+
+    return soldierAttack>enemyHealth;
+}
+
+function reallyNeedLoot()
+{
+    var attacksToDie = canTakeOnBoss();
+    return attacksToDie.attacksToKillSoldiers < trimpzSettings["minAttackstoDie"].value/2;
 }
