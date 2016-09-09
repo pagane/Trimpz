@@ -1790,6 +1790,9 @@ function RunMaps() {
         return;
     }
     if (game.global.lastClearedCell > 30) return;
+    
+    if (game.global.mapsOwnedArray.length > 90)
+        recycleBelow(true);
 
     if (RunPrimaryUniqueMaps()) return;
     if (RunPrestigeMaps()) return;
