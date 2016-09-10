@@ -348,7 +348,7 @@ function AssignFreeWorkers() {
         "Lumberjack" : 0,
         "Farmer" : 0
     };
-    if (game.global.world < 5) return;
+    if (game.global.world < 5 && getRemainingTimeForBreeding()>1) return;
     if (trimps.owned === 0 || game.global.firing) {
         return;
     }
@@ -1711,7 +1711,7 @@ function RunPrestigeMaps(){
  */
 function RunUpgradeMaps(){
     
-    if (!ableToOverkillAllMobs() && ableToGetChronoUpgrade())
+    if (!ableToOverkillAllMobs() && ableToGetChronoUpgrade() && game.global.mapBonus < 10)
     {
         setMapRunStatus("Upgrade");
         FindAndRunSmallMap(game.global.world);
