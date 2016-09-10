@@ -1730,15 +1730,9 @@ function RunBetterMaps(){
 
     if (game.global.mapsUnlocked) {
         if (game.global.lastLowGen === 0 && game.jobs.Geneticist.locked === 0 && trimpzSettings["targetBreedTime"].value > 0) {
-            if (game.global.preMapsActive === true) {
-                RunWorld();
-            }
             return false;
         }
         if (ableToOneShotAllMobs()) {
-            if (game.global.preMapsActive === true) {
-                RunWorld();
-            }
             return false;
         }
         if (game.options.menu.mapLoot.enabled != 1)
@@ -1763,9 +1757,6 @@ function RunBetterMaps(){
             FindAndRunLootMap(oneShotMapLevel);
             return true;
         }
-    }
-    if (game.global.preMapsActive === true){
-        RunWorld();
     }
     return false;
 }
@@ -1798,7 +1789,9 @@ function RunMaps() {
     if (RunPrestigeMaps()) return;
     if (RunBetterMaps()) return;
     if (RunUpgradeMaps()) return;
-    RunWorld();
+    if (game.global.preMapsActive === true) {
+        RunWorld();
+    }
 }
 
 function ReallocateWorkers() {
