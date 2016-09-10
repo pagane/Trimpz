@@ -348,7 +348,7 @@ function AssignFreeWorkers() {
         "Lumberjack" : 0,
         "Farmer" : 0
     };
-    if (game.global.world < 5 && getRemainingTimeForBreeding()>1) return;
+    if (game.global.world < 10 && getRemainingTimeForBreeding()>1) return;
     if (trimps.owned === 0 || game.global.firing) {
         return;
     }
@@ -1728,7 +1728,7 @@ function RunBetterMaps(){
     var oneShotMapLevel;
     var mapLevelToRun;
 
-    if (game.global.lastClearedCell < 98 && game.global.mapsUnlocked) {
+    if (game.global.mapsUnlocked) {
         if (game.global.lastLowGen === 0 && game.jobs.Geneticist.locked === 0 && trimpzSettings["targetBreedTime"].value > 0) {
             if (game.global.preMapsActive === true) {
                 RunWorld();
@@ -1798,6 +1798,7 @@ function RunMaps() {
     if (RunPrestigeMaps()) return;
     if (RunBetterMaps()) return;
     if (RunUpgradeMaps()) return;
+    RunWorld();
 }
 
 function ReallocateWorkers() {
