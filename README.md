@@ -10,8 +10,6 @@ Some of the Features:
 
 - Portals with challenges.
 
-- Tracks helium/hr and /zone for all runs since script started.
-
 - Assigns workers.
 
 - Runs maps for equipment drops.
@@ -30,7 +28,7 @@ Some of the Features:
 
 - Picks formations.
 
-- Turns on auto-fight and auto-trap.
+- Turns on auto-fight.
 
 - Hires and fires geneticists to maintain 30s (or specified) anticipation.
 
@@ -38,11 +36,9 @@ Some of the Features:
 
 - Buys the most efficient equipment upgrade/prestige and saves up for the correct one.
 
-- Assigns “you” where needed (Mining, Researching, Building, etc.). Prioritizes building.
+- Assigns “you” where needed (Mining, Researching, Building, etc.). Prioritizes mining.
 
 - Buys the more efficient of warpstation or collector when affordable.
-
-- Calculates how hard the current Boss will be taking some challenges(nom, toxicity) into account and runs maps.
 
 - Buys maps and sets sliders as needed and as affordable.
 
