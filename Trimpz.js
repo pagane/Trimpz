@@ -2084,6 +2084,11 @@ function TurnOffIncompatibleSettings() {
         toggleSetting("confirmhole");
     if (game.global.autoUpgrades)
         toggleAutoUpgrades();
+    if (game.options.menu.exitTo.enabled == 0)
+    {
+        game.options.menu.exitTo.enabled = 1;
+        toggleSetting("exitTo", null, false, true);
+    }
 }
 
 function FocusOnBreeding(){
