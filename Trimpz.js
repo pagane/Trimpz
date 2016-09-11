@@ -1680,7 +1680,7 @@ function RunPrestigeMaps(){
     
     prestige = trimpzSettings["prestige"].value;
 
-    if (game.global.world > trimpzSettings["dominanceLevel"].value && ableToRunHigherVoidMap() === true && !(!isPrestigeFull(null,prestige) && game.global.world%10==0))
+    if (game.global.world > trimpzSettings["dominanceLevel"].value && ableToRunVoidMap(game.global.world+1) === true && !(!isPrestigeFull(null,prestige) && game.global.world%10==0))
         return false;
     if (prestige !== "Off" && game.mapUnlocks[prestige].last <= game.global.world - 5 && !isPrestigeFull(null,prestige)){
         if (game.options.menu.mapLoot.enabled != 1)
@@ -2035,7 +2035,7 @@ function RunVoidMaps() {
     if (game.global.mapsActive === true && game.global.preMapsActive === false){ //no map ability(wait one) or already running a map(repeat should be off)
         if (getCurrentMapObject().location == "Void")
         {
-            if (ableToRunHigherVoidMap() === true)
+            if (ableToRunVoidMap(game.global.world+1) === true)
                 game.options.menu.repeatVoids.enabled = 0;
             else
                 game.options.menu.repeatVoids.enabled = 1;
@@ -2044,7 +2044,7 @@ function RunVoidMaps() {
         return;
     }
     if(trimpzSettings["dominanceLevel"].value && ((game.global.lastClearedCell > trimpzSettings["lastCell"].value && getRemainingTimeForBreeding()<1) || (game.global.lastClearedCell > 98 && getRemainingTimeForBreeding()<5)) && game.global.world >= trimpzSettings["dominanceLevel"].value) {
-        if (ableToRunHigherVoidMap() === false)
+        if (ableToRunVoidMap(game.global.world+1) === false && ableToRunVoidMap(game.global.world) === true)
         {
             var theMap;
             for (var map in game.global.mapsOwnedArray) {
@@ -2058,9 +2058,9 @@ function RunVoidMaps() {
     }
 }
 
-function ableToRunHigherVoidMap()
+function ableToRunVoidMap(world)
 {
-    var enemyHealth = getAverageEnemyHealthForLevel(game.global.world+1, false, true);
+    var enemyHealth = getAverageEnemyHealthForLevel(world, false, true);
     var soldierAttack = getSoldierCritAttack(game.global.world, true);
     
     if (game.unlocks.imps.Titimp) soldierAttack *= 2;
