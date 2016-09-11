@@ -2520,6 +2520,8 @@ function ableToGetChronoUpgrade()
     var chronoImpLoot;
     var eqCost;
     
+    if (game.global.totalVoidMaps<3) return false;
+    
     if (game.unlocks.imps.Chronoimp)
     {
         chronoImpLoot = simpleSeconds('metal', 5);
