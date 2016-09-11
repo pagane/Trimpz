@@ -2043,7 +2043,7 @@ function RunVoidMaps() {
         }
         return;
     }
-    if(trimpzSettings["dominanceLevel"].value && ((game.global.lastClearedCell > trimpzSettings["lastCell"].value && getRemainingTimeForBreeding()<1) || (game.global.lastClearedCell > 98 && getRemainingTimeForBreeding()<5)) && game.global.world >= trimpzSettings["dominanceLevel"].value) {
+    if(trimpzSettings["dominanceLevel"].value && ((game.global.lastClearedCell > trimpzSettings["lastCell"].value && getRemainingTimeForBreeding()<1) || game.global.lastClearedCell > 98) && game.global.world >= trimpzSettings["dominanceLevel"].value) {
         if (ableToRunVoidMap(game.global.world+1) === false && ableToRunVoidMap(game.global.world) === true)
         {
             var theMap;
