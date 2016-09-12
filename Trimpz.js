@@ -106,7 +106,7 @@ var constantsEndGame = new ConstantSet({
 });
 var constantsCorruption = new ConstantSet({
     zoneToStartAt : 180,
-    minerMultiplier : 15,
+    minerMultiplier : 1000,
     lumberjackMultiplier : 2,
     explorerCostRatio: 0,
     housingCostRatio : 0,
@@ -882,8 +882,8 @@ function FindBestEquipmentToLevel(filterOnStat) {
                 if (currentEquip.healthCalculated){
                     continue;
                 }
-                if (trimpzSettings["ignoreAllButDagger"].value && anEquipment != "Dagger") continue;
-                else if (currentEquip.prestige<game.equipment["Dagger"].prestige-1) continue;
+                /*if (trimpzSettings["ignoreAllButDagger"].value && anEquipment != "Dagger") continue;
+                else*/ if (currentEquip.prestige<game.equipment["Dagger"].prestige-1) continue;
             }
         }
         
@@ -1680,8 +1680,9 @@ function RunPrestigeMaps(){
     
     prestige = trimpzSettings["prestige"].value;
 
-    if (game.global.world > trimpzSettings["dominanceLevel"].value && ableToRunVoidMap(game.global.world+1) === true && !(!isPrestigeFull(null,prestige) && game.global.world%10==0))
-        return false;
+    if (ableToOverkillAllMobs(true)) return;
+//    if (game.global.world > trimpzSettings["dominanceLevel"].value && ableToRunVoidMap(game.global.world+1) === true && !(!isPrestigeFull(null,prestige) && game.global.world%10==0))
+//        return false;
     if (prestige !== "Off" && game.mapUnlocks[prestige].last <= game.global.world - 5 && !isPrestigeFull(null,prestige)){
         if (game.options.menu.mapLoot.enabled != 1)
             toggleSetting("mapLoot");
@@ -1977,10 +1978,12 @@ function CheckFormation() {
     
     if (game.global.world===200 && (game.global.lastClearedCell+1) >= trimpzSettings["spireDominance"].value)
         setFormation("2");
-    else if (game.global.world >= trimpzSettings["dominanceLevel"].value && game.global.mapsActive === false)
-        setFormation("2");
     else if (game.global.mapsActive === true && game.global.preMapsActive === false && getCurrentMapObject().location === "Void")
         setFormation("2");
+    else if (game.global.formation == 4 && !(game.global.mapsActive === true && game.global.preMapsActive === false) && !ableToOverkillAllMobs())
+        setFormation("2");
+    else if (game.global.formation == 2 && !(game.global.mapsActive === true && game.global.preMapsActive === false) && !ableToOverkillAllMobs(true))
+        return;
     else
         setFormation("4");
 }
@@ -2043,7 +2046,7 @@ function RunVoidMaps() {
         }
         return;
     }
-    if(trimpzSettings["dominanceLevel"].value && ((game.global.lastClearedCell > trimpzSettings["lastCell"].value && getRemainingTimeForBreeding()<1) || game.global.lastClearedCell > 98) && game.global.world >= trimpzSettings["dominanceLevel"].value) {
+    if ((game.global.lastClearedCell > trimpzSettings["lastCell"].value && getRemainingTimeForBreeding()<1) || game.global.lastClearedCell > 96) {
         if (ableToRunVoidMap(game.global.world+1) === false && ableToRunVoidMap(game.global.world) === true)
         {
             var theMap;
@@ -2501,12 +2504,13 @@ function BuyGoldenUpgrade()
     buyGoldenUpgrade("Helium");
 }
 
-function ableToOverkillAllMobs()
+function ableToOverkillAllMobs(scryer)
 {
     var enemyHealth = getAverageEnemyHealthForLevel(game.global.world, false, false);
     var soldierAttack = getSoldierAttack(game.global.world, true);
 
     if (game.global.formation == 4 && !(game.global.mapsActive === true && game.global.preMapsActive === false)) soldierAttack/=8;
+    if (scryer) soldierAttack/=8;
 
 	soldierAttack -= enemyHealth;
     if (soldierAttack < 1) return false;
