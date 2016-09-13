@@ -884,6 +884,7 @@ function FindBestEquipmentToLevel(filterOnStat) {
                 }
                 /*if (trimpzSettings["ignoreAllButDagger"].value && anEquipment != "Dagger") continue;
                 else*/ if (currentEquip.prestige<game.equipment["Dagger"].prestige-1) continue;
+                if (currentEquip.level>=5) continue;
             }
         }
         
@@ -1407,7 +1408,7 @@ function getMaxEnemyHealthForLevel(worldLevel, calcForMap, enemyName) {  //adapt
 function getAverageEnemyHealthForLevel(worldLevel, isMap, isVoid) {  //adapted from Trimps getEnemyHealth() & startFight()
     "use strict";
     var world = worldLevel;
-    var level = isMap ? 20 : 90;
+    var level = isMap ? 20 : 95;
     var difficulty = isVoid ? 4 : 0.8;
     var badCoord = 1;
     
@@ -1585,11 +1586,14 @@ function ManageRepeatMaps() {
 
     if (mapRunStatus) {
         if (mapRunStatus === "Prestige") {
-            prestige = trimpzSettings["prestige"].value;
-            var mapDrop = game.global.mapGridArray[game.global.mapGridArray.length - 1].special;
-            var lastDrop = game.mapUnlocks[prestige].last;
-            if (!isPrestigeFull(null, prestige) && mapDrop && lastDrop <= game.global.world - 5) {
-                shouldRepeat = !(mapDrop === prestige && ~~((lastDrop-1)/10) >= ~~((game.global.world-1)/10)-1);
+            if (!ableToOverkillAllMobs())
+            {
+                prestige = trimpzSettings["prestige"].value;
+                var mapDrop = game.global.mapGridArray[game.global.mapGridArray.length - 1].special;
+                var lastDrop = game.mapUnlocks[prestige].last;
+                if (!isPrestigeFull(null, prestige) && mapDrop && lastDrop <= game.global.world - 5) {
+                    shouldRepeat = !(mapDrop === prestige && ~~((lastDrop-1)/10) >= ~~((game.global.world-1)/10)-1);
+                }
             }
         }
         else if (mapRunStatus === "Bonus") {
@@ -1681,8 +1685,6 @@ function RunPrestigeMaps(){
     prestige = trimpzSettings["prestige"].value;
 
     if (ableToOverkillAllMobs(true)) return;
-//    if (game.global.world > trimpzSettings["dominanceLevel"].value && ableToRunVoidMap(game.global.world+1) === true && !(!isPrestigeFull(null,prestige) && game.global.world%10==0))
-//        return false;
     if (prestige !== "Off" && game.mapUnlocks[prestige].last <= game.global.world - 5 && !isPrestigeFull(null,prestige)){
         if (game.options.menu.mapLoot.enabled != 1)
             toggleSetting("mapLoot");
@@ -1781,7 +1783,12 @@ function RunMaps() {
     if (game.global.preMapsActive === false && game.resources.trimps.owned < game.resources.trimps.realMax() && game.resources.trimps.soldiers !== 0 && game.global.world!=47) {
         return;
     }
-    if (game.global.lastClearedCell > 30) return;
+    if (game.global.lastClearedCell > 30)
+    {
+        if (game.global.preMapsActive === true)
+            RunWorld();
+        return;
+    }
     
     if (game.global.mapsOwnedArray.length > 90)
         recycleBelow(true);
@@ -2035,6 +2042,7 @@ function MaxToxicStacks() {
 
 function RunVoidMaps() {
     "use strict";
+    if (game.global.totalVoidMaps<1) return;
     if (game.global.mapsActive === true && game.global.preMapsActive === false){ //no map ability(wait one) or already running a map(repeat should be off)
         if (getCurrentMapObject().location == "Void")
         {
@@ -2047,7 +2055,7 @@ function RunVoidMaps() {
         return;
     }
     if ((game.global.lastClearedCell > trimpzSettings["lastCell"].value && getRemainingTimeForBreeding()<1) || game.global.lastClearedCell > 96) {
-        if (ableToRunVoidMap(game.global.world+1) === false && ableToRunVoidMap(game.global.world) === true)
+        if (ableToRunVoidMap(game.global.world+1) === false && ableToRunVoidMap(game.global.world-1) === true)
         {
             var theMap;
             for (var map in game.global.mapsOwnedArray) {
@@ -2138,7 +2146,6 @@ function MainLoop(){
     TurnOffIncompatibleSettings();
     CheckLateGame();
     CheckHelium();
-    CheckFormation();
     autoHeirlooms(); //directly from AT
     if (CheckPortal() === true){
         return;
@@ -2164,6 +2171,7 @@ function MainLoop(){
     }
     FocusOnBreeding();
     RunMaps();
+    CheckFormation();
 }
 
 function CreateButtonForPausing() {
