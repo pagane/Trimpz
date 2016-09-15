@@ -134,11 +134,11 @@ var helium = -1;
 var heliumHistory = [];
 var pauseTrimpz = false;
 var bionicDone = false;
-var respecDone = false;
-var respecAmount = 0;
 var heliumLog = [];
 var trimpzSettings = {};
 var mapRunStatus = "";
+var shouldPortal = false;
+var portalAtWorld = 0;
 
 //Loads the automation settings from browser cache
 function loadPageVariables() {
@@ -146,20 +146,6 @@ function loadPageVariables() {
     var tmp = JSON.parse(localStorage.getItem('TrimpzSettings'));
     if (tmp !== null) {
         trimpzSettings = tmp;
-    }
-    if (trimpzSettings["respecAmount"] === undefined) {
-        trimpzSettings["respecAmount"] = {
-            id: "respecAmount",
-            name: "",
-            description: "Original value of Pheromones",
-            type: "Code Only",
-            value: 0
-        };
-    } else {
-        respecAmount = trimpzSettings["respecAmount"].value;
-        if (respecAmount){
-            respecDone = true;
-        }
     }
 }
 
@@ -884,7 +870,6 @@ function FindBestEquipmentToLevel(filterOnStat) {
                 }
                 /*if (trimpzSettings["ignoreAllButDagger"].value && anEquipment != "Dagger") continue;
                 else*/ if (currentEquip.prestige<game.equipment["Dagger"].prestige-1) continue;
-                if (currentEquip.level>=5) continue;
             }
         }
         
@@ -1922,23 +1907,12 @@ function CheckPortal() {
                 RunMap(theMap);
             }
         }
-    } else if (game.global.world >= trimpzSettings["portalAt"].value && game.global.challengeActive !== "Electricity") {
+    } else if (game.global.world >= trimpzSettings["portalAt"].value && game.global.challengeActive !== "Electricity" && (!trimpzSettings["autoPortal"].value  || (shouldPortal && portalAtWorld == game.global.world))) {
+        
         heliumLog.push(heliumHistory);
+        shouldPortal = false;
 
-        if (respecAmount > 0 && game.portal.Pheromones.level < respecAmount){
-            ClickButton("pastUpgradesBtn");
-
-            while (game.portal.Pheromones.level + game.portal.Pheromones.levelTemp < respecAmount &&
-            getPortalUpgradePrice("Pheromones") + game.resources.helium.totalSpentTemp <= game.resources.helium.respecMax) {
-                ClickButton("Pheromones");
-            }
-            ClickButton("activatePortalBtn");
-            tooltip("hide");
-        }
-        respecAmount = 0;
-        trimpzSettings["respecAmount"].value = respecAmount;
         saveSettings();
-        respecDone = false;
         ClickButton("portalBtn");
 
         switch(trimpzSettings["challenge"].value){
@@ -1972,6 +1946,9 @@ function CheckPortal() {
         ClickButton("activatePortalBtn");
         document.getElementsByClassName("activatePortalBtn")[0].click();
         return true;
+    } else if (!ableToOneShotAllMobs(true)){
+        shouldPortal = true;
+        portalAtWorld = game.global.world+1;
     }
     return false;
 }
@@ -2549,7 +2526,7 @@ function ableToGetChronoUpgrade()
     return false;
 }
 
-function ableToOneShotAllMobs()
+function ableToOneShotAllMobs(portal)
 {
     var enemyHealth = getAverageEnemyHealthForLevel(game.global.world, false, false);
     var soldierAttack = getSoldierCritAttack(game.global.world, true);
@@ -2560,6 +2537,14 @@ function ableToOneShotAllMobs()
         soldierAttack *= (1 + (0.2 * (game.global.mapBonus + 1)));
     else
         soldierAttack *= (1 + (0.2 * game.global.mapBonus));
+        
+    if (portal)
+    {
+        console.log('Portal: ' + game.global.world+1);
+        console.log('Attack: ' + soldierAttack);
+        console.log('Health: ' + enemyHealth);
+        soldierAttack *= 1.5;
+    }
 
     return soldierAttack>enemyHealth;
 }
