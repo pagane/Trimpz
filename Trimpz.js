@@ -1166,6 +1166,12 @@ function RunNewMap(zoneToCreate) {
     if (cost * 4 < game.resources.fragments.owned){
         document.getElementById("biomeAdvMapsSelect").value = "Plentiful";
     }
+    else
+    {
+        console.log('Cannot run plentiful map')
+        console.log('Cost: ' + cost);
+        console.log('Fragments: ' + game.resources.fragments.owned);
+    }
     cost = updateMapCost(true);
     if (cost * 4 < game.resources.fragments.owned){
         document.getElementById("lootAdvMapsRange").value = highFragmentLoot;
@@ -1946,7 +1952,7 @@ function CheckPortal() {
         ClickButton("activatePortalBtn");
         document.getElementsByClassName("activatePortalBtn")[0].click();
         return true;
-    } else if (!ableToOneShotAllMobs(true)){
+    } else if (game.global.mapBonus==10 && game.global.formation == 2 && !ableToOneShotAllMobs(true)){
         shouldPortal = true;
         portalAtWorld = game.global.world+1;
     }
@@ -2540,10 +2546,13 @@ function ableToOneShotAllMobs(portal)
         
     if (portal)
     {
-        console.log('Portal: ' + game.global.world+1);
-        console.log('Attack: ' + soldierAttack);
-        console.log('Health: ' + enemyHealth);
         soldierAttack *= 1.5;
+        if (soldierAttack<=enemyHealth)
+        {
+            console.log('Portal: ' + game.global.world);
+            console.log('Attack: ' + soldierAttack/1.5);
+            console.log('Health: ' + enemyHealth);
+        }
     }
 
     return soldierAttack>enemyHealth;
