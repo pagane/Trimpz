@@ -953,14 +953,17 @@ function BuyEquipmentOrUpgrade(bestEquipGainPerMetal, bestUpgradeGainPerMetal, b
     "use strict";
     if (CanAffordEquipmentUpgrade(bestUpgrade) === true && bestUpgradeCost < game.resources.metal.owned * constants.getEquipmentCostRatio()) {
         buyUpgrade(bestUpgrade, true, true);
+        return true;
     }
     else if (CanBuyNonUpgrade(game.equipment[bestEquipment], constants.getEquipmentCostRatio()) === true) {
         var upgrade = Object.keys(game.upgrades).filter(function(a){return game.upgrades[a].prestiges === bestEquipment;})[0];
         var upgradeStats = GetRatioForEquipmentUpgrade(upgrade, game.equipment[bestEquipment]);
         if (upgradeStats.gainPerMetal < bestEquipGainPerMetal) {
             buyEquipment(bestEquipment, true, true);
+            return true;
         }
     }
+    return false;
 }
 function BuyCheapEquipment() {
     "use strict";
@@ -1016,7 +1019,8 @@ function FindAndBuyEquipment(stat, justgetcost) {
     }
     if (justgetcost)
         return bestEquipGainPerMetal > bestUpgradeGainPerMetal ? retFBETL.bestEquipmentCost : bestUpgradeCost;
-    BuyEquipmentOrUpgrade(bestEquipGainPerMetal, bestUpgradeGainPerMetal, bestEquipment, bestUpgrade, bestUpgradeCost);
+    if (BuyEquipmentOrUpgrade(bestEquipGainPerMetal, bestUpgradeGainPerMetal, bestEquipment, bestUpgrade, bestUpgradeCost) && game.upgrades.Gigastation.done >= trimpzSettings["gsForEqWs"].value)
+        FindAndBuyEquipment(stat);
 }
 
 function BuyMetalEquipment() {
@@ -1917,6 +1921,9 @@ function CheckPortal() {
         
         heliumLog.push(heliumHistory);
         shouldPortal = false;
+        console.log('Portal: ' + game.global.world);
+        console.log('He/h: ' + prettify(game.stats.heliumHour.value()) + "/hr");
+        console.log('Time: ' + updatePortalTimer(true));
 
         saveSettings();
         ClickButton("portalBtn");
@@ -1956,6 +1963,7 @@ function CheckPortal() {
         shouldPortal = true;
         portalAtWorld = game.global.world+1;
     }
+    else shouldPortal = false;
     return false;
 }
 
@@ -2527,7 +2535,7 @@ function ableToGetChronoUpgrade()
 		/*if (game.global.formation == 4)*/ chronoImpLoot *= 2;
         eqCost = FindAndBuyEquipment("Attack", true);
         
-        if (game.resources['metal'].owned+chronoImpLoot>eqCost) return true;
+        if (game.resources['metal'].owned+chronoImpLoot>eqCost*1.1) return true;
     }
     return false;
 }
@@ -2544,15 +2552,9 @@ function ableToOneShotAllMobs(portal)
     else
         soldierAttack *= (1 + (0.2 * game.global.mapBonus));
         
-    if (portal)
+    if (portal) soldierAttack *= 1.5;
     {
         soldierAttack *= 1.5;
-        if (soldierAttack<=enemyHealth)
-        {
-            console.log('Portal: ' + game.global.world);
-            console.log('Attack: ' + soldierAttack/1.5);
-            console.log('Health: ' + enemyHealth);
-        }
     }
 
     return soldierAttack>enemyHealth;
