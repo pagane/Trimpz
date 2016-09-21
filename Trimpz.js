@@ -495,7 +495,7 @@ function UpgradeStorage() {
         storageBuilding = game.buildings[storage];
         if (owned > storageBuilding.cost[resource]() &&
             storageBuilding.locked === 0 && !queueContainsItem(storage))
-            if (owned > 0.8 * maxResource) {
+            if (getChronoImpLoot(resource) + owned > 0.9 * maxResource) {
                 buyBuilding(storage, true, true);
             } else if ((game.global.mapsActive && game.unlocks.imps.Jestimp)) {
                 jestImpLoot = simpleSeconds(resource, 45);
@@ -1959,9 +1959,10 @@ function CheckPortal() {
         ClickButton("activatePortalBtn");
         document.getElementsByClassName("activatePortalBtn")[0].click();
         return true;
-    } else if (game.global.mapBonus==10 && game.global.formation == 2 && !ableToOneShotAllMobs(true)){
+    } else if (trimpzSettings["autoPortal"].value && game.global.mapBonus==10 && game.global.formation == 2 && !ableToOneShotAllMobs(true)){
         shouldPortal = true;
         portalAtWorld = game.global.world+1;
+        console.log('Warning: Portal at next zone!');
     }
     else shouldPortal = false;
     return false;
@@ -2161,8 +2162,8 @@ function MainLoop(){
         BuyShield();
     }
     FocusOnBreeding();
-    RunMaps();
     CheckFormation();
+    RunMaps();
 }
 
 function CreateButtonForPausing() {
@@ -2527,17 +2528,26 @@ function ableToGetChronoUpgrade()
     
     if (game.unlocks.imps.Chronoimp)
     {
-        chronoImpLoot = simpleSeconds('metal', 5);
-		chronoImpLoot = Math.round(chronoImpLoot * 1.85);
-		if (game.unlocks.impCount.Magnimp) chronoImpLoot *= Math.pow(1.003, game.unlocks.impCount.Magnimp);
-		if (game.portal.Looting.level) chronoImpLoot += (chronoImpLoot * game.portal.Looting.level * game.portal.Looting.modifier);
-		if (game.portal.Looting_II.level) chronoImpLoot *= (1 + (game.portal.Looting_II.level * game.portal.Looting_II.modifier));
-		/*if (game.global.formation == 4)*/ chronoImpLoot *= 2;
+        chronoImpLoot = getChronoImpLoot('metal');
         eqCost = FindAndBuyEquipment("Attack", true);
         
         if (game.resources['metal'].owned+chronoImpLoot>eqCost*1.1) return true;
     }
     return false;
+}
+
+function getChronoImpLoot(resource)
+{
+    var chronoImpLoot;
+    
+    chronoImpLoot = simpleSeconds(resource, 5);
+	chronoImpLoot = Math.round(chronoImpLoot * 1.85);
+	if (game.unlocks.impCount.Magnimp) chronoImpLoot *= Math.pow(1.003, game.unlocks.impCount.Magnimp);
+	if (game.portal.Looting.level) chronoImpLoot += (chronoImpLoot * game.portal.Looting.level * game.portal.Looting.modifier);
+	if (game.portal.Looting_II.level) chronoImpLoot *= (1 + (game.portal.Looting_II.level * game.portal.Looting_II.modifier));
+	/*if (game.global.formation == 4)*/ chronoImpLoot *= 2;
+	
+	return chronoImpLoot;
 }
 
 function ableToOneShotAllMobs(portal)
@@ -2553,9 +2563,6 @@ function ableToOneShotAllMobs(portal)
         soldierAttack *= (1 + (0.2 * game.global.mapBonus));
         
     if (portal) soldierAttack *= 1.5;
-    {
-        soldierAttack *= 1.5;
-    }
 
     return soldierAttack>enemyHealth;
 }
