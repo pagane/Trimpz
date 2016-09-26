@@ -1019,7 +1019,7 @@ function FindAndBuyEquipment(stat, justgetcost) {
     }
     if (justgetcost)
         return bestEquipGainPerMetal > bestUpgradeGainPerMetal ? retFBETL.bestEquipmentCost : bestUpgradeCost;
-    BuyEquipmentOrUpgrade(bestEquipGainPerMetal, bestUpgradeGainPerMetal, bestEquipment, bestUpgrade, bestUpgradeCost) && game.upgrades.Gigastation.done >= trimpzSettings["gsForEqWs"].value);
+    BuyEquipmentOrUpgrade(bestEquipGainPerMetal, bestUpgradeGainPerMetal, bestEquipment, bestUpgrade, bestUpgradeCost);
 }
 
 function BuyMetalEquipment() {
