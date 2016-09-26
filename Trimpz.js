@@ -1019,8 +1019,7 @@ function FindAndBuyEquipment(stat, justgetcost) {
     }
     if (justgetcost)
         return bestEquipGainPerMetal > bestUpgradeGainPerMetal ? retFBETL.bestEquipmentCost : bestUpgradeCost;
-    if (BuyEquipmentOrUpgrade(bestEquipGainPerMetal, bestUpgradeGainPerMetal, bestEquipment, bestUpgrade, bestUpgradeCost) && game.upgrades.Gigastation.done >= trimpzSettings["gsForEqWs"].value)
-        FindAndBuyEquipment(stat);
+    BuyEquipmentOrUpgrade(bestEquipGainPerMetal, bestUpgradeGainPerMetal, bestEquipment, bestUpgrade, bestUpgradeCost) && game.upgrades.Gigastation.done >= trimpzSettings["gsForEqWs"].value);
 }
 
 function BuyMetalEquipment() {
@@ -2562,7 +2561,7 @@ function ableToOneShotAllMobs(portal)
     else
         soldierAttack *= (1 + (0.2 * game.global.mapBonus));
         
-    if (portal) soldierAttack *= 1.5;
+    if (portal) soldierAttack *= 1.7;
 
     return soldierAttack>enemyHealth;
 }
