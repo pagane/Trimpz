@@ -1439,7 +1439,15 @@ function getAverageEnemyHealthForLevel(worldLevel, isMap, isVoid) {  //adapted f
 			amt *= (getCorruptScale("health") / 2).toFixed(1);
     }
 	if (game.global.challengeActive == "Meditate" || game.global.challengeActive == "Toxicity" || game.global.challengeActive == "Balance") amt *= 2;
-	
+    if (game.global.challengeActive == "Daily")
+    {
+		if (typeof game.global.dailyChallenge.badHealth !== 'undefined'){
+			amt *= dailyModifiers.badHealth.getMult(game.global.dailyChallenge.badHealth.strength);
+		}
+		if (typeof game.global.dailyChallenge.badMapHealth !== 'undefined' && (isMap || isVoid)){
+			amt *= dailyModifiers.badMapHealth.getMult(game.global.dailyChallenge.badMapHealth.strength);
+		}
+	}	
 	return Math.floor(amt);
 }
 
