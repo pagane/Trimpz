@@ -2531,7 +2531,7 @@ function ableToGetChronoUpgrade()
     var chronoImpLoot;
     var eqCost;
     
-    if (game.global.totalVoidMaps<3) return false;
+    if (game.global.totalVoidMaps<4) return false;
     
     if (game.unlocks.imps.Chronoimp)
     {
