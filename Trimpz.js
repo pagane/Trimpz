@@ -256,7 +256,15 @@ function getTotalTimeForBreeding(almostOwnedGeneticists) {
     if (game.jobs.Geneticist.owned + almostOwnedGeneticists > 0) potencyMod *= Math.pow(.98, game.jobs.Geneticist.owned + almostOwnedGeneticists);
     //Quick Trimps
     if (game.unlocks.quickTrimps) potencyMod *= 2;
-    if (game.global.challengeActive == "Toxicity" && game.challenges.Toxicity.stacks > 0){
+    if (game.global.challengeActive == "Daily"){
+		if (typeof game.global.dailyChallenge.dysfunctional !== 'undefined'){
+			potencyMod *= dailyModifiers.dysfunctional.getMult(game.global.dailyChallenge.dysfunctional.strength);
+		}
+		if (typeof game.global.dailyChallenge.toxic !== 'undefined'){
+			potencyMod *= dailyModifiers.toxic.getMult(game.global.dailyChallenge.toxic.strength, game.global.dailyChallenge.toxic.stacks);
+		}
+	}
+	if (game.global.challengeActive == "Toxicity" && game.challenges.Toxicity.stacks > 0){
         potencyMod *= Math.pow(game.challenges.Toxicity.stackMult, game.challenges.Toxicity.stacks);
     }
     if (game.global.voidBuff == "slowBreed"){
@@ -289,7 +297,15 @@ function getRemainingTimeForBreeding() {
     if (game.jobs.Geneticist.owned  > 0) potencyMod *= Math.pow(.98, game.jobs.Geneticist.owned);
     //Quick Trimps
     if (game.unlocks.quickTrimps) potencyMod *= 2;
-    if (game.global.challengeActive == "Toxicity" && game.challenges.Toxicity.stacks > 0){
+    if (game.global.challengeActive == "Daily"){
+		if (typeof game.global.dailyChallenge.dysfunctional !== 'undefined'){
+			potencyMod *= dailyModifiers.dysfunctional.getMult(game.global.dailyChallenge.dysfunctional.strength);
+		}
+		if (typeof game.global.dailyChallenge.toxic !== 'undefined'){
+			potencyMod *= dailyModifiers.toxic.getMult(game.global.dailyChallenge.toxic.strength, game.global.dailyChallenge.toxic.stacks);
+		}
+	}
+	if (game.global.challengeActive == "Toxicity" && game.challenges.Toxicity.stacks > 0){
         potencyMod *= Math.pow(game.challenges.Toxicity.stackMult, game.challenges.Toxicity.stacks);
     }
     if (game.global.voidBuff == "slowBreed"){
