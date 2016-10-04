@@ -448,7 +448,8 @@ function AssignFreeWorkers() {
 }
 function Fight() {
     "use strict";
-    if (autoFighting === true && game.resources.trimps.owned > 25) { //>25 should reset autoFighting on portal
+    autoFighting = true;
+/*    if (autoFighting === true && game.resources.trimps.owned > 25) { //>25 should reset autoFighting on portal
         return;
     }
 
@@ -461,7 +462,7 @@ function Fight() {
         autoFighting = true;
     } else if (document.getElementById("battleContainer").style.visibility !== "hidden" && game.resources.trimps.owned >= 10) {
         fightManual();
-    }
+    }*/
 }
 function ShowRunningIndicator() {
     "use strict";
