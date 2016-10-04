@@ -124,7 +124,6 @@ var constantsSets = [constantsEarlyGame, constantsLateGame, constantsLateLateGam
 var constantsIndex;
 var constants;
 var trimpz = 0;             //"Trimpz" running indicator
-var autoFighting = false;   //Autofight on?
 var workersFocused = false;
 var workersFocusedOn;
 var workersMoved = [];
@@ -371,13 +370,6 @@ function AssignFreeWorkers() {
     if (free > trimps.owned){
         free = Math.floor(trimps.owned / 3);
     }
-    if (autoFighting === false){
-        if (breedCount - trimps.employed > 0){
-            free = Math.min(free,Math.floor((breedCount - trimps.employed)/2));
-        } else {
-            return;
-        }
-    }
     if (game.global.world > 10 && (game.resources.trimps.soldiers === 0 || getRemainingTimeForBreeding() > trimpzSettings["targetBreedTime"].value)) {
         return;
     }
@@ -448,22 +440,7 @@ function AssignFreeWorkers() {
 }
 function Fight() {
     "use strict";
-    autoFighting = true;
     if (game.global.world==1) fightManual();
-/*    if (autoFighting === true && game.resources.trimps.owned > 25) { //>25 should reset autoFighting on portal
-        return;
-    }
-
-    autoFighting = false;
-    var pauseFightButton = document.getElementById("pauseFight");
-    if (pauseFightButton.offsetHeight > 0 && game.resources.trimps.owned === game.resources.trimps.realMax()) {
-        if (pauseFightButton.innerHTML !== "AutoFight On") {
-            pauseFight();
-        }
-        autoFighting = true;
-    } else if (document.getElementById("battleContainer").style.visibility !== "hidden" && game.resources.trimps.owned >= 10) {
-        fightManual();
-    }*/
 }
 function ShowRunningIndicator() {
     "use strict";
@@ -1862,7 +1839,6 @@ function CheckLateGame() {
         constantsIndex = 0;
         mapsWithDesiredUniqueDrops = [8,10,14,15,18,23,25,29,30,34,40,47,50,80,125];
         heliumHistory = [];
-        autoFighting = false;
         helium = -1;
         bionicDone = false;
         return;
@@ -2117,6 +2093,7 @@ function TurnOffIncompatibleSettings() {
         game.options.menu.exitTo.enabled = 1;
         toggleSetting("exitTo", null, false, true);
     }
+    if (game.global.pauseFight) pauseFight();
 }
 
 function FocusOnBreeding(){
