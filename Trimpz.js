@@ -456,7 +456,7 @@ function Fight() {
     autoFighting = false;
     var pauseFightButton = document.getElementById("pauseFight");
     if (pauseFightButton.offsetHeight > 0 && game.resources.trimps.owned === game.resources.trimps.realMax()/* || game.resources.trimps.owned > 5000000*/) {
-        if (pauseFightButton.innerHTML !== "AutoFight On") {
+/*        if (pauseFightButton.innerHTML !== "AutoFight On") {
             pauseFight();
         }
         autoFighting = true;
