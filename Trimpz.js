@@ -449,6 +449,7 @@ function AssignFreeWorkers() {
 function Fight() {
     "use strict";
     autoFighting = true;
+    if (game.global.world==1) fightManual();
 /*    if (autoFighting === true && game.resources.trimps.owned > 25) { //>25 should reset autoFighting on portal
         return;
     }
