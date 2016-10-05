@@ -138,6 +138,8 @@ var trimpzSettings = {};
 var mapRunStatus = "";
 var shouldPortal = false;
 var portalAtWorld = 0;
+var unusedCoordsAt = 0;
+var warpsAtLastGiga = 0;
 
 //Loads the automation settings from browser cache
 function loadPageVariables() {
@@ -635,12 +637,20 @@ function UpgradeNonEquipment() {
     var needed;
     for (upgrade in game.upgrades) {
         if (typeof game.upgrades[upgrade].prestiges == 'undefined' && game.upgrades[upgrade].locked === 0) {
-            if (upgrade === "Gigastation" &&
-                (game.buildings.Warpstation.owned < trimpzSettings["minimumWarpStations"].value + trimpzSettings["deltaIncreaseInMinimumWarpstationsPerGigastationPurchase"].value * game.upgrades.Gigastation.done
-                || (CanBuyWarpstationSoon() && CanBuyNonUpgrade(game.buildings.Warpstation, 2) === true) )){ //ratio 2 for "can buy soon"
+            if (upgrade === "Gigastation")
+            {
+                if (game.buildings.Warpstation.owned < trimpzSettings["minimumWarpStations"].value + trimpzSettings["deltaIncreaseInMinimumWarpstationsPerGigastationPurchase"].value * game.upgrades.Gigastation.done
+                || (CanBuyWarpstationSoon() && CanBuyNonUpgrade(game.buildings.Warpstation, 2) === true) )) //ratio 2 for "can buy soon"
+                    continue;
+                else
+                    warpsAtLastGiga = game.buildings.Warpstation.owned;
+            }
+            if (upgrade == 'Coordination' && !canAffordCoordinationTrimps())
+            {
+                if (unusedCoordsAt==0 && game.global.lastClearedCell>60)
+                    unusedCoordsAt = game.global.world;
                 continue;
             }
-            if (upgrade == 'Coordination' && !canAffordCoordinationTrimps()) continue;
             if (upgrade === "Shieldblock"){
                 continue;
             }
@@ -1923,8 +1933,13 @@ function CheckPortal() {
         heliumLog.push(heliumHistory);
         shouldPortal = false;
         console.log('Portal: ' + game.global.world);
+        console.log('Unused Coordination at: ' + unusedCoordsAt);
+        console.log('Warps at last Giga: ' + warpsAtLastGiga);
         console.log('He/h: ' + prettify(game.stats.heliumHour.value()) + "/hr");
         console.log('Time: ' + updatePortalTimer(true));
+        
+        unusedCoordsAt = 0;
+        warpsAtLastGiga = 0;
 
         saveSettings();
         ClickButton("portalBtn");
