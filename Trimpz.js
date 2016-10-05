@@ -640,7 +640,7 @@ function UpgradeNonEquipment() {
             if (upgrade === "Gigastation")
             {
                 if (game.buildings.Warpstation.owned < trimpzSettings["minimumWarpStations"].value + trimpzSettings["deltaIncreaseInMinimumWarpstationsPerGigastationPurchase"].value * game.upgrades.Gigastation.done
-                || (CanBuyWarpstationSoon() && CanBuyNonUpgrade(game.buildings.Warpstation, 2) === true) )) //ratio 2 for "can buy soon"
+                || (CanBuyWarpstationSoon() && CanBuyNonUpgrade(game.buildings.Warpstation, 2) === true) ) //ratio 2 for "can buy soon"
                     continue;
                 else
                     warpsAtLastGiga = game.buildings.Warpstation.owned;
