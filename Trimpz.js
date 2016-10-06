@@ -445,9 +445,9 @@ function Fight() {
     
     if (game.global.world==1)
     {
-        cellNum = game.global.lastClearedCell + 1;
-        cell = game.global.gridArray[cellNum];
-        cellElem = document.getElementById("cell" + cellNum);
+        var cellNum = game.global.lastClearedCell + 1;
+        var cell = game.global.gridArray[cellNum];
+        var cellElem = document.getElementById("cell" + cellNum);
 		if (cellElem == null) return;
         fightManual();
     }
