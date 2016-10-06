@@ -443,7 +443,7 @@ function AssignFreeWorkers() {
 function Fight() {
     "use strict";
     
-    if (game.global.world==1)
+    if (game.global.world<200)
     {
         var cellNum = game.global.lastClearedCell + 1;
         var cell = game.global.gridArray[cellNum];
