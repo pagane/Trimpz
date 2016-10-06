@@ -442,7 +442,7 @@ function AssignFreeWorkers() {
 }
 function Fight() {
     "use strict";
-    if (game.global.world==1) fightManual();
+    if (game.global.world==1 && if (game.global.lastClearedCell != -1)) fightManual();
 }
 function ShowRunningIndicator() {
     "use strict";
