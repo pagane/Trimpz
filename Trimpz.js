@@ -140,6 +140,7 @@ var shouldPortal = false;
 var portalAtWorld = 0;
 var unusedCoordsAt = 0;
 var warpsAtLastGiga = 0;
+var beginPortalTime;
 
 //Loads the automation settings from browser cache
 function loadPageVariables() {
@@ -1940,9 +1941,11 @@ function CheckPortal() {
         
         heliumLog.push(heliumHistory);
         shouldPortal = false;
+        var timeSince = new Date().getTime() - beginPortalTime;
         console.log('Portal: ' + game.global.world);
         console.log('Unused Coordination at: ' + unusedCoordsAt);
         console.log('Warps at last Giga: ' + warpsAtLastGiga);
+        console.log('LastZoneTime: ' + prettifyTime(timeSince));
         console.log('He/h: ' + prettify(game.stats.heliumHour.value()) + "/hr");
         console.log('Time: ' + updatePortalTimer(true));
         
@@ -1983,10 +1986,11 @@ function CheckPortal() {
         ClickButton("activatePortalBtn");
         document.getElementsByClassName("activatePortalBtn")[0].click();
         return true;
-    } else if (trimpzSettings["autoPortal"].value && game.global.mapBonus==10 && game.global.formation == 2 && !ableToOneShotAllMobs(true)){
+    } else if (trimpzSettings["autoPortal"].value && game.global.mapBonus==10 && game.global.formation == 2 && !ableToOneShotAllMobs(true) && !shouldPortal && portalAtWorld != game.global.world+1;){
         shouldPortal = true;
         portalAtWorld = game.global.world+1;
-        console.log('Warning: Portal at next zone!');
+        console.log('Warning: Portal at next zone: ' + game.global.world);
+        beginPortalTime = new Date().getTime();
     }
     else shouldPortal = false;
     return false;
@@ -2587,7 +2591,7 @@ function ableToOneShotAllMobs(portal)
     else
         soldierAttack *= (1 + (0.2 * game.global.mapBonus));
         
-    if (portal) soldierAttack *= 1.7;
+    if (portal) soldierAttack *= 1.8;
 
     return soldierAttack>enemyHealth;
 }
@@ -2596,4 +2600,22 @@ function reallyNeedLoot()
 {
     var attacksToDie = canTakeOnBoss();
     return attacksToDie.attacksToKillSoldiers < trimpzSettings["minAttackstoDie"].value/2;
+}
+
+function prettifyTime(timeSince)
+{
+    timeSince /= 1000;
+	var days = Math.floor(timeSince / 86400);
+	var hours = Math.floor( timeSince / 3600) % 24;
+	var minutes = Math.floor(timeSince / 60) % 60;
+	var seconds = Math.floor(timeSince % 60);
+	var timeArray = [days, hours, minutes, seconds];
+	var timeString = "";
+	for (var x = 0; x < 4; x++){
+		var thisTime = timeArray[x];
+		thisTime = thisTime.toString();
+		timeString += (thisTime.length < 2) ? "0" + thisTime : thisTime;
+		if (x != 3) timeString += ":";
+	}
+    return timeString;
 }
