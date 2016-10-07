@@ -1986,7 +1986,7 @@ function CheckPortal() {
         ClickButton("activatePortalBtn");
         document.getElementsByClassName("activatePortalBtn")[0].click();
         return true;
-    } else if (trimpzSettings["autoPortal"].value && game.global.mapBonus==10 && game.global.formation == 2 && !ableToOneShotAllMobs(true) && !shouldPortal && portalAtWorld != game.global.world+1;){
+    } else if (trimpzSettings["autoPortal"].value && game.global.mapBonus==10 && game.global.formation == 2 && !ableToOneShotAllMobs(true) && !shouldPortal && portalAtWorld != game.global.world+1){
         shouldPortal = true;
         portalAtWorld = game.global.world+1;
         console.log('Warning: Portal at next zone: ' + game.global.world);
