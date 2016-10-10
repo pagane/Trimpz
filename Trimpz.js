@@ -1987,12 +1987,12 @@ function CheckPortal() {
         document.getElementsByClassName("activatePortalBtn")[0].click();
         return true;
     } else if (trimpzSettings["autoPortal"].value && game.global.mapBonus==10 && game.global.formation == 2 && !ableToOneShotAllMobs(true)){
-        portalAtWorld = game.global.world+1;
-        console.log('Warning: Portal at next zone: ' + game.global.world);
         if (!shouldPortal)
         {
+            portalAtWorld = game.global.world+1;
             shouldPortal = true;
             beginPortalTime = new Date().getTime();
+            console.log('Warning: Portal at next zone: ' + portalAtWorld);
         }
     }
     else shouldPortal = false;
