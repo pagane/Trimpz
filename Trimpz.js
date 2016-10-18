@@ -141,6 +141,8 @@ var portalAtWorld = 0;
 var unusedCoordsAt = 0;
 var warpsAtLastGiga = 0;
 var beginPortalTime;
+var firstVoidMap = 0;
+var firstOverkillFail = 0;
 
 //Loads the automation settings from browser cache
 function loadPageVariables() {
@@ -1730,11 +1732,18 @@ function RunPrestigeMaps(){
  */
 function RunUpgradeMaps(){
     
-    if (!ableToOverkillAllMobs() && ableToGetChronoUpgrade() && game.global.mapBonus < 10)
+    if (!ableToOverkillAllMobs())
     {
-        setMapRunStatus("Upgrade");
-        FindAndRunSmallMap(game.global.world);
-        return true;
+        if (ableToGetChronoUpgrade())
+        {
+            if (game.global.mapBonus < 10)
+            {
+                setMapRunStatus("Upgrade");
+                FindAndRunSmallMap(game.global.world);
+                return true;
+            }
+        }
+        else if (firstOverkillFail ==0) firstOverkillFail = game.global.world;
     }
     return false;
 }
@@ -1945,12 +1954,16 @@ function CheckPortal() {
         console.log('Portal: ' + game.global.world);
         console.log('Unused Coordination at: ' + unusedCoordsAt);
         console.log('Warps at last Giga: ' + warpsAtLastGiga);
+        console.log('Map farming started: ' + firstVoidMap);
+        console.log('End of 100% overkill: ' + firstOverkillFail);
         console.log('LastZoneTime: ' + prettifyTime(timeSince));
         console.log('He/h: ' + prettify(game.stats.heliumHour.value()) + "/hr");
         console.log('Time: ' + updatePortalTimer(true));
         
         unusedCoordsAt = 0;
         warpsAtLastGiga = 0;
+        firstVoidMap = 0;
+        firstOverkillFail = 0;
 
         saveSettings();
         ClickButton("portalBtn");
@@ -2084,6 +2097,7 @@ function RunVoidMaps() {
             for (var map in game.global.mapsOwnedArray) {
                 theMap = game.global.mapsOwnedArray[map];
                 if (theMap.location == 'Void'){
+                    if (firstVoidMap == 0) firstVoidMap = game.global.world;
                     RunMap(theMap);
                     return;
                 }
