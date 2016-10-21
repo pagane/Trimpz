@@ -140,6 +140,9 @@ var shouldPortal = false;
 var portalAtWorld = 0;
 var unusedCoordsAt = 0;
 var warpsAtLastGiga = 0;
+var beginPortalTime;
+var firstVoidMap = 0;
+var firstOverkillFail = 0;
 
 //Loads the automation settings from browser cache
 function loadPageVariables() {
@@ -1412,6 +1415,25 @@ function getMaxEnemyHealthForLevel(worldLevel, calcForMap, enemyName) {  //adapt
     return amt;
 }
 
+function getEnemyHealth(world, level) {
+			var amt = 0;
+			amt += 130 * Math.sqrt(world) * Math.pow(3.265, world / 2);
+			amt -= 110;
+			if (world == 1 || world == 2 && level < 10){
+				amt *= 0.6;
+			amt = (amt * 0.25) + ((amt * 0.72) * (level / 100));
+			}
+			else if (world < 60)
+				amt = (amt * 0.4) + ((amt * 0.4) * (level / 110));
+			else{
+				amt = (amt * 0.5) + ((amt * 0.8) * (level / 100));
+				amt *= Math.pow(1.1, world - 59);
+			}
+			if (world < 60) amt *= 0.75;		
+			if (world > 5 && game.global.mapsActive) amt *= 1.1;
+			return Math.floor(amt);
+		}
+
 function getAverageEnemyHealthForLevel(worldLevel, isMap, isVoid) {  //adapted from Trimps getEnemyHealth() & startFight()
     "use strict";
     var world = worldLevel;
@@ -1441,15 +1463,15 @@ function getAverageEnemyHealthForLevel(worldLevel, isMap, isVoid) {  //adapted f
 	if (world < 60) amt *= 0.75;		
 	if (world > 5 && (isMap || isVoid)) amt *= 1.1;
 	
-	var corruptionStart = getCorruptionStart(true);
+	var corruptionStart = mutations.Corruption.start(true);
 	if (!isMap && !isVoid && world >= corruptionStart)
-		amt *= getCorruptScale("health");
+		amt *= mutations.Corruption.statScale(10);
 		
     if (game.global.challengeActive == "Coordinate") amt *= badCoord;
     if (isMap || isVoid) {
         amt *= difficulty;
 		if (isVoid && world >= corruptionStart)
-			amt *= (getCorruptScale("health") / 2).toFixed(1);
+			amt *= (mutations.Corruption.statScale(10) / 2).toFixed(1);
     }
 	if (game.global.challengeActive == "Meditate" || game.global.challengeActive == "Toxicity" || game.global.challengeActive == "Balance") amt *= 2;
     if (game.global.challengeActive == "Daily")
@@ -1729,11 +1751,18 @@ function RunPrestigeMaps(){
  */
 function RunUpgradeMaps(){
     
-    if (!ableToOverkillAllMobs() && ableToGetChronoUpgrade() && game.global.mapBonus < 10)
+    if (!ableToOverkillAllMobs())
     {
-        setMapRunStatus("Upgrade");
-        FindAndRunSmallMap(game.global.world);
-        return true;
+        if (ableToGetChronoUpgrade())
+        {
+            if (game.global.mapBonus < 10)
+            {
+                setMapRunStatus("Upgrade");
+                FindAndRunSmallMap(game.global.world);
+                return true;
+            }
+        }
+        else if (firstOverkillFail ==0) firstOverkillFail = game.global.world;
     }
     return false;
 }
@@ -1847,7 +1876,7 @@ function CheckLateGame() {
     "use strict";
     if (game.global.world === 60 && document.getElementById("tipTitle").innerHTML === "The Improbability")
         cancelTooltip();
-    else if(game.global.world == getCorruptionStart(true) && document.getElementById("tipTitle").innerHTML == "Corruption")
+    else if(game.global.world == mutations.Corruption.start(true) && document.getElementById("tipTitle").innerHTML == "Corruption")
         cancelTooltip();
     else if(game.global.spireActive && document.getElementById("tipTitle").innerHTML == "Spire")
         cancelTooltip();
@@ -1940,14 +1969,20 @@ function CheckPortal() {
         
         heliumLog.push(heliumHistory);
         shouldPortal = false;
+        var timeSince = new Date().getTime() - beginPortalTime;
         console.log('Portal: ' + game.global.world);
         console.log('Unused Coordination at: ' + unusedCoordsAt);
         console.log('Warps at last Giga: ' + warpsAtLastGiga);
+        console.log('Map farming started: ' + firstVoidMap);
+        console.log('End of 100% overkill: ' + firstOverkillFail);
+        console.log('LastZoneTime: ' + prettifyTime(timeSince));
         console.log('He/h: ' + prettify(game.stats.heliumHour.value()) + "/hr");
         console.log('Time: ' + updatePortalTimer(true));
         
         unusedCoordsAt = 0;
         warpsAtLastGiga = 0;
+        firstVoidMap = 0;
+        firstOverkillFail = 0;
 
         saveSettings();
         ClickButton("portalBtn");
@@ -1984,9 +2019,13 @@ function CheckPortal() {
         document.getElementsByClassName("activatePortalBtn")[0].click();
         return true;
     } else if (trimpzSettings["autoPortal"].value && game.global.mapBonus==10 && game.global.formation == 2 && !ableToOneShotAllMobs(true)){
-        shouldPortal = true;
-        portalAtWorld = game.global.world+1;
-        console.log('Warning: Portal at next zone!');
+        if (!shouldPortal)
+        {
+            portalAtWorld = game.global.world+1;
+            shouldPortal = true;
+            beginPortalTime = new Date().getTime();
+            console.log('Warning: Portal at next zone: ' + portalAtWorld);
+        }
     }
     else shouldPortal = false;
     return false;
@@ -2059,6 +2098,7 @@ function MaxToxicStacks() {
 function RunVoidMaps() {
     "use strict";
     if (game.global.totalVoidMaps<1) return;
+    if (game.global.challengeActive == "Daily" && typeof game.global.dailyChallenge.oddTrimpNerf !== 'undefined' && ((game.global.world % 2) == 1)) return;//no voids on nerfed odd zones
     if (game.global.mapsActive === true && game.global.preMapsActive === false){ //no map ability(wait one) or already running a map(repeat should be off)
         if (getCurrentMapObject().location == "Void")
         {
@@ -2077,6 +2117,7 @@ function RunVoidMaps() {
             for (var map in game.global.mapsOwnedArray) {
                 theMap = game.global.mapsOwnedArray[map];
                 if (theMap.location == 'Void'){
+                    if (firstVoidMap == 0) firstVoidMap = game.global.world;
                     RunMap(theMap);
                     return;
                 }
@@ -2587,7 +2628,7 @@ function ableToOneShotAllMobs(portal)
     else
         soldierAttack *= (1 + (0.2 * game.global.mapBonus));
         
-    if (portal) soldierAttack *= 1.7;
+    if (portal) soldierAttack *= 1.8;
 
     return soldierAttack>enemyHealth;
 }
@@ -2596,4 +2637,22 @@ function reallyNeedLoot()
 {
     var attacksToDie = canTakeOnBoss();
     return attacksToDie.attacksToKillSoldiers < trimpzSettings["minAttackstoDie"].value/2;
+}
+
+function prettifyTime(timeSince)
+{
+    timeSince /= 1000;
+	var days = Math.floor(timeSince / 86400);
+	var hours = Math.floor( timeSince / 3600) % 24;
+	var minutes = Math.floor(timeSince / 60) % 60;
+	var seconds = Math.floor(timeSince % 60);
+	var timeArray = [days, hours, minutes, seconds];
+	var timeString = "";
+	for (var x = 0; x < 4; x++){
+		var thisTime = timeArray[x];
+		thisTime = thisTime.toString();
+		timeString += (thisTime.length < 2) ? "0" + thisTime : thisTime;
+		if (x != 3) timeString += ":";
+	}
+    return timeString;
 }
