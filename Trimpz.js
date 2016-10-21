@@ -1415,6 +1415,25 @@ function getMaxEnemyHealthForLevel(worldLevel, calcForMap, enemyName) {  //adapt
     return amt;
 }
 
+function getEnemyHealth(world, level) {
+			var amt = 0;
+			amt += 130 * Math.sqrt(world) * Math.pow(3.265, world / 2);
+			amt -= 110;
+			if (world == 1 || world == 2 && level < 10){
+				amt *= 0.6;
+			amt = (amt * 0.25) + ((amt * 0.72) * (level / 100));
+			}
+			else if (world < 60)
+				amt = (amt * 0.4) + ((amt * 0.4) * (level / 110));
+			else{
+				amt = (amt * 0.5) + ((amt * 0.8) * (level / 100));
+				amt *= Math.pow(1.1, world - 59);
+			}
+			if (world < 60) amt *= 0.75;		
+			if (world > 5 && game.global.mapsActive) amt *= 1.1;
+			return Math.floor(amt);
+		}
+
 function getAverageEnemyHealthForLevel(worldLevel, isMap, isVoid) {  //adapted from Trimps getEnemyHealth() & startFight()
     "use strict";
     var world = worldLevel;
@@ -1444,15 +1463,15 @@ function getAverageEnemyHealthForLevel(worldLevel, isMap, isVoid) {  //adapted f
 	if (world < 60) amt *= 0.75;		
 	if (world > 5 && (isMap || isVoid)) amt *= 1.1;
 	
-	var corruptionStart = getCorruptionStart(true);
+	var corruptionStart = mutations.Corruption.start(true);
 	if (!isMap && !isVoid && world >= corruptionStart)
-		amt *= getCorruptScale("health");
+		amt *= mutations.Corruption.statScale(10);
 		
     if (game.global.challengeActive == "Coordinate") amt *= badCoord;
     if (isMap || isVoid) {
         amt *= difficulty;
 		if (isVoid && world >= corruptionStart)
-			amt *= (getCorruptScale("health") / 2).toFixed(1);
+			amt *= (mutations.Corruption.statScale(10) / 2).toFixed(1);
     }
 	if (game.global.challengeActive == "Meditate" || game.global.challengeActive == "Toxicity" || game.global.challengeActive == "Balance") amt *= 2;
     if (game.global.challengeActive == "Daily")
@@ -1857,7 +1876,7 @@ function CheckLateGame() {
     "use strict";
     if (game.global.world === 60 && document.getElementById("tipTitle").innerHTML === "The Improbability")
         cancelTooltip();
-    else if(game.global.world == getCorruptionStart(true) && document.getElementById("tipTitle").innerHTML == "Corruption")
+    else if(game.global.world == mutations.Corruption.start(true) && document.getElementById("tipTitle").innerHTML == "Corruption")
         cancelTooltip();
     else if(game.global.spireActive && document.getElementById("tipTitle").innerHTML == "Spire")
         cancelTooltip();
