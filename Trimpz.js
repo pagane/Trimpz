@@ -2628,7 +2628,7 @@ function ableToOneShotAllMobs(portal)
     else
         soldierAttack *= (1 + (0.2 * game.global.mapBonus));
         
-    if (portal) soldierAttack *= 2;
+    if (portal) soldierAttack *= 1.9;
 
     return soldierAttack>enemyHealth;
 }
