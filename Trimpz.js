@@ -354,7 +354,7 @@ function AssignFreeWorkers() {
         "Lumberjack" : 0,
         "Farmer" : 0
     };
-    if (game.global.world < 10 && getRemainingTimeForBreeding()>1) return;
+    if (game.global.world < 20 && getRemainingTimeForBreeding()>1) return;
     if (trimps.owned === 0 || game.global.firing) {
         return;
     }
