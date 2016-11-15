@@ -2027,6 +2027,7 @@ function CheckPortal() {
                 beginPortalTime = new Date().getTime();
                 console.log('Warning: Portal at next zone: ' + portalAtWorld);
             }
+            else console.log('Warning: Not enough damage: ' + portalAtWorld);
             portalAtWorld = game.global.world+1;
         }
     }
