@@ -2021,10 +2021,13 @@ function CheckPortal() {
     } else if (trimpzSettings["autoPortal"].value && game.global.mapBonus==10 && game.global.formation == 2 && !ableToOneShotAllMobs(true)){
         if (!shouldPortal)
         {
+            if (portalAtWorld==game.global.world)
+            {
+                shouldPortal = true;
+                beginPortalTime = new Date().getTime();
+                console.log('Warning: Portal at next zone: ' + portalAtWorld);
+            }
             portalAtWorld = game.global.world+1;
-            shouldPortal = true;
-            beginPortalTime = new Date().getTime();
-            console.log('Warning: Portal at next zone: ' + portalAtWorld);
         }
     }
     else shouldPortal = false;
