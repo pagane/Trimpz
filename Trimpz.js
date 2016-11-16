@@ -2025,9 +2025,9 @@ function CheckPortal() {
             {
                 shouldPortal = true;
                 beginPortalTime = new Date().getTime();
-                console.log('Warning: Portal at next zone: ' + portalAtWorld);
+                console.log('Warning: Portal at next zone: ' + portalAtWorld+1);
             }
-            else console.log('Warning: Not enough damage: ' + portalAtWorld);
+            else console.log('Warning: Not enough damage: ' + game.global.world);
             portalAtWorld = game.global.world+1;
         }
     }
@@ -2632,7 +2632,7 @@ function ableToOneShotAllMobs(portal)
     else
         soldierAttack *= (1 + (0.2 * game.global.mapBonus));
         
-    if (portal) soldierAttack *= 2;
+    if (portal) soldierAttack *= 2.2;
 
     return soldierAttack>enemyHealth;
 }
