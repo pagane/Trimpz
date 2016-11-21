@@ -337,7 +337,7 @@ function getRemainingTimeForBreeding() {
     return timeRemaining;
 }
 
-function ShouldBuyGeneticist(food, extraGeneticists) {
+/*function ShouldBuyGeneticist(food, extraGeneticists) {
     "use strict";
     var trimps = game.resources.trimps;
     var cost;
@@ -354,7 +354,7 @@ function ShouldBuyGeneticist(food, extraGeneticists) {
         shouldBuy : shouldBuy,
         cost : cost
     };
-}
+}*/
 
 function AssignFreeWorkers() {
     "use strict";
@@ -379,13 +379,13 @@ function AssignFreeWorkers() {
     var free = (Math.ceil(trimps.realMax() / 2) - trimps.employed);
 
     //make room for a Geneticist
-    if (free === 0 && ShouldBuyGeneticist(food,0).shouldBuy){
+/*    if (free === 0 && ShouldBuyGeneticist(food,0).shouldBuy){
         game.global.firing = true;
         game.global.buyAmt = 20;
         buyJob("Farmer", null, true);
         game.global.firing = false;
         game.global.buyAmt = 1;
-    }
+    }*/
 
     if (free <= 0) return;
     var breedCount = (trimps.owned - trimps.employed > 2) ? Math.floor(trimps.owned - trimps.employed) : 0;
@@ -411,12 +411,12 @@ function AssignFreeWorkers() {
 
             free -= buy.Miner + buy.Lumberjack + buy.Farmer;
         }
-        var geneticistValues = ShouldBuyGeneticist(food, buy.Geneticist);
+/*        var geneticistValues = ShouldBuyGeneticist(food, buy.Geneticist);
         if (geneticistValues.shouldBuy){
             food -= geneticistValues.cost;
             buy.Geneticist += 1;
             free--;
-        } else if (game.jobs.Trainer.locked === 0 &&
+        } else */if (game.jobs.Trainer.locked === 0 &&
             (cost = CanBuyWorkerWithResource(game.jobs.Trainer, constants.getTrainerCostRatio(), food , buy.Trainer)) !== -1){
             food -= cost;
             buy.Trainer += 1;
@@ -809,7 +809,7 @@ function BuyBuilding(buildingName, ratio, max, checkQueue){
 /**
  * @return {boolean}
  */
-function ShouldLowerBreedWithoutGeneticists(){
+/*function ShouldLowerBreedWithoutGeneticists(){
     "use strict";
     var targetBreedTime = trimpzSettings["targetBreedTime"].value;
     var targetBreedTimeHysteresis = trimpzSettings["targetBreedTimeHysteresis"].value;
@@ -819,7 +819,7 @@ function ShouldLowerBreedWithoutGeneticists(){
         return true;
     }
     return false;
-}
+}*/
 
 function BuyBuildings() {
     "use strict";
@@ -2076,7 +2076,7 @@ function CheckFormation() {
         setFormation("4");
 }
 
-function FireGeneticists() {
+/*function FireGeneticists() {
     "use strict";
     var global = game.global;
     if (game.jobs.Geneticist.locked !== 0 ||
@@ -2100,7 +2100,7 @@ function FireGeneticists() {
         global.firing = false;
         remainingTimeForBreeding = getRemainingTimeForBreeding();
     }
-}
+}*/
 
 function MaxToxicStacks() {
     "use strict";
@@ -2187,13 +2187,13 @@ function TurnOffIncompatibleSettings() {
 }
 
 function FocusOnBreeding(){
-    var targetBreedTime = trimpzSettings["targetBreedTime"].value;
+/*    var targetBreedTime = trimpzSettings["targetBreedTime"].value;
     var hysteresis = trimpzSettings["targetBreedTimeHysteresis"].value;
     if(game.global.lastBreedTime / 1000 > targetBreedTime - getRemainingTimeForBreeding() + hysteresis &&
         game.jobs.Geneticist.owned < 10 ||
         game.resources.trimps.soldiers === 0){
         clearQueue("Warpstation");
-    }
+    }*/
     if (game.global.world > 10 && game.resources.trimps.soldiers === 0 && getRemainingTimeForBreeding() > 1){
         ReallocateWorkers();
     }
@@ -2247,7 +2247,7 @@ function MainLoop(){
         return;
     }*/
     var collectingForUpgrade = UpgradeAndGather();
-    FireGeneticists();
+//    FireGeneticists();
     if (collectingForUpgrade === false) { //allow resources to accumulate for upgrades if true
         BuyMetalEquipment();
         BuyBuildings();
