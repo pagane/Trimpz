@@ -23,6 +23,7 @@ ConstantSet.prototype = {
     lumberjackMultiplier : 1,           //how many more lumberjacks than farmers? (multiplied)
     trainerCostRatio : 0.4,             //buy trainers with enough resources (0.2 = 20% of resources)
     explorerCostRatio : 0.2,            //buy explorers with enough resources (0.2 = 20% of resources)
+    magmamancerCostRatio : 0.01,        //buy magmamancers with enough resources (0.2 = 20% of resources)
     minFoodOwned : 15,                  //minimum food on hand, required for beginning of the game
     minWoodOwned : 15,                  //minimum wood on hand, required for beginning of the game
     minTrimpsOwned : 9,                 //minimum trimps on hand, required for beginning of the game
@@ -43,6 +44,7 @@ ConstantSet.prototype = {
     getTrainerCostRatio: function () { return this.trainerCostRatio; },
     getMinerMultiplier: function () { return this.minerMultiplier; },
     getExplorerCostRatio: function () { return this.explorerCostRatio; },
+    getMagmamancerCostRatio: function () { return this.magmamancerCostRatio; },
     getMinFoodOwned: function () { return this.minFoodOwned; },
     getMinWoodOwned: function () { return this.minWoodOwned; },
     getMinTrimpsOwned: function () { return this.minTrimpsOwned; },
@@ -358,11 +360,13 @@ function AssignFreeWorkers() {
     "use strict";
     var trimps = game.resources.trimps;
     var food = game.resources.food.owned;
+    var gems = game.resources.gems.owned;
     var buy = {
         "Geneticist" : 0,
         "Trainer" : 0,
         "Explorer" : 0,
         "Scientist" : 0,
+        "Magmamancer" : 0
         "Miner" : 0,
         "Lumberjack" : 0,
         "Farmer" : 0
@@ -426,6 +430,11 @@ function AssignFreeWorkers() {
             (cost = CanBuyWorkerWithResource(game.jobs.Scientist, 1, food, buy.Scientist)) !== -1) {
             food -= cost;
             buy.Scientist += 1;
+            free--;
+        } else if (game.jobs.Magmamancer.locked === 0 &&
+            (cost = CanBuyWorkerWithResource(game.jobs.Magmamancer, constants.getMagmamancerCostRatio(), gems, buy.Magmamancer)) !== -1){
+            gems -= cost;
+            buy.Magmamancer += 1;
             free--;
         } else if (game.jobs.Miner.locked === 0 && game.jobs.Miner.owned + buy.Miner < (game.jobs.Farmer.owned + buy.Farmer) * constants.getMinerMultiplier() &&
             (cost = CanBuyWorkerWithResource(game.jobs.Miner, 1, food, buy.Miner)) !== -1) {
@@ -739,7 +748,7 @@ function UpgradeAndGather() {
 /**
  * @return {boolean} return.shouldReturn Was priority found (stop further processing)?
  */
-function BeginPriorityAction() { //this is really just for the beginning (after a portal)
+/*function BeginPriorityAction() { //this is really just for the beginning (after a portal)
     "use strict";
     if (game.global.buildingsQueue.length > 0) {//Build queue
         if ( !game.global.trapBuildToggled||
@@ -771,7 +780,7 @@ function BeginPriorityAction() { //this is really just for the beginning (after 
         return true;
     }
     return false;
-}
+}*/
 
 /**
  * @return {boolean}
@@ -2032,7 +2041,7 @@ function CheckPortal() {
         document.getElementsByClassName("activatePortalBtn")[0].click();
         return true;
     } else if (trimpzSettings["autoPortal"].value && game.global.mapBonus==10 && game.global.formation == 2 && !ableToOneShotAllMobs(true)){
-        if (!shouldPortal)
+        if (!shouldPortal && (portalAtWorld != game.global.world+1))
         {
             if (portalAtWorld==game.global.world)
             {
@@ -2233,10 +2242,10 @@ function MainLoop(){
     MaxToxicStacks();
     RunVoidMaps();
     ClickAllNonEquipmentUpgrades();
-    var shouldReturn = BeginPriorityAction();
+/*    var shouldReturn = BeginPriorityAction();
     if (shouldReturn === true) {
         return;
-    }
+    }*/
     var collectingForUpgrade = UpgradeAndGather();
     FireGeneticists();
     if (collectingForUpgrade === false) { //allow resources to accumulate for upgrades if true
