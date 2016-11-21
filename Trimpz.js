@@ -69,7 +69,7 @@ var constantsLateGame = new ConstantSet({
     housingCostRatio : 0.1,
     gymCostRatio : 0.95,
     tributeCostRatio : 0.8,
-    nurseryCostRatio : 0.15,
+    nurseryCostRatio : 0,
     maxLevel : 5,
     equipmentCostRatio : 0.8
 });
@@ -81,7 +81,7 @@ var constantsLateLateGame = new ConstantSet({
     housingCostRatio : 0.5,
     gymCostRatio : 0.8,
     tributeCostRatio : 0.9,
-    nurseryCostRatio : 0.2,
+    nurseryCostRatio : 0,
     maxLevel : 4,
     equipmentCostRatio : 0.9,
     getZoneToStartAt:
@@ -100,7 +100,7 @@ var constantsEndGame = new ConstantSet({
     housingCostRatio : 0,
     gymCostRatio : 0.5,
     tributeCostRatio : 0.7,
-    nurseryCostRatio : 0.2,
+    nurseryCostRatio : 0,
     maxLevel : 4,
     equipmentCostRatio : 0.9
 });
@@ -112,7 +112,20 @@ var constantsCorruption = new ConstantSet({
     housingCostRatio : 0,
     gymCostRatio : 0.2,
     tributeCostRatio : 0.7,
-    nurseryCostRatio : 0.2,
+    nurseryCostRatio : 0,
+    maxLevel : 4,
+    equipmentCostRatio : 0.999
+});
+
+var constantsMagma = new ConstantSet({
+    zoneToStartAt : 230,
+    minerMultiplier : 1000,
+    lumberjackMultiplier : 2,
+    explorerCostRatio: 0,
+    housingCostRatio : 0,
+    gymCostRatio : 0.2,
+    tributeCostRatio : 0.7,
+    nurseryCostRatio : 0,
     maxLevel : 4,
     equipmentCostRatio : 0.999
 });
@@ -120,7 +133,7 @@ var constantsCorruption = new ConstantSet({
 //game variables, not for user setting
 const DominanceIndex = 2;
 const ScryerIndex = 4;
-var constantsSets = [constantsEarlyGame, constantsLateGame, constantsLateLateGame, constantsEndGame, constantsCorruption];
+var constantsSets = [constantsEarlyGame, constantsLateGame, constantsLateLateGame, constantsEndGame, constantsCorruption, constantsMagma];
 var constantsIndex;
 var constants;
 var trimpz = 0;             //"Trimpz" running indicator
@@ -354,7 +367,7 @@ function AssignFreeWorkers() {
         "Lumberjack" : 0,
         "Farmer" : 0
     };
-    if (game.global.world < 10 && getRemainingTimeForBreeding()>1) return;
+    if (game.global.world < 20 && getRemainingTimeForBreeding()>1) return;
     if (trimps.owned === 0 || game.global.firing) {
         return;
     }
@@ -807,8 +820,8 @@ function BuyBuildings() {
     var targetBreedTimeHysteresis = trimpzSettings["targetBreedTimeHysteresis"].value;
     if (!(game.global.mapsActive === true && game.global.preMapsActive === false)){
         game.global.buyAmt = 'Max';
-        game.global.maxSplit = constants.getNurseryCostRatio();
-        BuyBuilding("Nursery", constants.getNurseryCostRatio());
+//        game.global.maxSplit = constants.getNurseryCostRatio();
+ //       BuyBuilding("Nursery", constants.getNurseryCostRatio());
         game.global.maxSplit = constants.getTributeCostRatio();
         BuyBuilding("Tribute", constants.getTributeCostRatio());
         game.global.buyAmt = 1;
@@ -816,8 +829,8 @@ function BuyBuildings() {
     }
     else
     {
-        if (ShouldLowerBreedWithoutGeneticists())
-            BuyBuilding("Nursery", constants.getNurseryCostRatio());
+//        if (ShouldLowerBreedWithoutGeneticists())
+//            BuyBuilding("Nursery", constants.getNurseryCostRatio());
         BuyBuilding("Tribute", constants.getTributeCostRatio());
     }
 
@@ -2021,10 +2034,14 @@ function CheckPortal() {
     } else if (trimpzSettings["autoPortal"].value && game.global.mapBonus==10 && game.global.formation == 2 && !ableToOneShotAllMobs(true)){
         if (!shouldPortal)
         {
+            if (portalAtWorld==game.global.world)
+            {
+                shouldPortal = true;
+                beginPortalTime = new Date().getTime();
+                console.log('Warning: Portal at next zone: ' + (portalAtWorld+1));
+            }
+            else console.log('Warning: Not enough damage: ' + game.global.world);
             portalAtWorld = game.global.world+1;
-            shouldPortal = true;
-            beginPortalTime = new Date().getTime();
-            console.log('Warning: Portal at next zone: ' + portalAtWorld);
         }
     }
     else shouldPortal = false;
@@ -2628,7 +2645,7 @@ function ableToOneShotAllMobs(portal)
     else
         soldierAttack *= (1 + (0.2 * game.global.mapBonus));
         
-    if (portal) soldierAttack *= 1.8;
+    if (portal) soldierAttack *= 2.2;
 
     return soldierAttack>enemyHealth;
 }
