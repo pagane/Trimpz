@@ -861,9 +861,12 @@ function BuyBuildings() {
         }
     }
     
-    game.global.buyAmt = 'Max';
-    buyBuilding("Warpstation", true, true);
-    game.global.buyAmt = 1;
+    if (game.global.world<240)
+    {
+        game.global.buyAmt = 'Max';
+        buyBuilding("Warpstation", true, true);
+        game.global.buyAmt = 1;
+    }
 }
 
 function BuyShield() {
@@ -997,7 +1000,7 @@ function BuyEquipmentOrUpgrade(bestEquipGainPerMetal, bestUpgradeGainPerMetal, b
     else if (CanBuyNonUpgrade(game.equipment[bestEquipment], constants.getEquipmentCostRatio()) === true) {
         var upgrade = Object.keys(game.upgrades).filter(function(a){return game.upgrades[a].prestiges === bestEquipment;})[0];
         var upgradeStats = GetRatioForEquipmentUpgrade(upgrade, game.equipment[bestEquipment]);
-        if (upgradeStats.gainPerMetal < bestEquipGainPerMetal) {
+        if (upgradeStats.gainPerMetal < bestEquipGainPerMetal || (game.global.world>230 && game.equipment[bestEquipment].level<10)) {
             buyEquipment(bestEquipment, true, true);
             return true;
         }
