@@ -128,7 +128,7 @@ var constantsMagma = new ConstantSet({
     gymCostRatio : 0.2,
     tributeCostRatio : 0.7,
     nurseryCostRatio : 0,
-    maxLevel : 4,
+    maxLevel : 14,
     equipmentCostRatio : 0.999
 });
 
@@ -2196,6 +2196,7 @@ function FocusOnBreeding(){
         clearQueue("Warpstation");
     }*/
     if (game.global.world > 10 && game.resources.trimps.soldiers === 0 && getRemainingTimeForBreeding() > 1){
+        fightManual();
         ReallocateWorkers();
     }
 }
