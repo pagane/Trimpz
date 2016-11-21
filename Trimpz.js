@@ -23,6 +23,7 @@ ConstantSet.prototype = {
     lumberjackMultiplier : 1,           //how many more lumberjacks than farmers? (multiplied)
     trainerCostRatio : 0.4,             //buy trainers with enough resources (0.2 = 20% of resources)
     explorerCostRatio : 0.2,            //buy explorers with enough resources (0.2 = 20% of resources)
+    magmamancerCostRatio : 0.01,        //buy magmamancers with enough resources (0.2 = 20% of resources)
     minFoodOwned : 15,                  //minimum food on hand, required for beginning of the game
     minWoodOwned : 15,                  //minimum wood on hand, required for beginning of the game
     minTrimpsOwned : 9,                 //minimum trimps on hand, required for beginning of the game
@@ -43,6 +44,7 @@ ConstantSet.prototype = {
     getTrainerCostRatio: function () { return this.trainerCostRatio; },
     getMinerMultiplier: function () { return this.minerMultiplier; },
     getExplorerCostRatio: function () { return this.explorerCostRatio; },
+    getMagmamancerCostRatio: function () { return this.magmamancerCostRatio; },
     getMinFoodOwned: function () { return this.minFoodOwned; },
     getMinWoodOwned: function () { return this.minWoodOwned; },
     getMinTrimpsOwned: function () { return this.minTrimpsOwned; },
@@ -69,7 +71,7 @@ var constantsLateGame = new ConstantSet({
     housingCostRatio : 0.1,
     gymCostRatio : 0.95,
     tributeCostRatio : 0.8,
-    nurseryCostRatio : 0.15,
+    nurseryCostRatio : 0,
     maxLevel : 5,
     equipmentCostRatio : 0.8
 });
@@ -81,7 +83,7 @@ var constantsLateLateGame = new ConstantSet({
     housingCostRatio : 0.5,
     gymCostRatio : 0.8,
     tributeCostRatio : 0.9,
-    nurseryCostRatio : 0.2,
+    nurseryCostRatio : 0,
     maxLevel : 4,
     equipmentCostRatio : 0.9,
     getZoneToStartAt:
@@ -100,7 +102,7 @@ var constantsEndGame = new ConstantSet({
     housingCostRatio : 0,
     gymCostRatio : 0.5,
     tributeCostRatio : 0.7,
-    nurseryCostRatio : 0.2,
+    nurseryCostRatio : 0,
     maxLevel : 4,
     equipmentCostRatio : 0.9
 });
@@ -112,7 +114,20 @@ var constantsCorruption = new ConstantSet({
     housingCostRatio : 0,
     gymCostRatio : 0.2,
     tributeCostRatio : 0.7,
-    nurseryCostRatio : 0.2,
+    nurseryCostRatio : 0,
+    maxLevel : 4,
+    equipmentCostRatio : 0.999
+});
+
+var constantsMagma = new ConstantSet({
+    zoneToStartAt : 230,
+    minerMultiplier : 1000,
+    lumberjackMultiplier : 2,
+    explorerCostRatio: 0,
+    housingCostRatio : 0,
+    gymCostRatio : 0.2,
+    tributeCostRatio : 0.7,
+    nurseryCostRatio : 0,
     maxLevel : 4,
     equipmentCostRatio : 0.999
 });
@@ -120,7 +135,7 @@ var constantsCorruption = new ConstantSet({
 //game variables, not for user setting
 const DominanceIndex = 2;
 const ScryerIndex = 4;
-var constantsSets = [constantsEarlyGame, constantsLateGame, constantsLateLateGame, constantsEndGame, constantsCorruption];
+var constantsSets = [constantsEarlyGame, constantsLateGame, constantsLateLateGame, constantsEndGame, constantsCorruption, constantsMagma];
 var constantsIndex;
 var constants;
 var trimpz = 0;             //"Trimpz" running indicator
@@ -322,7 +337,7 @@ function getRemainingTimeForBreeding() {
     return timeRemaining;
 }
 
-function ShouldBuyGeneticist(food, extraGeneticists) {
+/*function ShouldBuyGeneticist(food, extraGeneticists) {
     "use strict";
     var trimps = game.resources.trimps;
     var cost;
@@ -339,17 +354,19 @@ function ShouldBuyGeneticist(food, extraGeneticists) {
         shouldBuy : shouldBuy,
         cost : cost
     };
-}
+}*/
 
 function AssignFreeWorkers() {
     "use strict";
     var trimps = game.resources.trimps;
     var food = game.resources.food.owned;
+    var gems = game.resources.gems.owned;
     var buy = {
         "Geneticist" : 0,
         "Trainer" : 0,
         "Explorer" : 0,
         "Scientist" : 0,
+        "Magmamancer" : 0,
         "Miner" : 0,
         "Lumberjack" : 0,
         "Farmer" : 0
@@ -362,13 +379,13 @@ function AssignFreeWorkers() {
     var free = (Math.ceil(trimps.realMax() / 2) - trimps.employed);
 
     //make room for a Geneticist
-    if (free === 0 && ShouldBuyGeneticist(food,0).shouldBuy){
+/*    if (free === 0 && ShouldBuyGeneticist(food,0).shouldBuy){
         game.global.firing = true;
         game.global.buyAmt = 20;
         buyJob("Farmer", null, true);
         game.global.firing = false;
         game.global.buyAmt = 1;
-    }
+    }*/
 
     if (free <= 0) return;
     var breedCount = (trimps.owned - trimps.employed > 2) ? Math.floor(trimps.owned - trimps.employed) : 0;
@@ -394,12 +411,12 @@ function AssignFreeWorkers() {
 
             free -= buy.Miner + buy.Lumberjack + buy.Farmer;
         }
-        var geneticistValues = ShouldBuyGeneticist(food, buy.Geneticist);
+/*        var geneticistValues = ShouldBuyGeneticist(food, buy.Geneticist);
         if (geneticistValues.shouldBuy){
             food -= geneticistValues.cost;
             buy.Geneticist += 1;
             free--;
-        } else if (game.jobs.Trainer.locked === 0 &&
+        } else */if (game.jobs.Trainer.locked === 0 &&
             (cost = CanBuyWorkerWithResource(game.jobs.Trainer, constants.getTrainerCostRatio(), food , buy.Trainer)) !== -1){
             food -= cost;
             buy.Trainer += 1;
@@ -413,6 +430,11 @@ function AssignFreeWorkers() {
             (cost = CanBuyWorkerWithResource(game.jobs.Scientist, 1, food, buy.Scientist)) !== -1) {
             food -= cost;
             buy.Scientist += 1;
+            free--;
+        } else if (game.jobs.Magmamancer.locked === 0 &&
+            (cost = CanBuyWorkerWithResource(game.jobs.Magmamancer, constants.getMagmamancerCostRatio(), gems, buy.Magmamancer)) !== -1){
+            gems -= cost;
+            buy.Magmamancer += 1;
             free--;
         } else if (game.jobs.Miner.locked === 0 && game.jobs.Miner.owned + buy.Miner < (game.jobs.Farmer.owned + buy.Farmer) * constants.getMinerMultiplier() &&
             (cost = CanBuyWorkerWithResource(game.jobs.Miner, 1, food, buy.Miner)) !== -1) {
@@ -726,7 +748,7 @@ function UpgradeAndGather() {
 /**
  * @return {boolean} return.shouldReturn Was priority found (stop further processing)?
  */
-function BeginPriorityAction() { //this is really just for the beginning (after a portal)
+/*function BeginPriorityAction() { //this is really just for the beginning (after a portal)
     "use strict";
     if (game.global.buildingsQueue.length > 0) {//Build queue
         if ( !game.global.trapBuildToggled||
@@ -758,7 +780,7 @@ function BeginPriorityAction() { //this is really just for the beginning (after 
         return true;
     }
     return false;
-}
+}*/
 
 /**
  * @return {boolean}
@@ -787,7 +809,7 @@ function BuyBuilding(buildingName, ratio, max, checkQueue){
 /**
  * @return {boolean}
  */
-function ShouldLowerBreedWithoutGeneticists(){
+/*function ShouldLowerBreedWithoutGeneticists(){
     "use strict";
     var targetBreedTime = trimpzSettings["targetBreedTime"].value;
     var targetBreedTimeHysteresis = trimpzSettings["targetBreedTimeHysteresis"].value;
@@ -797,7 +819,7 @@ function ShouldLowerBreedWithoutGeneticists(){
         return true;
     }
     return false;
-}
+}*/
 
 function BuyBuildings() {
     "use strict";
@@ -807,8 +829,8 @@ function BuyBuildings() {
     var targetBreedTimeHysteresis = trimpzSettings["targetBreedTimeHysteresis"].value;
     if (!(game.global.mapsActive === true && game.global.preMapsActive === false)){
         game.global.buyAmt = 'Max';
-        game.global.maxSplit = constants.getNurseryCostRatio();
-        BuyBuilding("Nursery", constants.getNurseryCostRatio());
+//        game.global.maxSplit = constants.getNurseryCostRatio();
+ //       BuyBuilding("Nursery", constants.getNurseryCostRatio());
         game.global.maxSplit = constants.getTributeCostRatio();
         BuyBuilding("Tribute", constants.getTributeCostRatio());
         game.global.buyAmt = 1;
@@ -816,8 +838,8 @@ function BuyBuildings() {
     }
     else
     {
-        if (ShouldLowerBreedWithoutGeneticists())
-            BuyBuilding("Nursery", constants.getNurseryCostRatio());
+//        if (ShouldLowerBreedWithoutGeneticists())
+//            BuyBuilding("Nursery", constants.getNurseryCostRatio());
         BuyBuilding("Tribute", constants.getTributeCostRatio());
     }
 
@@ -2019,7 +2041,7 @@ function CheckPortal() {
         document.getElementsByClassName("activatePortalBtn")[0].click();
         return true;
     } else if (trimpzSettings["autoPortal"].value && game.global.mapBonus==10 && game.global.formation == 2 && !ableToOneShotAllMobs(true)){
-        if (!shouldPortal)
+        if (!shouldPortal && (portalAtWorld != game.global.world+1))
         {
             if (portalAtWorld==game.global.world)
             {
@@ -2054,7 +2076,7 @@ function CheckFormation() {
         setFormation("4");
 }
 
-function FireGeneticists() {
+/*function FireGeneticists() {
     "use strict";
     var global = game.global;
     if (game.jobs.Geneticist.locked !== 0 ||
@@ -2078,7 +2100,7 @@ function FireGeneticists() {
         global.firing = false;
         remainingTimeForBreeding = getRemainingTimeForBreeding();
     }
-}
+}*/
 
 function MaxToxicStacks() {
     "use strict";
@@ -2165,13 +2187,13 @@ function TurnOffIncompatibleSettings() {
 }
 
 function FocusOnBreeding(){
-    var targetBreedTime = trimpzSettings["targetBreedTime"].value;
+/*    var targetBreedTime = trimpzSettings["targetBreedTime"].value;
     var hysteresis = trimpzSettings["targetBreedTimeHysteresis"].value;
     if(game.global.lastBreedTime / 1000 > targetBreedTime - getRemainingTimeForBreeding() + hysteresis &&
         game.jobs.Geneticist.owned < 10 ||
         game.resources.trimps.soldiers === 0){
         clearQueue("Warpstation");
-    }
+    }*/
     if (game.global.world > 10 && game.resources.trimps.soldiers === 0 && getRemainingTimeForBreeding() > 1){
         ReallocateWorkers();
     }
@@ -2220,12 +2242,12 @@ function MainLoop(){
     MaxToxicStacks();
     RunVoidMaps();
     ClickAllNonEquipmentUpgrades();
-    var shouldReturn = BeginPriorityAction();
+/*    var shouldReturn = BeginPriorityAction();
     if (shouldReturn === true) {
         return;
-    }
+    }*/
     var collectingForUpgrade = UpgradeAndGather();
-    FireGeneticists();
+//    FireGeneticists();
     if (collectingForUpgrade === false) { //allow resources to accumulate for upgrades if true
         BuyMetalEquipment();
         BuyBuildings();
