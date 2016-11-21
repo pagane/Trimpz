@@ -1991,7 +1991,7 @@ function CheckPortal() {
                 RunMap(theMap);
             }
         }
-    } else if (game.global.world >= trimpzSettings["portalAt"].value && game.global.challengeActive !== "Electricity" && (!trimpzSettings["autoPortal"].value  || (shouldPortal && portalAtWorld == game.global.world))) {
+    } else if (game.global.world >= trimpzSettings["portalAt"].value && game.global.challengeActive !== "Electricity" && (!trimpzSettings["autoPortal"].value  || (shouldPortal && portalAtWorld == game.global.world)) || game.global.world==400) {
         
         heliumLog.push(heliumHistory);
         shouldPortal = false;
