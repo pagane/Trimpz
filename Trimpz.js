@@ -249,6 +249,7 @@ function GetNonUpgradePrice(nonUpgradeItem, resource) {
 function CanBuyWorkerWithResource(job, ratio, food, extraWorkers){
     "use strict";
     var cost = job.cost.food;
+    if (job === game.jobs.Magmamancer) cost = job.cost.gems;
     var price = 0;
     if (typeof cost[1] != 'undefined')
         price =  Math.floor((cost[0] * Math.pow(cost[1], job.owned + extraWorkers)) * ((Math.pow(cost[1], 1) - 1) / (cost[1] - 1)));
@@ -2195,6 +2196,7 @@ function FocusOnBreeding(){
         clearQueue("Warpstation");
     }*/
     if (game.global.world > 10 && game.resources.trimps.soldiers === 0 && getRemainingTimeForBreeding() > 1){
+        fightManual();
         ReallocateWorkers();
     }
 }
