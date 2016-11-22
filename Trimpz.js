@@ -1524,17 +1524,19 @@ function getLevelOfOverkillMap(){
     "use strict";
     var soldierAttack = getSoldierCritAttack(game.global.world, true);
     var enemyHealth;
+    var attack;
     
     if (game.unlocks.imps.Titimp) soldierAttack *= 2;
     
     if (game.global.formation == 2)
         soldierAttack /= 8; //Maps will be run with less attack in Scryer formation.
+        
 
     for (var mapLevel = game.global.world; mapLevel > 6; mapLevel--) {
         enemyHealth = getAverageEnemyHealthForLevel(mapLevel, true, false);
-        soldierAttack -= enemyHealth;
-        if (soldierAttack < 1) continue;
-        if (soldierAttack * game.portal.Overkill.level * 0.005 >= enemyHealth) return mapLevel;
+        attack = soldierAttack - enemyHealth;
+        if (attack < 1) continue;
+        if (attack * game.portal.Overkill.level * 0.005 >= enemyHealth) return mapLevel;
     }
     return 6;
 
@@ -2084,7 +2086,7 @@ function CheckFormation() {
         setFormation("2");
     else if (game.global.formation == 4 && !(game.global.mapsActive === true && game.global.preMapsActive === false) && !ableToOverkillAllMobs())
         setFormation("2");
-    else if (game.global.formation == 4 && game.global.mapsActive === true && game.global.preMapsActive === false && oneShotMapLevel<getCurrentMapObject().level)
+    else if (game.global.mapsActive === true && game.global.preMapsActive === false && oneShotMapLevel<getCurrentMapObject().level)
         setFormation("2");
     else if (game.global.formation == 2 && !(game.global.mapsActive === true && game.global.preMapsActive === false) && !ableToOverkillAllMobs(true))
         return;
