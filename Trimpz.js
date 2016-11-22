@@ -907,12 +907,12 @@ function FindBestEquipmentToLevel(filterOnStat) {
                 if (!currentEquip.healthCalculated){
                     continue;
                 }
+                if (currentEquip.prestige<game.equipment["Boots"].prestige-1) continue;
             } else { //Attack
                 if (currentEquip.healthCalculated){
                     continue;
                 }
-                /*if (trimpzSettings["ignoreAllButDagger"].value && anEquipment != "Dagger") continue;
-                else*/ if (currentEquip.prestige<game.equipment["Dagger"].prestige-1) continue;
+                if (currentEquip.prestige<game.equipment["Dagger"].prestige-1) continue;
             }
         }
         
@@ -1067,12 +1067,12 @@ function FindAndBuyEquipment(stat, justgetcost) {
 
 function BuyMetalEquipment() {
     "use strict";
-    var attacksToDie = canTakeOnBoss();
-    var needHealth = attacksToDie.attacksToKillSoldiers < trimpzSettings["minAttackstoDie"].value;
+//    var attacksToDie = canTakeOnBoss();
+//    var needHealth = attacksToDie.attacksToKillSoldiers < trimpzSettings["minAttackstoDie"].value;
     
-    if (needHealth)
+//    if (needHealth)
         FindAndBuyEquipment("Health");
-    else
+//    else
         FindAndBuyEquipment("Attack");
         
     BuyCheapEquipmentUpgrades();
