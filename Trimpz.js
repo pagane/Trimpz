@@ -1871,7 +1871,7 @@ function RunMaps() {
 /*    if (game.global.preMapsActive === false && game.resources.trimps.owned < game.resources.trimps.realMax() && game.resources.trimps.soldiers !== 0 && game.global.world!=47) {
         return;
     }*/
-    if (game.global.lastBreedTime<30000) return;
+    if (game.global.lastBreedTime<30000 && game.resources.trimps.soldiers !== 0) return;
 //    if (getRemainingTimeForBreeding()>5) return;
     if (game.global.lastClearedCell > 40)
     {
@@ -2167,7 +2167,7 @@ function RunVoidMaps() {
     }
     if ((game.global.lastClearedCell > trimpzSettings["lastCell"].value && getRemainingTimeForBreeding()<1) || game.global.lastClearedCell > 96) {
 //        if (ableToRunVoidMap(game.global.world+1) === false && ableToRunVoidMap(game.global.world-2) === true && game.global.world%10<5 && game.global.world%10>0 || (shouldPortal && portalAtWorld == game.global.world))
-        if (shouldPortal && portalAtWorld == game.global.world)
+        if (shouldPortal && portalAtWorld == game.global.world+1)
         {
             var theMap;
             for (var map in game.global.mapsOwnedArray) {
