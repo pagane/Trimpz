@@ -393,7 +393,8 @@ function AssignFreeWorkers() {
     if (free > trimps.owned){
         free = Math.floor(trimps.owned / 3);
     }
-    if (game.global.world > 10 && (game.resources.trimps.soldiers === 0 || getRemainingTimeForBreeding() > trimpzSettings["targetBreedTime"].value)) {
+    if (game.global.world > 10 && !game.global.mapsActive && game.resources.trimps.soldiers === 0) {
+//    if (game.global.world > 10 && !game.global.mapsActive && (game.resources.trimps.soldiers === 0 || getRemainingTimeForBreeding() > trimpzSettings["targetBreedTime"].value)) {
         return;
     }
     var cost;
@@ -2000,7 +2001,7 @@ function CheckPortal() {
                 RunMap(theMap);
             }
         }
-    } else if (game.global.world >= trimpzSettings["portalAt"].value && game.global.challengeActive !== "Electricity" && (!trimpzSettings["autoPortal"].value  || (shouldPortal && portalAtWorld == game.global.world)) || game.global.world==400) {
+    } else if (game.global.world >= trimpzSettings["portalAt"].value && game.global.challengeActive !== "Electricity" && (!trimpzSettings["autoPortal"].value  || (shouldPortal && portalAtWorld == game.global.world))) {
         
         heliumLog.push(heliumHistory);
         shouldPortal = false;
@@ -2209,7 +2210,8 @@ function FocusOnBreeding(){
     }*/
     if (game.global.world > 10 && game.resources.trimps.soldiers === 0 && getRemainingTimeForBreeding() > 1){
         fightManual();
-        ReallocateWorkers();
+        if (!game.global.mapsActive)
+            ReallocateWorkers();
     }
 }
 
