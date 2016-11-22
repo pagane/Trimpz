@@ -1367,6 +1367,8 @@ function calculateDamageLocal(number, isTrimp, world, calcForMap) { //number = b
         max *= antiMult;
     }
     number = (max + min)/2;
+    if (mutations.Magma.active())
+        number *= mutations.Magma.getTrimpDecay();
     return number;
 }
 
@@ -1496,8 +1498,15 @@ function getAverageEnemyHealthForLevel(worldLevel, isMap, isVoid) {  //adapted f
     if (game.global.challengeActive == "Coordinate") amt *= badCoord;
     if (isMap || isVoid) {
         amt *= difficulty;
-		if (isVoid && world >= corruptionStart)
-			amt *= (mutations.Corruption.statScale(10) / 2).toFixed(1);
+		if (world >= corruptionStart)
+		{
+    		if (mutations.Magma.active() && isVoid){
+				amt *= (mutations.Corruption.statScale(10)).toFixed(1);
+			}
+			else if (isVoid || mutations.Magma.active()){
+				amt *= (mutations.Corruption.statScale(10) / 2).toFixed(1);
+			}
+		}
     }
 	if (game.global.challengeActive == "Meditate" || game.global.challengeActive == "Toxicity" || game.global.challengeActive == "Balance") amt *= 2;
     if (game.global.challengeActive == "Daily")
