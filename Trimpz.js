@@ -2149,7 +2149,7 @@ function RunVoidMaps() {
         return;
     }
     if ((game.global.lastClearedCell > trimpzSettings["lastCell"].value && getRemainingTimeForBreeding()<1) || game.global.lastClearedCell > 96) {
-        if (ableToRunVoidMap(game.global.world+1) === false && ableToRunVoidMap(game.global.world-1) === true)
+        if (ableToRunVoidMap(game.global.world+1) === false && ableToRunVoidMap(game.global.world-2) === true && game.global.world%10<5 && game.global.world%10>0)
         {
             var theMap;
             for (var map in game.global.mapsOwnedArray) {
@@ -2636,6 +2636,8 @@ function ableToGetChronoUpgrade()
     {
         chronoImpLoot = getChronoImpLoot('metal');
         eqCost = FindAndBuyEquipment("Attack", true);
+        
+        if (game.resources['metal'].owned>eqCost) return false;
         
         if (game.resources['metal'].owned+chronoImpLoot>eqCost*1.1) return true;
     }
