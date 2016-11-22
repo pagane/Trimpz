@@ -907,12 +907,12 @@ function FindBestEquipmentToLevel(filterOnStat) {
                 if (!currentEquip.healthCalculated){
                     continue;
                 }
+                if (currentEquip.prestige<game.equipment["Boots"].prestige-1) continue;
             } else { //Attack
                 if (currentEquip.healthCalculated){
                     continue;
                 }
-                /*if (trimpzSettings["ignoreAllButDagger"].value && anEquipment != "Dagger") continue;
-                else*/ if (currentEquip.prestige<game.equipment["Dagger"].prestige-1) continue;
+                if (currentEquip.prestige<game.equipment["Dagger"].prestige-1) continue;
             }
         }
         
@@ -2076,11 +2076,15 @@ function CheckFormation() {
         return;
     }
     
+    var oneShotMapLevel = game.portal.Overkill.level ? getLevelOfOverkillMap() : getLevelOfOneShotMap();
+    
     if (game.global.world===200 && (game.global.lastClearedCell+1) >= trimpzSettings["spireDominance"].value)
         setFormation("2");
     else if (game.global.mapsActive === true && game.global.preMapsActive === false && getCurrentMapObject().location === "Void")
         setFormation("2");
     else if (game.global.formation == 4 && !(game.global.mapsActive === true && game.global.preMapsActive === false) && !ableToOverkillAllMobs())
+        setFormation("2");
+    else if (game.global.formation == 4 && game.global.mapsActive === true && game.global.preMapsActive === false && oneShotMapLevel<getCurrentMapObject().level)
         setFormation("2");
     else if (game.global.formation == 2 && !(game.global.mapsActive === true && game.global.preMapsActive === false) && !ableToOverkillAllMobs(true))
         return;
