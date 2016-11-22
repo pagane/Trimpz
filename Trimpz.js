@@ -1659,7 +1659,7 @@ function ManageRepeatMaps() {
 
     if (mapRunStatus) {
         if (mapRunStatus === "Prestige") {
-            if (!ableToOverkillAllMobs())
+//            if (!ableToOverkillAllMobs())
             {
                 prestige = trimpzSettings["prestige"].value;
                 var mapDrop = game.global.mapGridArray[game.global.mapGridArray.length - 1].special;
