@@ -1863,6 +1863,7 @@ function RunMaps() {
 /*    if (game.global.preMapsActive === false && game.resources.trimps.owned < game.resources.trimps.realMax() && game.resources.trimps.soldiers !== 0 && game.global.world!=47) {
         return;
     }*/
+    if (getRemainingTimeForBreeding()>5)) return;
     if (game.global.lastClearedCell > 30)
     {
         if (game.global.preMapsActive === true)
