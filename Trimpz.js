@@ -393,7 +393,7 @@ function AssignFreeWorkers() {
     if (free > trimps.owned){
         free = Math.floor(trimps.owned / 3);
     }
-    if (game.global.world > 10 && (game.resources.trimps.soldiers === 0 || getRemainingTimeForBreeding() > trimpzSettings["targetBreedTime"].value)) {
+    if (game.global.world > 10 && !game.global.mapsActive && (game.resources.trimps.soldiers === 0 || getRemainingTimeForBreeding() > trimpzSettings["targetBreedTime"].value)) {
         return;
     }
     var cost;
@@ -861,9 +861,12 @@ function BuyBuildings() {
         }
     }
     
-    game.global.buyAmt = 'Max';
-    buyBuilding("Warpstation", true, true);
-    game.global.buyAmt = 1;
+    if (game.global.world<240)
+    {
+        game.global.buyAmt = 'Max';
+        buyBuilding("Warpstation", true, true);
+        game.global.buyAmt = 1;
+    }
 }
 
 function BuyShield() {
@@ -997,7 +1000,7 @@ function BuyEquipmentOrUpgrade(bestEquipGainPerMetal, bestUpgradeGainPerMetal, b
     else if (CanBuyNonUpgrade(game.equipment[bestEquipment], constants.getEquipmentCostRatio()) === true) {
         var upgrade = Object.keys(game.upgrades).filter(function(a){return game.upgrades[a].prestiges === bestEquipment;})[0];
         var upgradeStats = GetRatioForEquipmentUpgrade(upgrade, game.equipment[bestEquipment]);
-        if (upgradeStats.gainPerMetal < bestEquipGainPerMetal) {
+        if (upgradeStats.gainPerMetal < bestEquipGainPerMetal || (game.global.world>230 && game.equipment[bestEquipment].level<10)) {
             buyEquipment(bestEquipment, true, true);
             return true;
         }
@@ -1364,6 +1367,8 @@ function calculateDamageLocal(number, isTrimp, world, calcForMap) { //number = b
         max *= antiMult;
     }
     number = (max + min)/2;
+    if (mutations.Magma.active())
+        number *= mutations.Magma.getTrimpDecay();
     return number;
 }
 
@@ -1493,8 +1498,15 @@ function getAverageEnemyHealthForLevel(worldLevel, isMap, isVoid) {  //adapted f
     if (game.global.challengeActive == "Coordinate") amt *= badCoord;
     if (isMap || isVoid) {
         amt *= difficulty;
-		if (isVoid && world >= corruptionStart)
-			amt *= (mutations.Corruption.statScale(10) / 2).toFixed(1);
+		if (world >= corruptionStart)
+		{
+    		if (mutations.Magma.active() && isVoid){
+				amt *= (mutations.Corruption.statScale(10)).toFixed(1);
+			}
+			else if (isVoid || mutations.Magma.active()){
+				amt *= (mutations.Corruption.statScale(10) / 2).toFixed(1);
+			}
+		}
     }
 	if (game.global.challengeActive == "Meditate" || game.global.challengeActive == "Toxicity" || game.global.challengeActive == "Balance") amt *= 2;
     if (game.global.challengeActive == "Daily")
@@ -1988,7 +2000,7 @@ function CheckPortal() {
                 RunMap(theMap);
             }
         }
-    } else if (game.global.world >= trimpzSettings["portalAt"].value && game.global.challengeActive !== "Electricity" && (!trimpzSettings["autoPortal"].value  || (shouldPortal && portalAtWorld == game.global.world))) {
+    } else if (game.global.world >= trimpzSettings["portalAt"].value && game.global.challengeActive !== "Electricity" && (!trimpzSettings["autoPortal"].value  || (shouldPortal && portalAtWorld == game.global.world)) || game.global.world==400) {
         
         heliumLog.push(heliumHistory);
         shouldPortal = false;
@@ -2197,7 +2209,8 @@ function FocusOnBreeding(){
     }*/
     if (game.global.world > 10 && game.resources.trimps.soldiers === 0 && getRemainingTimeForBreeding() > 1){
         fightManual();
-        ReallocateWorkers();
+        if (!game.global.mapsActive)
+            ReallocateWorkers();
     }
 }
 
