@@ -1067,12 +1067,12 @@ function FindAndBuyEquipment(stat, justgetcost) {
 
 function BuyMetalEquipment() {
     "use strict";
-    var attacksToDie = canTakeOnBoss();
-    var needHealth = attacksToDie.attacksToKillSoldiers < trimpzSettings["minAttackstoDie"].value;
+//    var attacksToDie = canTakeOnBoss();
+//    var needHealth = attacksToDie.attacksToKillSoldiers < trimpzSettings["minAttackstoDie"].value;
     
-    if (needHealth)
+//    if (needHealth)
         FindAndBuyEquipment("Health");
-    else
+//    else
         FindAndBuyEquipment("Attack");
         
     BuyCheapEquipmentUpgrades();
