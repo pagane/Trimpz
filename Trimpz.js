@@ -1368,8 +1368,6 @@ function calculateDamageLocal(number, isTrimp, world, calcForMap) { //number = b
         max *= antiMult;
     }
     number = (max + min)/2;
-    if (mutations.Magma.active())
-        number *= mutations.Magma.getTrimpDecay();
     return number;
 }
 
