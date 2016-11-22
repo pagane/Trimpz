@@ -1987,6 +1987,7 @@ function CheckPortal() {
     var map;
     var theMap;
     var itemsAvailable;
+    if (game.global.world%10>6 || game.global.world%10==0) return;
     if (game.global.world >= trimpzSettings["portalAt"].value - 2 && !game.global.portalActive && (game.resources.trimps.soldiers === 0 || game.resources.trimps.owned === game.resources.trimps.realMax()))
     {
         if (game.global.mapsActive)
