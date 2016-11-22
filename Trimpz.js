@@ -1858,7 +1858,7 @@ function RunMaps() {
         repeatClicked();
     }
 
-    if (game.global.preMapsActive === false && game.resources.trimps.owned < game.resources.trimps.realMax() && game.resources.trimps.soldiers !== 0 && game.global.world!=47) {
+    if (game.global.preMapsActive === false && /*game.resources.trimps.owned < game.resources.trimps.realMax() && game.resources.trimps.soldiers !== 0 && */game.global.world!=47) {
         return;
     }
     if (game.global.lastClearedCell > 30)
