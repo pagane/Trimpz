@@ -1524,17 +1524,19 @@ function getLevelOfOverkillMap(){
     "use strict";
     var soldierAttack = getSoldierCritAttack(game.global.world, true);
     var enemyHealth;
+    var attack;
     
     if (game.unlocks.imps.Titimp) soldierAttack *= 2;
     
     if (game.global.formation == 2)
         soldierAttack /= 8; //Maps will be run with less attack in Scryer formation.
+        
 
     for (var mapLevel = game.global.world; mapLevel > 6; mapLevel--) {
         enemyHealth = getAverageEnemyHealthForLevel(mapLevel, true, false);
-        soldierAttack -= enemyHealth;
-        if (soldierAttack < 1) continue;
-        if (soldierAttack * game.portal.Overkill.level * 0.005 >= enemyHealth) return mapLevel;
+        attack = soldierAttack - enemyHealth;
+        if (attack < 1) continue;
+        if (attack * game.portal.Overkill.level * 0.005 >= enemyHealth) return mapLevel;
     }
     return 6;
 
@@ -2076,11 +2078,15 @@ function CheckFormation() {
         return;
     }
     
+    var oneShotMapLevel = game.portal.Overkill.level ? getLevelOfOverkillMap() : getLevelOfOneShotMap();
+    
     if (game.global.world===200 && (game.global.lastClearedCell+1) >= trimpzSettings["spireDominance"].value)
         setFormation("2");
     else if (game.global.mapsActive === true && game.global.preMapsActive === false && getCurrentMapObject().location === "Void")
         setFormation("2");
     else if (game.global.formation == 4 && !(game.global.mapsActive === true && game.global.preMapsActive === false) && !ableToOverkillAllMobs())
+        setFormation("2");
+    else if (game.global.mapsActive === true && game.global.preMapsActive === false && oneShotMapLevel<getCurrentMapObject().level)
         setFormation("2");
     else if (game.global.formation == 2 && !(game.global.mapsActive === true && game.global.preMapsActive === false) && !ableToOverkillAllMobs(true))
         return;
@@ -2149,7 +2155,7 @@ function RunVoidMaps() {
         return;
     }
     if ((game.global.lastClearedCell > trimpzSettings["lastCell"].value && getRemainingTimeForBreeding()<1) || game.global.lastClearedCell > 96) {
-        if (ableToRunVoidMap(game.global.world+1) === false && ableToRunVoidMap(game.global.world-2) === true && game.global.world%10<5 && game.global.world%10>0)
+        if (ableToRunVoidMap(game.global.world+1) === false && ableToRunVoidMap(game.global.world-2) === true && game.global.world%10<5 && game.global.world%10>0 || (shouldPortal && portalAtWorld == game.global.world))
         {
             var theMap;
             for (var map in game.global.mapsOwnedArray) {
