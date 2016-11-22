@@ -393,7 +393,8 @@ function AssignFreeWorkers() {
     if (free > trimps.owned){
         free = Math.floor(trimps.owned / 3);
     }
-    if (game.global.world > 10 && !game.global.mapsActive && (game.resources.trimps.soldiers === 0 || getRemainingTimeForBreeding() > trimpzSettings["targetBreedTime"].value)) {
+    if (game.global.world > 10 && !game.global.mapsActive && game.resources.trimps.soldiers === 0) {
+//    if (game.global.world > 10 && !game.global.mapsActive && (game.resources.trimps.soldiers === 0 || getRemainingTimeForBreeding() > trimpzSettings["targetBreedTime"].value)) {
         return;
     }
     var cost;
@@ -1367,8 +1368,6 @@ function calculateDamageLocal(number, isTrimp, world, calcForMap) { //number = b
         max *= antiMult;
     }
     number = (max + min)/2;
-    if (mutations.Magma.active())
-        number *= mutations.Magma.getTrimpDecay();
     return number;
 }
 
@@ -1859,9 +1858,9 @@ function RunMaps() {
         repeatClicked();
     }
 
-    if (game.global.preMapsActive === false && game.resources.trimps.owned < game.resources.trimps.realMax() && game.resources.trimps.soldiers !== 0 && game.global.world!=47) {
+/*    if (game.global.preMapsActive === false && game.resources.trimps.owned < game.resources.trimps.realMax() && game.resources.trimps.soldiers !== 0 && game.global.world!=47) {
         return;
-    }
+    }*/
     if (game.global.lastClearedCell > 30)
     {
         if (game.global.preMapsActive === true)
@@ -2000,7 +1999,7 @@ function CheckPortal() {
                 RunMap(theMap);
             }
         }
-    } else if (game.global.world >= trimpzSettings["portalAt"].value && game.global.challengeActive !== "Electricity" && (!trimpzSettings["autoPortal"].value  || (shouldPortal && portalAtWorld == game.global.world)) || game.global.world==400) {
+    } else if (game.global.world >= trimpzSettings["portalAt"].value && game.global.challengeActive !== "Electricity" && (!trimpzSettings["autoPortal"].value  || (shouldPortal && portalAtWorld == game.global.world))) {
         
         heliumLog.push(heliumHistory);
         shouldPortal = false;
