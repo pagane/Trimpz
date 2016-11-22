@@ -1858,9 +1858,9 @@ function RunMaps() {
         repeatClicked();
     }
 
-    if (game.global.preMapsActive === false && /*game.resources.trimps.owned < game.resources.trimps.realMax() && game.resources.trimps.soldiers !== 0 && */game.global.world!=47) {
+/*    if (game.global.preMapsActive === false && game.resources.trimps.owned < game.resources.trimps.realMax() && game.resources.trimps.soldiers !== 0 && game.global.world!=47) {
         return;
-    }
+    }*/
     if (game.global.lastClearedCell > 30)
     {
         if (game.global.preMapsActive === true)
@@ -2636,6 +2636,8 @@ function ableToGetChronoUpgrade()
     {
         chronoImpLoot = getChronoImpLoot('metal');
         eqCost = FindAndBuyEquipment("Attack", true);
+        
+        if (game.resources['metal'].owned>eqCost) return false;
         
         if (game.resources['metal'].owned+chronoImpLoot>eqCost*1.1) return true;
     }
