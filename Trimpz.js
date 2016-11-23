@@ -127,7 +127,7 @@ var constantsMagma = new ConstantSet({
     housingCostRatio : 0,
     gymCostRatio : 0.2,
     tributeCostRatio : 0.7,
-    nurseryCostRatio : 0,
+    nurseryCostRatio : 0.5,
     maxLevel : 14,
     equipmentCostRatio : 0.999
 });
@@ -853,7 +853,7 @@ function BuyBuildings() {
         BuyBuilding("Tribute", constants.getTributeCostRatio());
     }
     
-    if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax*20)
+    if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax/20)
         BuyBuilding("Nursery", constants.getNurseryCostRatio());
 
     BuyBuilding("Hut", constants.getHousingCostRatio());
@@ -1184,7 +1184,7 @@ function RunNewMap(zoneToCreate) {
     var difficulty = 9; //0-9
     var loot = 0; //0-9
     var highFragmentLoot = 9;
-    var biome = "Random";
+    var biome = "Plentiful";
 
     document.getElementById("difficultyAdvMapsRange").value = difficulty;
     adjustMap('difficulty', difficulty);
@@ -1385,11 +1385,12 @@ function getEnemyAttackForLevel(worldLevel, calcForMap, enemyName) { //adapted f
 	}	
 	if (world < 60) amt *= 0.85;
 	if (world > 6 && calcForMap) amt *= 1.1;
-	amt *= game.badGuys[name].attack;
+	if (typeof name !== 'undefined')
+	    amt *= game.badGuys[name].attack;
 	amt =  Math.floor(amt);
 	
 	amt*=mutations.Corruption.statScale(3);
-	cell.attack *= 2; // Strong
+	amt *= 2; // Strong
 
     if (calcForMap) amt *= difficulty;
     if (game.global.challengeActive == "Toxicity") amt *= 5;
@@ -1597,6 +1598,7 @@ function ManageRepeatMaps() {
     if (mapRunStatus) {
         if (mapRunStatus === "Prestige") {
 //            if (!ableToOverkillAllMobs())
+            if (mapBonus < 9)
             {
                 prestige = trimpzSettings["prestige"].value;
                 var mapDrop = game.global.mapGridArray[game.global.mapGridArray.length - 1].special;
@@ -1694,7 +1696,7 @@ function RunPrestigeMaps(){
     
     prestige = trimpzSettings["prestige"].value;
 
-    if (ableToOverkillAllMobs(true)) return;
+    if (ableToOverkillAllMobs(true) || game.global.mapBonus == 10) return;
     if (prestige !== "Off" && game.mapUnlocks[prestige].last <= game.global.world - 5 && !isPrestigeFull(null,prestige)){
         if (game.options.menu.mapLoot.enabled != 1)
             toggleSetting("mapLoot");
