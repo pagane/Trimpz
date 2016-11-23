@@ -7,6 +7,7 @@ if (trimpzSettings === undefined) {
 
 automationMenuInit();
 createSetting('portalAt', 'Portal Zone', 'Portal after this zone', 'value', 510);
+createSetting('voidMapsAt', 'Void Map Zone', 'Void maps on this zone', 'value', 510);
 createSetting('challenge', 'Challenge', 'Challenge to run on portal', 'dropdown', 'Corrupted', ['None', 'Balance', 'Electricity', 'Crushed', 'Nom', 'Toxicity', 'Watch', 'Lead', 'Corrupted']);
 createSetting('minimumWarpStations', 'Min Warpstations', 'Minimum number of warpstations on hand before buying a gigastation', 'value', 20);
 createSetting('deltaIncreaseInMinimumWarpstationsPerGigastationPurchase', 'Warpstation Delta', 'Increase the minimum number of warpstations required to purchase a gigastation by this number for each gigastation purchased', 'value', 2);

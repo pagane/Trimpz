@@ -2167,7 +2167,7 @@ function RunVoidMaps() {
     }
     if ((game.global.lastClearedCell > trimpzSettings["lastCell"].value && getRemainingTimeForBreeding()<1) || game.global.lastClearedCell > 96) {
 //        if (ableToRunVoidMap(game.global.world+1) === false && ableToRunVoidMap(game.global.world-2) === true && game.global.world%10<5 && game.global.world%10>0 || (shouldPortal && portalAtWorld == game.global.world))
-        if (shouldPortal && portalAtWorld == game.global.world+1)
+        if (trimpzSettings["voidMapsAt"].value <= game.global.world)
         {
             var theMap;
             for (var map in game.global.mapsOwnedArray) {
