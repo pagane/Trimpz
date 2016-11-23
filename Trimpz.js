@@ -1390,7 +1390,7 @@ function getEnemyAttackForLevel(worldLevel, calcForMap, enemyName) { //adapted f
 	amt =  Math.floor(amt);
 	
 	amt*=mutations.Corruption.statScale(3);
-	cell.attack *= 2; // Strong
+	amt *= 2; // Strong
 
     if (calcForMap) amt *= difficulty;
     if (game.global.challengeActive == "Toxicity") amt *= 5;
