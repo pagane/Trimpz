@@ -127,7 +127,7 @@ var constantsMagma = new ConstantSet({
     housingCostRatio : 0,
     gymCostRatio : 0.2,
     tributeCostRatio : 0.7,
-    nurseryCostRatio : 0,
+    nurseryCostRatio : 0.5,
     maxLevel : 14,
     equipmentCostRatio : 0.999
 });
@@ -158,6 +158,7 @@ var warpsAtLastGiga = 0;
 var beginPortalTime;
 var firstVoidMap = 0;
 var firstOverkillFail = 0;
+var prestiges = ["Dagadder", "Bootboost", "Megamace", "Hellishmet", "Polierarm", "Pantastic", "Axeidic", "Smoldershoulder", "Greatersword", "Bestplate", "Harmbalest", "GambesOP"];
 
 //Loads the automation settings from browser cache
 function loadPageVariables() {
@@ -1012,7 +1013,7 @@ function BuyEquipmentOrUpgrade(bestEquipGainPerMetal, bestUpgradeGainPerMetal, b
     else if (CanBuyNonUpgrade(game.equipment[bestEquipment], constants.getEquipmentCostRatio()) === true) {
         var upgrade = Object.keys(game.upgrades).filter(function(a){return game.upgrades[a].prestiges === bestEquipment;})[0];
         var upgradeStats = GetRatioForEquipmentUpgrade(upgrade, game.equipment[bestEquipment]);
-        if (upgradeStats.gainPerMetal < bestEquipGainPerMetal || (game.global.world>230 && game.equipment[bestEquipment].level<20)) {
+        if (upgradeStats.gainPerMetal < bestEquipGainPerMetal || (game.global.world>230 && game.equipment[bestEquipment].level<25)) {
             buyEquipment(bestEquipment, true, true);
             return true;
         }
@@ -1184,7 +1185,7 @@ function RunNewMap(zoneToCreate) {
     var difficulty = 9; //0-9
     var loot = 0; //0-9
     var highFragmentLoot = 9;
-    var biome = "Random";
+    var biome = "Plentiful";
 
     document.getElementById("difficultyAdvMapsRange").value = difficulty;
     adjustMap('difficulty', difficulty);
@@ -1693,30 +1694,35 @@ function RunPrestigeMaps(){
     var oneShotMapLevel;
     var mapLevelToRun;
     var prestige;
+    var item;
     
     prestige = trimpzSettings["prestige"].value;
 
     if (ableToOverkillAllMobs(true) || game.global.mapBonus == 10) return;
-    if (prestige !== "Off" && game.mapUnlocks[prestige].last <= game.global.world - 5 && !isPrestigeFull(null,prestige)){
-        if (game.options.menu.mapLoot.enabled != 1)
-            toggleSetting("mapLoot");
-        mapLevelWithDrop = game.mapUnlocks[prestige].last + 5;
-        siphonMapLevel = game.global.world - game.portal.Siphonology.level;
-        oneShotMapLevel = game.portal.Overkill.level ? getLevelOfOverkillMap() : getLevelOfOneShotMap();
-        mapLevelToRun = Math.max(oneShotMapLevel, siphonMapLevel, mapLevelWithDrop);
-        setMapRunStatus("Prestige");
-        for (map in game.global.mapsOwnedArray){ //look for an existing map first
-            theMap = game.global.mapsOwnedArray[map];
-            if (uniqueMaps.indexOf(theMap.name) > -1 || theMap.name.indexOf("Bionic Wonderland") > -1){
-                continue;
+    for (item in prestiges)
+    {
+        if (prestige !== "Off" && game.mapUnlocks[prestiges[item]].last <= game.global.world - 5 && !isPrestigeFull(null,prestiges[item])){
+            if (game.options.menu.mapLoot.enabled != 1)
+                toggleSetting("mapLoot");
+            mapLevelWithDrop = game.mapUnlocks[prestiges[item]].last + 5;
+            siphonMapLevel = game.global.world - game.portal.Siphonology.level;
+            oneShotMapLevel = game.portal.Overkill.level ? getLevelOfOverkillMap() : getLevelOfOneShotMap();
+            mapLevelToRun = Math.max(oneShotMapLevel, siphonMapLevel, mapLevelWithDrop);
+            setMapRunStatus("Prestige");
+            for (map in game.global.mapsOwnedArray){ //look for an existing map first
+                theMap = game.global.mapsOwnedArray[map];
+                if (uniqueMaps.indexOf(theMap.name) > -1 || theMap.name.indexOf("Bionic Wonderland") > -1){
+                    continue;
+                }
+                if (theMap.level === mapLevelToRun) {
+                    RunMap(game.global.mapsOwnedArray[map]);
+                    return true;
+                }
             }
-            if (theMap.level === mapLevelToRun) {
-                RunMap(game.global.mapsOwnedArray[map]);
-                return true;
-            }
+            RunNewMap(mapLevelToRun);
+            return true;
         }
-        RunNewMap(mapLevelToRun);
-        return true;
+        if (prestiges[item]==prestige) break;
     }
     return false;
 }
