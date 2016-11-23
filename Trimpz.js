@@ -381,7 +381,7 @@ function AssignFreeWorkers() {
         "Lumberjack" : 0,
         "Farmer" : 0
     };
-    if (game.global.world < 20 && getRemainingTimeForBreeding()>1) return;
+    if (game.global.world < 50 && getRemainingTimeForBreeding()>1) return;
     if (trimps.owned === 0 || game.global.firing) {
         return;
     }
@@ -1013,7 +1013,7 @@ function BuyEquipmentOrUpgrade(bestEquipGainPerMetal, bestUpgradeGainPerMetal, b
     else if (CanBuyNonUpgrade(game.equipment[bestEquipment], constants.getEquipmentCostRatio()) === true) {
         var upgrade = Object.keys(game.upgrades).filter(function(a){return game.upgrades[a].prestiges === bestEquipment;})[0];
         var upgradeStats = GetRatioForEquipmentUpgrade(upgrade, game.equipment[bestEquipment]);
-        if (upgradeStats.gainPerMetal < bestEquipGainPerMetal || (game.global.world>230 && game.equipment[bestEquipment].level<20)) {
+        if (upgradeStats.gainPerMetal < bestEquipGainPerMetal || (game.global.world>230 && game.equipment[bestEquipment].level<30)) {
             buyEquipment(bestEquipment, true, true);
             return true;
         }
@@ -1955,11 +1955,11 @@ function CheckPortal() {
         shouldPortal = false;
         var timeSince = new Date().getTime() - beginPortalTime;
         console.log('Portal: ' + game.global.world);
-        console.log('Unused Coordination at: ' + unusedCoordsAt);
-        console.log('Warps at last Giga: ' + warpsAtLastGiga);
-        console.log('Map farming started: ' + firstVoidMap);
-        console.log('End of 100% overkill: ' + firstOverkillFail);
-        console.log('LastZoneTime: ' + prettifyTime(timeSince));
+//        console.log('Unused Coordination at: ' + unusedCoordsAt);
+//        console.log('Warps at last Giga: ' + warpsAtLastGiga);
+//        console.log('Map farming started: ' + firstVoidMap);
+//        console.log('End of 100% overkill: ' + firstOverkillFail);
+//        console.log('LastZoneTime: ' + prettifyTime(timeSince));
         console.log('He/h: ' + prettify(game.stats.heliumHour.value()) + "/hr");
         console.log('Time: ' + updatePortalTimer(true));
         
