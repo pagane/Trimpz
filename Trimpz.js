@@ -853,7 +853,7 @@ function BuyBuildings() {
         BuyBuilding("Tribute", constants.getTributeCostRatio());
     }
     
-    if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax*20)
+    if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax/20)
         BuyBuilding("Nursery", constants.getNurseryCostRatio());
 
     BuyBuilding("Hut", constants.getHousingCostRatio());
@@ -1598,6 +1598,7 @@ function ManageRepeatMaps() {
     if (mapRunStatus) {
         if (mapRunStatus === "Prestige") {
 //            if (!ableToOverkillAllMobs())
+            if (mapBonus < 9)
             {
                 prestige = trimpzSettings["prestige"].value;
                 var mapDrop = game.global.mapGridArray[game.global.mapGridArray.length - 1].special;
