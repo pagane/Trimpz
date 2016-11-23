@@ -177,7 +177,7 @@ function saveSettings() {
 function initializeUiAndSettings() {
     "use strict";
     loadPageVariables();
-    document.head.appendChild(document.createElement('script')).src = 'https://rawgit.com/pagane/Trimpz/highhe/NewUI.js';
+    document.head.appendChild(document.createElement('script')).src = 'https://cdn.rawgit.com/pagane/Trimpz/highhe/NewUI.js';
 }
 
 function setMapRunStatus(status){
@@ -852,6 +852,9 @@ function BuyBuildings() {
 //            BuyBuilding("Nursery", constants.getNurseryCostRatio());
         BuyBuilding("Tribute", constants.getTributeCostRatio());
     }
+    
+    if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax*20)
+        BuyBuilding("Nursery", constants.getNurseryCostRatio());
 
     BuyBuilding("Hut", constants.getHousingCostRatio());
     BuyBuilding("House", constants.getHousingCostRatio());
@@ -1075,13 +1078,9 @@ function FindAndBuyEquipment(stat, justgetcost) {
 
 function BuyMetalEquipment() {
     "use strict";
-//    var attacksToDie = canTakeOnBoss();
-//    var needHealth = attacksToDie.attacksToKillSoldiers < trimpzSettings["minAttackstoDie"].value;
     
-//    if (needHealth)
-        FindAndBuyEquipment("Health");
-//    else
-        FindAndBuyEquipment("Attack");
+    FindAndBuyEquipment("Health");
+    FindAndBuyEquipment("Attack");
         
     BuyCheapEquipmentUpgrades();
 }
@@ -1165,25 +1164,6 @@ function getSoldierCritAttack(world, calcForMap){
         baseAttack *= 8;  //Dominance is the normal stance.  Fix calculation if scrying.
     }
     return calculateDamageLocal(baseAttack, true, world, calcForMap) * getPlayerCritDamageMult();
-}
-
-function canTakeOnBoss(){
-    "use strict";
-
-    if (game.global.lastClearedCell === -1) {
-        return 9999;
-    }
-
-    var bossAttackBase = getBossAttack(false);
-    var soldierHealth = game.global.soldierHealthMax;
-    var attackAndBlock = bossAttackBase - game.global.soldierCurrentBlock;
-    if (game.global.brokenPlanet){
-        var overpower = (game.global.formation == 3) ? bossAttackBase * 0.1 : bossAttackBase * 0.2;
-        if (attackAndBlock < overpower) attackAndBlock = overpower;
-    }
-    if (attackAndBlock < 0) attackAndBlock = 1; //1 to prevent divide by 0
-
-    return soldierHealth/attackAndBlock;
 }
 
 function GotoMapsScreen() {
@@ -1382,31 +1362,35 @@ function calculateDamageLocal(number, isTrimp, world, calcForMap) { //number = b
 function getEnemyAttackForLevel(worldLevel, calcForMap, enemyName) { //adapted from Trimps getEnemyAttack() & startFight()
 
     var world = worldLevel;
-    var level = calcForMap ? 75 : 100; //loot map can go up to 75, 100 for world boss
+    var level = 100;
     var name = enemyName;
     var difficulty = 0.84;
 
     var amt = 0;
-    amt += 50 * Math.sqrt(world * Math.pow(3.27, world));
-    amt -= 10;
-    if (world == 1){
-        amt *= 0.35;
-        amt = (amt * 0.20) + ((amt * 0.75) * (level / 100));
-    }
-    else if (world == 2){
-        amt *= 0.5;
-        amt = (amt * 0.32) + ((amt * 0.68) * (level / 100));
-    }
-    else if (world < 60)
-        amt = (amt * 0.375) + ((amt * 0.7) * (level / 100));
-    else{
-        amt = (amt * 0.4) + ((amt * 0.9) * (level / 100));
-        amt *= Math.pow(1.15, world - 59);
-    }
-    if (world < 60) amt *= 0.85;
-    if (world > 6 && calcForMap) amt *= 1.1;
-    amt *= game.badGuys[name].attack;
-    amt = Math.floor(amt);
+    amt += 50 * Math.sqrt(world) * Math.pow(3.27, world / 2);
+	amt -= 10;
+	if (world == 1){
+		amt *= 0.35;
+		amt = (amt * 0.20) + ((amt * 0.75) * (level / 100));
+	}
+	else if (world == 2){
+		amt *= 0.5;
+		amt = (amt * 0.32) + ((amt * 0.68) * (level / 100));
+	}
+	else if (world < 60)
+		amt = (amt * 0.375) + ((amt * 0.7) * (level / 100));
+	else{ 
+		amt = (amt * 0.4) + ((amt * 0.9) * (level / 100));
+		amt *= Math.pow(1.15, world - 59);
+	}	
+	if (world < 60) amt *= 0.85;
+	if (world > 6 && calcForMap) amt *= 1.1;
+	if (typeof name !== 'undefined')
+	    amt *= game.badGuys[name].attack;
+	amt =  Math.floor(amt);
+	
+	amt*=mutations.Corruption.statScale(3);
+	cell.attack *= 2; // Strong
 
     if (calcForMap) amt *= difficulty;
     if (game.global.challengeActive == "Toxicity") amt *= 5;
@@ -1414,60 +1398,6 @@ function getEnemyAttackForLevel(worldLevel, calcForMap, enemyName) { //adapted f
         amt *= calcForMap ? 2.35 : 1.17;
     return amt;
 }
-
-
-function getMaxEnemyHealthForLevel(worldLevel, calcForMap, enemyName) {  //adapted from Trimps getEnemyHealth() & startFight()
-    "use strict";
-    var world = worldLevel;
-    var level = calcForMap ? 75 : 100; //loot map can go up to 75, 100 for world boss
-    var name = enemyName;
-    var difficulty = 0.84;
-
-    var amt = 0;
-    amt += 130 * Math.sqrt(world * Math.pow(3.265, world));
-    amt -= 110;
-    if (world == 1 || world == 2 && level < 10){
-        amt *= 0.6;
-        amt = (amt * 0.25) + ((amt * 0.72) * (level / 100));
-    }
-    else if (world < 60)
-        amt = (amt * 0.4) + ((amt * 0.4) * (level / 110));
-    else{
-        amt = (amt * 0.5) + ((amt * 0.8) * (level / 100));
-        amt *= Math.pow(1.1, world - 59);
-    }
-    if (world < 60) amt *= 0.75;
-    if (world > 5 && calcForMap) amt *= 1.1;
-    amt *= game.badGuys[name].health;
-    amt = Math.floor(amt);
-
-    if (game.global.challengeActive == "Coordinate") amt *= getBadCoordLevelLocal(worldLevel);
-    if (calcForMap) amt *= difficulty;
-    if (game.global.challengeActive == "Meditate") amt *= 2;
-    else if (game.global.challengeActive == "Toxicity") amt *= 2;
-    else if (game.global.challengeActive == "Balance") amt *= 2;
-
-    return amt;
-}
-
-function getEnemyHealth(world, level) {
-			var amt = 0;
-			amt += 130 * Math.sqrt(world) * Math.pow(3.265, world / 2);
-			amt -= 110;
-			if (world == 1 || world == 2 && level < 10){
-				amt *= 0.6;
-			amt = (amt * 0.25) + ((amt * 0.72) * (level / 100));
-			}
-			else if (world < 60)
-				amt = (amt * 0.4) + ((amt * 0.4) * (level / 110));
-			else{
-				amt = (amt * 0.5) + ((amt * 0.8) * (level / 100));
-				amt *= Math.pow(1.1, world - 59);
-			}
-			if (world < 60) amt *= 0.75;		
-			if (world > 5 && game.global.mapsActive) amt *= 1.1;
-			return Math.floor(amt);
-		}
 
 function getAverageEnemyHealthForLevel(worldLevel, isMap, isVoid) {  //adapted from Trimps getEnemyHealth() & startFight()
     "use strict";
@@ -1871,8 +1801,9 @@ function RunMaps() {
 /*    if (game.global.preMapsActive === false && game.resources.trimps.owned < game.resources.trimps.realMax() && game.resources.trimps.soldiers !== 0 && game.global.world!=47) {
         return;
     }*/
-    if (getRemainingTimeForBreeding()>5) return;
-    if (game.global.lastClearedCell > 30)
+    if (game.global.lastBreedTime<30000 && game.resources.trimps.soldiers !== 0) return;
+//    if (getRemainingTimeForBreeding()>5) return;
+    if (game.global.lastClearedCell > 40)
     {
         if (game.global.preMapsActive === true)
             RunWorld();
@@ -1996,7 +1927,7 @@ function CheckPortal() {
     var map;
     var theMap;
     var itemsAvailable;
-    if (game.global.world%10>6 || game.global.world%10==0) return;
+    if (game.global.world%10>7 || game.global.world%10==0) return;
     if (game.global.world >= trimpzSettings["portalAt"].value - 2 && !game.global.portalActive && (game.resources.trimps.soldiers === 0 || game.resources.trimps.owned === game.resources.trimps.realMax()))
     {
         if (game.global.mapsActive)
@@ -2166,7 +2097,7 @@ function RunVoidMaps() {
     }
     if ((game.global.lastClearedCell > trimpzSettings["lastCell"].value && getRemainingTimeForBreeding()<1) || game.global.lastClearedCell > 96) {
 //        if (ableToRunVoidMap(game.global.world+1) === false && ableToRunVoidMap(game.global.world-2) === true && game.global.world%10<5 && game.global.world%10>0 || (shouldPortal && portalAtWorld == game.global.world))
-        if (shouldPortal && portalAtWorld == game.global.world)
+        if (trimpzSettings["voidMapsAt"].value <= game.global.world)
         {
             var theMap;
             for (var map in game.global.mapsOwnedArray) {
@@ -2694,8 +2625,9 @@ function ableToOneShotAllMobs(portal)
 
 function reallyNeedLoot()
 {
-    var attacksToDie = canTakeOnBoss();
-    return attacksToDie.attacksToKillSoldiers < trimpzSettings["minAttackstoDie"].value/2;
+    return false;
+//    var attacksToDie = canTakeOnBoss();
+//    return attacksToDie.attacksToKillSoldiers < trimpzSettings["minAttackstoDie"].value/2;
 }
 
 function prettifyTime(timeSince)
