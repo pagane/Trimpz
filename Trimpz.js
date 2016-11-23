@@ -177,7 +177,7 @@ function saveSettings() {
 function initializeUiAndSettings() {
     "use strict";
     loadPageVariables();
-    document.head.appendChild(document.createElement('script')).src = 'https://rawgit.com/pagane/Trimpz/highhe/NewUI.js';
+    document.head.appendChild(document.createElement('script')).src = 'https://cdn.rawgit.com/pagane/Trimpz/highhe/NewUI.js';
 }
 
 function setMapRunStatus(status){
@@ -306,18 +306,25 @@ function getTotalTimeForBreeding(almostOwnedGeneticists) {
 function getRemainingTimeForBreeding() {
     "use strict";
     var trimps = game.resources.trimps;
-    var trimpsMax = trimps.realMax();
+    var breeding = trimps.owned - trimps.employed;
+	var trimpsMax = trimps.realMax();
+	
     var potencyMod = trimps.potency;
-
-    //Broken Planet
-    if (game.global.brokenPlanet) potencyMod /= 10;
-    //Pheromones
-    potencyMod *= 1+ (game.portal.Pheromones.level * game.portal.Pheromones.modifier);
-    //Geneticist
-    if (game.jobs.Geneticist.owned  > 0) potencyMod *= Math.pow(.98, game.jobs.Geneticist.owned);
-    //Quick Trimps
-    if (game.unlocks.quickTrimps) potencyMod *= 2;
-    if (game.global.challengeActive == "Daily"){
+	//Add potency (book)
+	if (game.upgrades.Potency.done > 0) potencyMod *= Math.pow(1.1, game.upgrades.Potency.done);
+	//Add Nurseries
+	if (game.buildings.Nursery.owned > 0) potencyMod *= Math.pow(1.01, game.buildings.Nursery.owned);
+	//Add Venimp
+	if (game.unlocks.impCount.Venimp > 0) potencyMod *= Math.pow(1.003, game.unlocks.impCount.Venimp);
+	//Broken Planet
+	if (game.global.brokenPlanet) potencyMod /= 10;
+	//Pheromones
+	potencyMod *= 1+ (game.portal.Pheromones.level * game.portal.Pheromones.modifier);
+	//Geneticist
+	if (game.jobs.Geneticist.owned > 0) potencyMod *= Math.pow(.98, game.jobs.Geneticist.owned);
+	//Quick Trimps
+	if (game.unlocks.quickTrimps) potencyMod *= 2;
+	if (game.global.challengeActive == "Daily"){
 		if (typeof game.global.dailyChallenge.dysfunctional !== 'undefined'){
 			potencyMod *= dailyModifiers.dysfunctional.getMult(game.global.dailyChallenge.dysfunctional.strength);
 		}
@@ -326,15 +333,16 @@ function getRemainingTimeForBreeding() {
 		}
 	}
 	if (game.global.challengeActive == "Toxicity" && game.challenges.Toxicity.stacks > 0){
-        potencyMod *= Math.pow(game.challenges.Toxicity.stackMult, game.challenges.Toxicity.stacks);
-    }
-    if (game.global.voidBuff == "slowBreed"){
-        potencyMod *= 0.2;
-    }
-    potencyMod = calcHeirloomBonus("Shield", "breedSpeed", potencyMod);
-    potencyMod = (1 + (potencyMod / 10));
-    var timeRemaining = log10((trimpsMax - trimps.employed) / (trimps.owned - trimps.employed)) / log10(potencyMod);
-    timeRemaining /= 10;
+		potencyMod *= Math.pow(game.challenges.Toxicity.stackMult, game.challenges.Toxicity.stacks);
+	}
+	if (game.global.voidBuff == "slowBreed"){
+		potencyMod *= 0.2;
+	}
+	potencyMod = calcHeirloomBonus("Shield", "breedSpeed", potencyMod);
+	breeding = breeding * potencyMod;
+	potencyMod = (1 + (potencyMod / 10));
+	var timeRemaining = log10((trimpsMax - trimps.employed) / (trimps.owned - trimps.employed)) / log10(potencyMod);
+	timeRemaining /= 10;
     return timeRemaining;
 }
 
@@ -1863,8 +1871,9 @@ function RunMaps() {
 /*    if (game.global.preMapsActive === false && game.resources.trimps.owned < game.resources.trimps.realMax() && game.resources.trimps.soldiers !== 0 && game.global.world!=47) {
         return;
     }*/
-    if (getRemainingTimeForBreeding()>5) return;
-    if (game.global.lastClearedCell > 30)
+    if (game.global.lastBreedTime<30000 && game.resources.trimps.soldiers !== 0) return;
+//    if (getRemainingTimeForBreeding()>5) return;
+    if (game.global.lastClearedCell > 40)
     {
         if (game.global.preMapsActive === true)
             RunWorld();
@@ -1988,7 +1997,7 @@ function CheckPortal() {
     var map;
     var theMap;
     var itemsAvailable;
-    if (game.global.world%10>6 || game.global.world%10==0) return;
+    if (game.global.world%10>7 || game.global.world%10==0) return;
     if (game.global.world >= trimpzSettings["portalAt"].value - 2 && !game.global.portalActive && (game.resources.trimps.soldiers === 0 || game.resources.trimps.owned === game.resources.trimps.realMax()))
     {
         if (game.global.mapsActive)
@@ -2158,7 +2167,7 @@ function RunVoidMaps() {
     }
     if ((game.global.lastClearedCell > trimpzSettings["lastCell"].value && getRemainingTimeForBreeding()<1) || game.global.lastClearedCell > 96) {
 //        if (ableToRunVoidMap(game.global.world+1) === false && ableToRunVoidMap(game.global.world-2) === true && game.global.world%10<5 && game.global.world%10>0 || (shouldPortal && portalAtWorld == game.global.world))
-        if (shouldPortal && portalAtWorld == game.global.world)
+        if (trimpzSettings["voidMapsAt"].value <= game.global.world)
         {
             var theMap;
             for (var map in game.global.mapsOwnedArray) {
