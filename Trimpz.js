@@ -1603,25 +1603,28 @@ function ManageRepeatMaps() {
 //            if (!ableToOverkillAllMobs())
             if (mapBonus < 9)
             {
-                prestige = trimpzSettings["prestige"].value;
+                if(addSpecials(true, true, getCurrentMapObject()) > 1 )
+                    shouldRepeat = true;
+/*                prestige = trimpzSettings["prestige"].value;
                 var mapDrop = game.global.mapGridArray[game.global.mapGridArray.length - 1].special;
                 if (mapDrop)
                 {
+                    lastDrop = game.mapUnlocks[mapDrop].last;
                     for (item in prestiges)
                     {
                         lastDrop = game.mapUnlocks[prestiges[item]].last;
-                        if (mapDrop && !isPrestigeFull(null, prestiges[item]) && lastDrop <= game.global.world - 5)
+                        if (mapDrop && !isPrestigeFull(null, prestiges[item]) && lastDrop < game.global.world - 5)
                         {
                             shouldRepeat = true;
                             break;
                         }
                         if (prestiges[item]==prestige) break;
                     }
-/*                    var lastDrop = game.mapUnlocks[prestige].last;
+                    var lastDrop = game.mapUnlocks[prestige].last;
                     if (!isPrestigeFull(null, prestige) && mapDrop && lastDrop <= game.global.world - 5) {
                         shouldRepeat = !(mapDrop === prestige && ~~((lastDrop-1)/10) >= ~~((game.global.world-1)/10)-1);
-                    }*/
-                }
+                    }
+                }*/
             }
         }
         else if (mapRunStatus === "Bonus") {
@@ -2117,7 +2120,7 @@ function RunVoidMaps() {
         }
         return;
     }
-    if ((game.global.lastClearedCell > trimpzSettings["lastCell"].value && game.global.lastBreedTime>=30000 || game.global.lastClearedCell > 96) {
+    if (game.global.lastClearedCell > trimpzSettings["lastCell"].value && game.global.lastBreedTime>=30000 || game.global.lastClearedCell > 96) {
 //        if (ableToRunVoidMap(game.global.world+1) === false && ableToRunVoidMap(game.global.world-2) === true && game.global.world%10<5 && game.global.world%10>0 || (shouldPortal && portalAtWorld == game.global.world))
         if (trimpzSettings["voidMapsAt"].value <= game.global.world)
         {
