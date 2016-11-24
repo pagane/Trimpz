@@ -158,7 +158,7 @@ var warpsAtLastGiga = 0;
 var beginPortalTime;
 var firstVoidMap = 0;
 var firstOverkillFail = 0;
-var prestiges = ['Dagadder', 'Bootboost', 'Megamace', 'Hellishmet', 'Polierarm', 'Pantastic', 'Axeidic', 'Smoldershoulder', 'Greatersword', 'Bestplate', 'Harmbalest', 'GambesOP'];
+var prestiges = ["Dagadder", "Bootboost", "Megamace", "Hellishmet", "Polierarm", "Pantastic", "Axeidic", "Smoldershoulder", "Greatersword", "Bestplate", "Harmbalest", "GambesOP"];
 
 //Loads the automation settings from browser cache
 function loadPageVariables() {
@@ -381,7 +381,7 @@ function AssignFreeWorkers() {
         "Lumberjack" : 0,
         "Farmer" : 0
     };
-    if (game.global.world < 20 && getRemainingTimeForBreeding()>1) return;
+    if (game.global.world < 100 && getRemainingTimeForBreeding()>1) return;
     if (trimps.owned === 0 || game.global.firing) {
         return;
     }
@@ -1013,7 +1013,7 @@ function BuyEquipmentOrUpgrade(bestEquipGainPerMetal, bestUpgradeGainPerMetal, b
     else if (CanBuyNonUpgrade(game.equipment[bestEquipment], constants.getEquipmentCostRatio()) === true) {
         var upgrade = Object.keys(game.upgrades).filter(function(a){return game.upgrades[a].prestiges === bestEquipment;})[0];
         var upgradeStats = GetRatioForEquipmentUpgrade(upgrade, game.equipment[bestEquipment]);
-        if (upgradeStats.gainPerMetal < bestEquipGainPerMetal || (game.global.world>230 && game.equipment[bestEquipment].level<20)) {
+        if (upgradeStats.gainPerMetal < bestEquipGainPerMetal || (game.global.world>230 && game.equipment[bestEquipment].level<30)) {
             buyEquipment(bestEquipment, true, true);
             return true;
         }
@@ -1595,18 +1595,36 @@ function ManageRepeatMaps() {
     var mapLevelWithDrop;
     var shouldRepeat = false;
     var mapBonus = game.global.mapBonus;
+    var item;
+    var lastDrop;
 
     if (mapRunStatus) {
         if (mapRunStatus === "Prestige") {
 //            if (!ableToOverkillAllMobs())
             if (mapBonus < 9)
             {
-                prestige = trimpzSettings["prestige"].value;
+                if(addSpecials(true, true, getCurrentMapObject()) > 1 )
+                    shouldRepeat = true;
+/*                prestige = trimpzSettings["prestige"].value;
                 var mapDrop = game.global.mapGridArray[game.global.mapGridArray.length - 1].special;
-                var lastDrop = game.mapUnlocks[prestige].last;
-                if (!isPrestigeFull(null, prestige) && mapDrop && lastDrop <= game.global.world - 5) {
-                    shouldRepeat = !(mapDrop === prestige && ~~((lastDrop-1)/10) >= ~~((game.global.world-1)/10)-1);
-                }
+                if (mapDrop)
+                {
+                    lastDrop = game.mapUnlocks[mapDrop].last;
+                    for (item in prestiges)
+                    {
+                        lastDrop = game.mapUnlocks[prestiges[item]].last;
+                        if (mapDrop && !isPrestigeFull(null, prestiges[item]) && lastDrop < game.global.world - 5)
+                        {
+                            shouldRepeat = true;
+                            break;
+                        }
+                        if (prestiges[item]==prestige) break;
+                    }
+                    var lastDrop = game.mapUnlocks[prestige].last;
+                    if (!isPrestigeFull(null, prestige) && mapDrop && lastDrop <= game.global.world - 5) {
+                        shouldRepeat = !(mapDrop === prestige && ~~((lastDrop-1)/10) >= ~~((game.global.world-1)/10)-1);
+                    }
+                }*/
             }
         }
         else if (mapRunStatus === "Bonus") {
@@ -1701,10 +1719,10 @@ function RunPrestigeMaps(){
     if (ableToOverkillAllMobs(true) || game.global.mapBonus == 10) return;
     for (item in prestiges)
     {
-        if (prestige !== "Off" && game.mapUnlocks[item].last <= game.global.world - 5 && !isPrestigeFull(null,item)){
+        if (prestige !== "Off" && game.mapUnlocks[prestiges[item]].last <= game.global.world - 5 && !isPrestigeFull(null,prestiges[item])){
             if (game.options.menu.mapLoot.enabled != 1)
                 toggleSetting("mapLoot");
-            mapLevelWithDrop = game.mapUnlocks[prestige].last + 5;
+            mapLevelWithDrop = game.mapUnlocks[prestiges[item]].last + 5;
             siphonMapLevel = game.global.world - game.portal.Siphonology.level;
             oneShotMapLevel = game.portal.Overkill.level ? getLevelOfOverkillMap() : getLevelOfOneShotMap();
             mapLevelToRun = Math.max(oneShotMapLevel, siphonMapLevel, mapLevelWithDrop);
@@ -1722,7 +1740,7 @@ function RunPrestigeMaps(){
             RunNewMap(mapLevelToRun);
             return true;
         }
-        if (item==prestige) break;
+        if (prestiges[item]==prestige) break;
     }
     return false;
 }
@@ -1955,11 +1973,11 @@ function CheckPortal() {
         shouldPortal = false;
         var timeSince = new Date().getTime() - beginPortalTime;
         console.log('Portal: ' + game.global.world);
-        console.log('Unused Coordination at: ' + unusedCoordsAt);
-        console.log('Warps at last Giga: ' + warpsAtLastGiga);
-        console.log('Map farming started: ' + firstVoidMap);
-        console.log('End of 100% overkill: ' + firstOverkillFail);
-        console.log('LastZoneTime: ' + prettifyTime(timeSince));
+//        console.log('Unused Coordination at: ' + unusedCoordsAt);
+//        console.log('Warps at last Giga: ' + warpsAtLastGiga);
+//        console.log('Map farming started: ' + firstVoidMap);
+//        console.log('End of 100% overkill: ' + firstOverkillFail);
+//        console.log('LastZoneTime: ' + prettifyTime(timeSince));
         console.log('He/h: ' + prettify(game.stats.heliumHour.value()) + "/hr");
         console.log('Time: ' + updatePortalTimer(true));
         
@@ -2102,7 +2120,7 @@ function RunVoidMaps() {
         }
         return;
     }
-    if ((game.global.lastClearedCell > trimpzSettings["lastCell"].value && getRemainingTimeForBreeding()<1) || game.global.lastClearedCell > 96) {
+    if (game.global.lastClearedCell > trimpzSettings["lastCell"].value && game.global.lastBreedTime>=30000 || game.global.lastClearedCell > 96) {
 //        if (ableToRunVoidMap(game.global.world+1) === false && ableToRunVoidMap(game.global.world-2) === true && game.global.world%10<5 && game.global.world%10>0 || (shouldPortal && portalAtWorld == game.global.world))
         if (trimpzSettings["voidMapsAt"].value <= game.global.world)
         {
