@@ -1638,7 +1638,7 @@ function ManageRepeatMaps() {
         else if(trimpzSettings["shouldMaxOutToxicityHelium"].value && game.global.challengeActive === 'Toxicity' && game.global.lastClearedCell > trimpzSettings["lastCell"].value && game.challenges.Toxicity.stacks < 1500 && game.global.world >= trimpzSettings["zoneToStartMaxingAt"].value)
             shouldRepeat = true;
 
-        if (!ableToOverkillAllMobs() && ableToGetChronoUpgrade() && mapBonus < 9) shouldRepeat = true;
+//        if (!ableToOverkillAllMobs() && ableToGetChronoUpgrade() && mapBonus < 9) shouldRepeat = true;
     }
     if (game.global.repeatMap !== shouldRepeat) {
         repeatClicked();
@@ -1841,7 +1841,7 @@ function RunMaps() {
     if (RunPrimaryUniqueMaps()) return;
     if (RunPrestigeMaps()) return;
     if (RunBetterMaps()) return;
-    if (RunUpgradeMaps()) return;
+//    if (RunUpgradeMaps()) return;
     if (game.global.preMapsActive === true) {
         RunWorld();
     }
