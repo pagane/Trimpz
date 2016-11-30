@@ -1080,7 +1080,7 @@ function FindAndBuyEquipment(stat, justgetcost) {
 function BuyMetalEquipment() {
     "use strict";
     
-    if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax/50)
+    if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax/70)
         FindAndBuyEquipment("Health");
     FindAndBuyEquipment("Attack");
         
