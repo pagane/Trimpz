@@ -1013,7 +1013,7 @@ function BuyEquipmentOrUpgrade(bestEquipGainPerMetal, bestUpgradeGainPerMetal, b
     else if (CanBuyNonUpgrade(game.equipment[bestEquipment], constants.getEquipmentCostRatio()) === true) {
         var upgrade = Object.keys(game.upgrades).filter(function(a){return game.upgrades[a].prestiges === bestEquipment;})[0];
         var upgradeStats = GetRatioForEquipmentUpgrade(upgrade, game.equipment[bestEquipment]);
-        if (upgradeStats.gainPerMetal < bestEquipGainPerMetal || (game.global.world>230 && game.equipment[bestEquipment].level<40)) {
+        if (upgradeStats.gainPerMetal < bestEquipGainPerMetal || (game.global.world>230 && game.equipment[bestEquipment].level<50)) {
             buyEquipment(bestEquipment, true, true);
             return true;
         }
@@ -1080,7 +1080,8 @@ function FindAndBuyEquipment(stat, justgetcost) {
 function BuyMetalEquipment() {
     "use strict";
     
-    FindAndBuyEquipment("Health");
+    if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax/190)
+        FindAndBuyEquipment("Health");
     FindAndBuyEquipment("Attack");
         
     BuyCheapEquipmentUpgrades();
