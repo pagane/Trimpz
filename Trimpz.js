@@ -854,7 +854,7 @@ function BuyBuildings() {
         BuyBuilding("Tribute", constants.getTributeCostRatio());
     }
     
-    if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax/20)
+    if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax/100)
         BuyBuilding("Nursery", constants.getNurseryCostRatio());
 
     BuyBuilding("Hut", constants.getHousingCostRatio());
@@ -1013,7 +1013,7 @@ function BuyEquipmentOrUpgrade(bestEquipGainPerMetal, bestUpgradeGainPerMetal, b
     else if (CanBuyNonUpgrade(game.equipment[bestEquipment], constants.getEquipmentCostRatio()) === true) {
         var upgrade = Object.keys(game.upgrades).filter(function(a){return game.upgrades[a].prestiges === bestEquipment;})[0];
         var upgradeStats = GetRatioForEquipmentUpgrade(upgrade, game.equipment[bestEquipment]);
-        if (upgradeStats.gainPerMetal < bestEquipGainPerMetal || (game.global.world>230 && game.equipment[bestEquipment].level<30)) {
+        if (upgradeStats.gainPerMetal < bestEquipGainPerMetal || (game.global.world>230 && game.equipment[bestEquipment].level<40)) {
             buyEquipment(bestEquipment, true, true);
             return true;
         }
@@ -1603,25 +1603,28 @@ function ManageRepeatMaps() {
 //            if (!ableToOverkillAllMobs())
             if (mapBonus < 9)
             {
-                prestige = trimpzSettings["prestige"].value;
+                if(addSpecials(true, true, getCurrentMapObject()) > 1 )
+                    shouldRepeat = true;
+/*                prestige = trimpzSettings["prestige"].value;
                 var mapDrop = game.global.mapGridArray[game.global.mapGridArray.length - 1].special;
                 if (mapDrop)
                 {
+                    lastDrop = game.mapUnlocks[mapDrop].last;
                     for (item in prestiges)
                     {
                         lastDrop = game.mapUnlocks[prestiges[item]].last;
-                        if (mapDrop && !isPrestigeFull(null, prestiges[item]) && lastDrop <= game.global.world - 5)
+                        if (mapDrop && !isPrestigeFull(null, prestiges[item]) && lastDrop < game.global.world - 5)
                         {
                             shouldRepeat = true;
                             break;
                         }
                         if (prestiges[item]==prestige) break;
                     }
-/*                    var lastDrop = game.mapUnlocks[prestige].last;
+                    var lastDrop = game.mapUnlocks[prestige].last;
                     if (!isPrestigeFull(null, prestige) && mapDrop && lastDrop <= game.global.world - 5) {
                         shouldRepeat = !(mapDrop === prestige && ~~((lastDrop-1)/10) >= ~~((game.global.world-1)/10)-1);
-                    }*/
-                }
+                    }
+                }*/
             }
         }
         else if (mapRunStatus === "Bonus") {
@@ -1635,7 +1638,7 @@ function ManageRepeatMaps() {
         else if(trimpzSettings["shouldMaxOutToxicityHelium"].value && game.global.challengeActive === 'Toxicity' && game.global.lastClearedCell > trimpzSettings["lastCell"].value && game.challenges.Toxicity.stacks < 1500 && game.global.world >= trimpzSettings["zoneToStartMaxingAt"].value)
             shouldRepeat = true;
 
-        if (!ableToOverkillAllMobs() && ableToGetChronoUpgrade() && mapBonus < 9) shouldRepeat = true;
+//        if (!ableToOverkillAllMobs() && ableToGetChronoUpgrade() && mapBonus < 9) shouldRepeat = true;
     }
     if (game.global.repeatMap !== shouldRepeat) {
         repeatClicked();
@@ -1838,7 +1841,7 @@ function RunMaps() {
     if (RunPrimaryUniqueMaps()) return;
     if (RunPrestigeMaps()) return;
     if (RunBetterMaps()) return;
-    if (RunUpgradeMaps()) return;
+//    if (RunUpgradeMaps()) return;
     if (game.global.preMapsActive === true) {
         RunWorld();
     }
