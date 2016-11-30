@@ -854,7 +854,7 @@ function BuyBuildings() {
         BuyBuilding("Tribute", constants.getTributeCostRatio());
     }
     
-    if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax/60)
+    if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax/100)
         BuyBuilding("Nursery", constants.getNurseryCostRatio());
 
     BuyBuilding("Hut", constants.getHousingCostRatio());
@@ -1013,7 +1013,7 @@ function BuyEquipmentOrUpgrade(bestEquipGainPerMetal, bestUpgradeGainPerMetal, b
     else if (CanBuyNonUpgrade(game.equipment[bestEquipment], constants.getEquipmentCostRatio()) === true) {
         var upgrade = Object.keys(game.upgrades).filter(function(a){return game.upgrades[a].prestiges === bestEquipment;})[0];
         var upgradeStats = GetRatioForEquipmentUpgrade(upgrade, game.equipment[bestEquipment]);
-        if (upgradeStats.gainPerMetal < bestEquipGainPerMetal || (game.global.world>230 && game.equipment[bestEquipment].level<30)) {
+        if (upgradeStats.gainPerMetal < bestEquipGainPerMetal || (game.global.world>230 && game.equipment[bestEquipment].level<35)) {
             buyEquipment(bestEquipment, true, true);
             return true;
         }
