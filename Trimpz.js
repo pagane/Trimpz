@@ -708,17 +708,17 @@ function UpgradeNonEquipment() {
                     FocusWorkersOn("Farmer");
                     return true;
                 }
-                if (aResource === "metal" && needed > game.resources.metal.owned) {
+                if (game.jobs.Miner.locked === 0 && aResource === "metal" && needed > game.resources.metal.owned) {
                     setGather("metal");
                     FocusWorkersOn("Miner");
                     return true;
                 }
-                if (aResource === "science" && needed > game.resources.science.owned && document.getElementById('scienceCollectBtn').style.display == 'block') {
+                if (game.jobs.Scientist.locked === 0 && aResource === "science" && needed > game.resources.science.owned && document.getElementById('scienceCollectBtn').style.display == 'block') {
                     setGather("science");
                     FocusWorkersOn("Scientist");
                     return true;
                 }
-                if (aResource === "wood" && needed > game.resources.wood.owned) {
+                if (game.jobs.Lumberjack.locked === 0 && aResource === "wood" && needed > game.resources.wood.owned) {
                     setGather("wood");
                     FocusWorkersOn("Lumberjack");
                     return true;
@@ -745,6 +745,7 @@ function UpgradeAndGather() {
     var collectingForNonEquipment = UpgradeNonEquipment();
     if (collectingForNonEquipment)
         return true;
+    if (game.jobs.Scientist.locked !== 0 ) return;
     if (game.global.autoCraftModifier < 5000 && (game.global.buildingsQueue.length > 0 &&
         (game.global.buildingsQueue[0] !== "Trap.1") || game.global.buildingsQueue.length > 1)) {
         setGather("buildings");
