@@ -1830,7 +1830,7 @@ function RunMaps() {
     }*/
     if (game.global.lastBreedTime<30000 && game.resources.trimps.soldiers !== 0) return;
 //    if (getRemainingTimeForBreeding()>5) return;
-    if (game.global.lastClearedCell > 40)
+    if (game.global.lastClearedCell > 40 && game.global.world != trimpzSettings["voidMapsAt"].value)
     {
         if (game.global.preMapsActive === true)
             RunWorld();
