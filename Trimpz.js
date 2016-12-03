@@ -708,17 +708,17 @@ function UpgradeNonEquipment() {
                     FocusWorkersOn("Farmer");
                     return true;
                 }
-                if (aResource === "metal" && needed > game.resources.metal.owned) {
+                if (game.jobs.Miner.locked === 0 && aResource === "metal" && needed > game.resources.metal.owned) {
                     setGather("metal");
                     FocusWorkersOn("Miner");
                     return true;
                 }
-                if (aResource === "science" && needed > game.resources.science.owned && document.getElementById('scienceCollectBtn').style.display == 'block') {
+                if (game.jobs.Scientist.locked === 0 && aResource === "science" && needed > game.resources.science.owned && document.getElementById('scienceCollectBtn').style.display == 'block') {
                     setGather("science");
                     FocusWorkersOn("Scientist");
                     return true;
                 }
-                if (aResource === "wood" && needed > game.resources.wood.owned) {
+                if (game.jobs.Lumberjack.locked === 0 && aResource === "wood" && needed > game.resources.wood.owned) {
                     setGather("wood");
                     FocusWorkersOn("Lumberjack");
                     return true;
@@ -745,6 +745,7 @@ function UpgradeAndGather() {
     var collectingForNonEquipment = UpgradeNonEquipment();
     if (collectingForNonEquipment)
         return true;
+    if (game.jobs.Scientist.locked !== 0 ) return;
     if (game.global.autoCraftModifier < 5000 && (game.global.buildingsQueue.length > 0 &&
         (game.global.buildingsQueue[0] !== "Trap.1") || game.global.buildingsQueue.length > 1)) {
         setGather("buildings");
@@ -1080,7 +1081,7 @@ function FindAndBuyEquipment(stat, justgetcost) {
 function BuyMetalEquipment() {
     "use strict";
     
-    if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax/190)
+    if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax/70)
         FindAndBuyEquipment("Health");
     FindAndBuyEquipment("Attack");
         
@@ -1827,9 +1828,9 @@ function RunMaps() {
 /*    if (game.global.preMapsActive === false && game.resources.trimps.owned < game.resources.trimps.realMax() && game.resources.trimps.soldiers !== 0 && game.global.world!=47) {
         return;
     }*/
-    if (game.global.lastBreedTime<30000 && game.resources.trimps.soldiers !== 0) return;
+//    if (game.global.lastBreedTime<30000 && game.resources.trimps.soldiers !== 0) return;
 //    if (getRemainingTimeForBreeding()>5) return;
-    if (game.global.lastClearedCell > 40)
+    if (game.global.lastClearedCell > 40 && game.global.world != trimpzSettings["voidMapsAt"].value)
     {
         if (game.global.preMapsActive === true)
             RunWorld();
