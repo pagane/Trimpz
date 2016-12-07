@@ -1614,7 +1614,10 @@ function ManageRepeatMaps() {
 //            if (!ableToOverkillAllMobs())
             if (mapBonus < 9)
             {
-                if(addSpecials(true, true, getCurrentMapObject()) > 1 )
+                var specials = addSpecials(true, true, getCurrentMapObject());
+                if (specials > 2 )
+                    shouldRepeat = true;
+                else if (specials==2 && (getCurrentMapObject().level-1) % 10 < 5)
                     shouldRepeat = true;
 /*                prestige = trimpzSettings["prestige"].value;
                 var mapDrop = game.global.mapGridArray[game.global.mapGridArray.length - 1].special;
