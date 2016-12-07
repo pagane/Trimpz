@@ -856,7 +856,11 @@ function BuyBuildings() {
     }
     
     if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax/100)
+    {
+        game.global.buyAmt = 2;
         BuyBuilding("Nursery", constants.getNurseryCostRatio());
+        game.global.buyAmt = 1;
+    }
 
     BuyBuilding("Hut", constants.getHousingCostRatio());
     BuyBuilding("House", constants.getHousingCostRatio());
