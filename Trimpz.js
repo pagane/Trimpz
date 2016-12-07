@@ -411,6 +411,11 @@ function AssignFreeWorkers() {
     var totalMultipliers;
     var assignThisMany;
     while (free > 0) {
+        if (game.jobs.Miner.locked !== 0)
+        {
+            buy.Farmer += free;
+            break;
+        }
         if (free > maxFreeForAssignOneAtATime && game.jobs.Miner.locked === 0){
             totalMultipliers = constants.getMinerMultiplier() + constants.getLumberjackMultiplier() + 1; //1 for default/reference farmer
             assignThisMany = constants.getMinerMultiplier() / totalMultipliers * (free - maxFreeForAssignOneAtATime);
