@@ -411,6 +411,11 @@ function AssignFreeWorkers() {
     var totalMultipliers;
     var assignThisMany;
     while (free > 0) {
+        if (game.jobs.Miner.locked !== 0)
+        {
+            buy.Farmer += free;
+            break;
+        }
         if (free > maxFreeForAssignOneAtATime && game.jobs.Miner.locked === 0){
             totalMultipliers = constants.getMinerMultiplier() + constants.getLumberjackMultiplier() + 1; //1 for default/reference farmer
             assignThisMany = constants.getMinerMultiplier() / totalMultipliers * (free - maxFreeForAssignOneAtATime);
@@ -856,7 +861,11 @@ function BuyBuildings() {
     }
     
     if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax/100)
+    {
+        game.global.buyAmt = 2;
         BuyBuilding("Nursery", constants.getNurseryCostRatio());
+        game.global.buyAmt = 1;
+    }
 
     BuyBuilding("Hut", constants.getHousingCostRatio());
     BuyBuilding("House", constants.getHousingCostRatio());
@@ -1014,7 +1023,7 @@ function BuyEquipmentOrUpgrade(bestEquipGainPerMetal, bestUpgradeGainPerMetal, b
     else if (CanBuyNonUpgrade(game.equipment[bestEquipment], constants.getEquipmentCostRatio()) === true) {
         var upgrade = Object.keys(game.upgrades).filter(function(a){return game.upgrades[a].prestiges === bestEquipment;})[0];
         var upgradeStats = GetRatioForEquipmentUpgrade(upgrade, game.equipment[bestEquipment]);
-        if (upgradeStats.gainPerMetal < bestEquipGainPerMetal || (game.global.world>230 && game.equipment[bestEquipment].level<50)) {
+        if (upgradeStats.gainPerMetal < bestEquipGainPerMetal || (game.global.world>230 && game.equipment[bestEquipment].level<40) || game.global.world==trimpzSettings["voidMapsAt"].value) {
             buyEquipment(bestEquipment, true, true);
             return true;
         }
@@ -1605,7 +1614,10 @@ function ManageRepeatMaps() {
 //            if (!ableToOverkillAllMobs())
             if (mapBonus < 9)
             {
-                if(addSpecials(true, true, getCurrentMapObject()) > 1 )
+                var specials = addSpecials(true, true, getCurrentMapObject());
+                if (specials > 2 )
+                    shouldRepeat = true;
+                else if (specials==2 && (getCurrentMapObject().level-1) % 10 < 5)
                     shouldRepeat = true;
 /*                prestige = trimpzSettings["prestige"].value;
                 var mapDrop = game.global.mapGridArray[game.global.mapGridArray.length - 1].special;
@@ -1664,11 +1676,6 @@ function RunPrimaryUniqueMaps(){
         }
     }
     
-    if (game.talents.blacksmith.purchased && game.buildings.Nursery.locked && game.global.world ===47){
-        RunNewMap(game.global.world);
-        return true;
-    }
-
     if (game.global.challengeActive === "Electricity" && game.global.world >= 80) {
         for (map in game.global.mapsOwnedArray) {
             theMap = game.global.mapsOwnedArray[map];
@@ -1825,9 +1832,6 @@ function RunMaps() {
         repeatClicked();
     }
 
-/*    if (game.global.preMapsActive === false && game.resources.trimps.owned < game.resources.trimps.realMax() && game.resources.trimps.soldiers !== 0 && game.global.world!=47) {
-        return;
-    }*/
 //    if (game.global.lastBreedTime<30000 && game.resources.trimps.soldiers !== 0) return;
 //    if (getRemainingTimeForBreeding()>5) return;
     if (game.global.lastClearedCell > 40 && game.global.world != trimpzSettings["voidMapsAt"].value)
@@ -1954,7 +1958,6 @@ function CheckPortal() {
     var map;
     var theMap;
     var itemsAvailable;
-    if (game.global.world%10>7 || game.global.world%10==0) return;
     if (game.global.world >= trimpzSettings["portalAt"].value - 2 && !game.global.portalActive && (game.resources.trimps.soldiers === 0 || game.resources.trimps.owned === game.resources.trimps.realMax()))
     {
         if (game.global.mapsActive)
