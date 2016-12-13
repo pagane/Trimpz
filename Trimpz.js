@@ -874,7 +874,9 @@ function BuyBuildings() {
     BuyBuilding("Resort", constants.getHousingCostRatio());
     BuyBuilding("Gateway", constants.getHousingCostRatio());
     if (game.buildings.Warpstation.locked === 1 || GetNonUpgradePrice(game.buildings.Warpstation, "gems") > GetNonUpgradePrice(game.buildings.Collector) * game.buildings.Warpstation.increase.by / game.buildings.Collector.increase.by) {
+        game.global.buyAmt = 2;
         BuyBuilding("Collector", 1);
+        game.global.buyAmt = 1;
     }
 
     if (game.upgrades.Gigastation.done === game.upgrades.Gigastation.allowed && game.upgrades.Gigastation.done >= trimpzSettings["gsForEqWs"].value) {
