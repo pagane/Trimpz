@@ -381,7 +381,7 @@ function AssignFreeWorkers() {
         "Lumberjack" : 0,
         "Farmer" : 0
     };
-    if (game.global.world < 100 && getRemainingTimeForBreeding()>1) return;
+    if (game.global.world < 200 && getRemainingTimeForBreeding()>1) return;
     if (trimps.owned === 0 || game.global.firing) {
         return;
     }
@@ -874,7 +874,9 @@ function BuyBuildings() {
     BuyBuilding("Resort", constants.getHousingCostRatio());
     BuyBuilding("Gateway", constants.getHousingCostRatio());
     if (game.buildings.Warpstation.locked === 1 || GetNonUpgradePrice(game.buildings.Warpstation, "gems") > GetNonUpgradePrice(game.buildings.Collector) * game.buildings.Warpstation.increase.by / game.buildings.Collector.increase.by) {
+        game.global.buyAmt = 2;
         BuyBuilding("Collector", 1);
+        game.global.buyAmt = 1;
     }
 
     if (game.upgrades.Gigastation.done === game.upgrades.Gigastation.allowed && game.upgrades.Gigastation.done >= trimpzSettings["gsForEqWs"].value) {
@@ -1023,7 +1025,7 @@ function BuyEquipmentOrUpgrade(bestEquipGainPerMetal, bestUpgradeGainPerMetal, b
     else if (CanBuyNonUpgrade(game.equipment[bestEquipment], constants.getEquipmentCostRatio()) === true) {
         var upgrade = Object.keys(game.upgrades).filter(function(a){return game.upgrades[a].prestiges === bestEquipment;})[0];
         var upgradeStats = GetRatioForEquipmentUpgrade(upgrade, game.equipment[bestEquipment]);
-        if (upgradeStats.gainPerMetal < bestEquipGainPerMetal || (game.global.world>230 && game.equipment[bestEquipment].level<40) || game.global.world==trimpzSettings["voidMapsAt"].value) {
+        if (upgradeStats.gainPerMetal < bestEquipGainPerMetal || (game.global.world>230 && game.equipment[bestEquipment].level<40) || game.global.world>=trimpzSettings["voidMapsAt"].value-10) {
             buyEquipment(bestEquipment, true, true);
             return true;
         }
