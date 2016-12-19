@@ -1833,9 +1833,15 @@ function RunMaps() {
     if (game.global.repeatMap){
         repeatClicked();
     }
+    
+    var skipCheck = false;
 
-    if (game.global.lastBreedTime<30000 && game.resources.trimps.soldiers !== 0) return;
-//    if (getRemainingTimeForBreeding()>5) return;
+    if (game.global.challengeActive == "Daily")
+    {
+        if (typeof game.global.dailyChallenge.plague !== 'undefined' || typeof game.global.dailyChallenge.bogged !== 'undefined')
+            skipCheck = true;
+    }
+    if (game.global.lastBreedTime<30000 && !skipCheck) return;
     if (game.global.lastClearedCell > 40 && game.global.world != trimpzSettings["voidMapsAt"].value)
     {
         if (game.global.preMapsActive === true)
