@@ -1838,7 +1838,7 @@ function RunMaps() {
 
     if (game.global.challengeActive == "Daily")
     {
-        if (typeof game.global.dailyChallenge.plague !== 'undefined' || typeof game.global.dailyChallenge.bogged !== 'undefined')
+        if (typeof game.global.dailyChallenge.plague !== 'undefined' || typeof game.global.dailyChallenge.bogged !== 'undefined' || game.global.antiStacks<25)
             skipCheck = true;
     }
     if (game.global.lastBreedTime<30000 && !skipCheck) return;
