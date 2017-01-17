@@ -381,7 +381,7 @@ function AssignFreeWorkers() {
         "Lumberjack" : 0,
         "Farmer" : 0
     };
-    if (game.global.world < 200 && getRemainingTimeForBreeding()>1) return;
+    if (game.global.world < 200 && getRemainingTimeForBreeding()>6) return;
     if (trimps.owned === 0 || game.global.firing) {
         return;
     }
@@ -2596,7 +2596,11 @@ function BuyGoldenUpgrade()
 {
     if (getAvailableGoldenUpgrades() == 0) return;       //if we have nothing to buy, exit.
     //buy one upgrade per loop.
-    buyGoldenUpgrade("Helium");
+    var nextAmt = game.goldenUpgrades.Void.nextAmt();
+    if (nextAmt <= 0.12 || nextAmt==0.16)
+        buyGoldenUpgrade("Void");
+    else
+        buyGoldenUpgrade("Helium");
 }
 
 function ableToOverkillAllMobs(scryer)
