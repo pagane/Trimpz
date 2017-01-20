@@ -2136,9 +2136,10 @@ function RunVoidMaps() {
         }
         return;
     }
-    if (game.global.lastClearedCell > trimpzSettings["lastCell"].value && game.global.lastBreedTime>=30000 || game.global.lastClearedCell > 96) {
+//    if (game.global.lastClearedCell > trimpzSettings["lastCell"].value && game.global.lastBreedTime>=30000 || game.global.lastClearedCell > 96) {
 //        if (ableToRunVoidMap(game.global.world+1) === false && ableToRunVoidMap(game.global.world-2) === true && game.global.world%10<5 && game.global.world%10>0 || (shouldPortal && portalAtWorld == game.global.world))
-        if (trimpzSettings["voidMapsAt"].value <= game.global.world)
+        if (trimpzSettings["voidMapsAt"].value <= game.global.world && ableToRunVoidMap(game.global.world+1) === false &&
+            game.global.lastClearedCell > trimpzSettings["lastCell"].value && (game.global.lastBreedTime>=30000 || game.global.lastClearedCell > 96))
         {
             var theMap;
             for (var map in game.global.mapsOwnedArray) {
@@ -2597,7 +2598,7 @@ function BuyGoldenUpgrade()
     if (getAvailableGoldenUpgrades() == 0) return;       //if we have nothing to buy, exit.
     //buy one upgrade per loop.
     var nextAmt = game.goldenUpgrades.Void.nextAmt();
-    if (nextAmt <= 0.12 || nextAmt==0.16)
+    if (nextAmt <= 0.08)
         buyGoldenUpgrade("Void");
     else
         buyGoldenUpgrade("Helium");
