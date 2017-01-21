@@ -2138,17 +2138,16 @@ function RunVoidMaps() {
     }
 //    if (game.global.lastClearedCell > trimpzSettings["lastCell"].value && game.global.lastBreedTime>=30000 || game.global.lastClearedCell > 96) {
 //        if (ableToRunVoidMap(game.global.world+1) === false && ableToRunVoidMap(game.global.world-2) === true && game.global.world%10<5 && game.global.world%10>0 || (shouldPortal && portalAtWorld == game.global.world))
-        if (trimpzSettings["voidMapsAt"].value <= game.global.world && ableToRunVoidMap(game.global.world+1) === false &&
-            game.global.lastClearedCell > trimpzSettings["lastCell"].value && (game.global.lastBreedTime>=30000 || game.global.lastClearedCell > 96))
-        {
-            var theMap;
-            for (var map in game.global.mapsOwnedArray) {
-                theMap = game.global.mapsOwnedArray[map];
-                if (theMap.location == 'Void'){
-                    if (firstVoidMap == 0) firstVoidMap = game.global.world;
-                    RunMap(theMap);
-                    return;
-                }
+    if (trimpzSettings["voidMapsAt"].value <= game.global.world && ableToRunVoidMap(game.global.world+1) === false &&
+        game.global.lastClearedCell > trimpzSettings["lastCell"].value && (game.global.lastBreedTime>=30000 || game.global.lastClearedCell > 96))
+    {
+        var theMap;
+        for (var map in game.global.mapsOwnedArray) {
+            theMap = game.global.mapsOwnedArray[map];
+            if (theMap.location == 'Void'){
+                if (firstVoidMap == 0) firstVoidMap = game.global.world;
+                RunMap(theMap);
+                return;
             }
         }
     }
