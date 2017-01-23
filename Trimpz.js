@@ -2597,7 +2597,7 @@ function BuyGoldenUpgrade()
     if (getAvailableGoldenUpgrades() == 0) return;       //if we have nothing to buy, exit.
     //buy one upgrade per loop.
     var nextAmt = game.goldenUpgrades.Void.nextAmt();
-    if (nextAmt <= 0.08)
+    if (nextAmt <= 0.02)
         buyGoldenUpgrade("Void");
     else
         buyGoldenUpgrade("Helium");
