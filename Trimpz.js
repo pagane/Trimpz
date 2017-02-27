@@ -1325,26 +1325,69 @@ function calculateDamageLocal(number, isTrimp, world, calcForMap) { //number = b
     //if (game.global.titimpLeft >= 1 && isTrimp && game.global.mapsActive){
     //    number *= 2;
     //}
-    if (game.global.achievementBonus > 0 && isTrimp){
-        number *= (1 + (game.global.achievementBonus / 100));
+    if (isTrimp)
+    {
+        if (!calcForMap && game.global.mapBonus > 0){
+            number *= ((game.global.mapBonus * 0.2) + 1);
+        }
+        if (game.global.antiStacks > 0){
+            number *= ((game.global.antiStacks * game.portal.Anticipation.level * game.portal.Anticipation.modifier) + 1);
+        }
+        if (game.global.achievementBonus > 0){
+            number *= (1 + (game.global.achievementBonus / 100));
+        }
+        if (game.global.challengeActive == "Discipline"){
+            fluctuation = .995;
+        }
+        else if (game.portal.Range.level > 0){
+            minFluct = fluctuation - (.02 * game.portal.Range.level);
+        }
+        if (game.global.roboTrimpLevel > 0){
+            number *= ((0.2 * game.global.roboTrimpLevel) + 1);
+        }
+        if (game.goldenUpgrades.Battle.currentBonus > 0){
+    			number *= game.goldenUpgrades.Battle.currentBonus + 1;
+    	}
+    	if (game.global.totalSquaredReward > 0){
+    		number *= ((game.global.totalSquaredReward / 100) + 1)
+    	}
+    	if (game.global.challengeActive == "Daily"){
+    		if (typeof game.global.dailyChallenge.minDamage !== 'undefined'){
+    			if (minFluct == -1) minFluct = fluctuation;
+    			minFluct += dailyModifiers.minDamage.getMult(game.global.dailyChallenge.minDamage.strength);
+    		}
+    		if (typeof game.global.dailyChallenge.maxDamage !== 'undefined'){
+    			if (maxFluct == -1) maxFluct = fluctuation;
+    			maxFluct += dailyModifiers.maxDamage.getMult(game.global.dailyChallenge.maxDamage.strength);
+    		}
+    		if (typeof game.global.dailyChallenge.weakness !== 'undefined'){
+    			number *= dailyModifiers.weakness.getMult(game.global.dailyChallenge.weakness.strength, game.global.dailyChallenge.weakness.stacks);
+    		}
+    		if (typeof game.global.dailyChallenge.oddTrimpNerf !== 'undefined' && ((world % 2) == 1)){
+    				number *= dailyModifiers.oddTrimpNerf.getMult(game.global.dailyChallenge.oddTrimpNerf.strength);
+    		}
+    		if (typeof game.global.dailyChallenge.evenTrimpBuff !== 'undefined' && ((world % 2) == 0)){
+    				number *= dailyModifiers.evenTrimpBuff.getMult(game.global.dailyChallenge.evenTrimpBuff.strength);
+    		}
+    		if (typeof game.global.dailyChallenge.rampage !== 'undefined'){
+    			number *= dailyModifiers.rampage.getMult(game.global.dailyChallenge.rampage.strength, game.global.dailyChallenge.rampage.stacks);
+    		}
+    	}
     }
-    if (game.global.challengeActive == "Discipline" && isTrimp){
-        fluctuation = .995;
-    }
-    else if (game.portal.Range.level > 0 && isTrimp){
-        minFluct = fluctuation - (.02 * game.portal.Range.level);
-    }
-    if (game.global.challengeActive == "Coordinate" && !isTrimp){
-        number *= getBadCoordLevelLocal(world);
-    }
-    if (!isTrimp && game.global.challengeActive == "Meditate"){
-        number *= 1.5;
-    }
-    if (!isTrimp && game.global.challengeActive == "Corrupted"){
-        number *= 3;
-    }
-    if (isTrimp && game.global.roboTrimpLevel > 0){
-        number *= ((0.2 * game.global.roboTrimpLevel) + 1);
+    else
+    {
+        if (game.global.challengeActive == "Coordinate"){
+            number *= getBadCoordLevelLocal(world);
+        }
+        if (game.global.challengeActive == "Meditate"){
+            number *= 1.5;
+        }
+        if (game.global.challengeActive == "Corrupted"){
+            number *= 3;
+        }
+        if (game.global.challengeActive == "Watch") {
+            number *= 1.25;
+        }
     }
     //if (!isTrimp && game.global.challengeActive == "Nom" && typeof cell.nomStacks !== 'undefined'){
     //    number *= Math.pow(1.25, cell.nomStacks);
@@ -1352,23 +1395,12 @@ function calculateDamageLocal(number, isTrimp, world, calcForMap) { //number = b
     //if (!isTrimp && game.global.usingShriek) {
     //    number *= game.mapUnlocks.roboTrimp.getShriekValue();
     //}
-    if (!isTrimp && game.global.challengeActive == "Watch") {
-        number *= 1.25;
-    }
+    if (minFluct > 1) minFluct = 1;
     if (maxFluct == -1) maxFluct = fluctuation;
     if (minFluct == -1) minFluct = fluctuation;
     var min = Math.floor(number * (1 - minFluct));
     var max = Math.ceil(number + (number * maxFluct));
-    if (!calcForMap && isTrimp && game.global.mapBonus > 0){
-        var mapBonusMult = 1 + (0.2 * game.global.mapBonus);
-        min *= mapBonusMult;
-        max *= mapBonusMult;
-    }
-    if (game.global.antiStacks > 0 && isTrimp){
-        var antiMult = (game.global.antiStacks * game.portal.Anticipation.level * game.portal.Anticipation.modifier) + 1;
-        min *= antiMult;
-        max *= antiMult;
-    }
+    
     number = (max + min)/2;
     return number;
 }
@@ -2596,6 +2628,11 @@ function BuyGoldenUpgrade()
 {
     if (getAvailableGoldenUpgrades() == 0) return;       //if we have nothing to buy, exit.
     //buy one upgrade per loop.
+    if (game.global.runningChallengeSquared)
+    {
+        buyGoldenUpgrade("Battle");
+        return;
+    }
     var nextAmt = game.goldenUpgrades.Void.nextAmt();
     if (nextAmt <= 0.02)
         buyGoldenUpgrade("Void");
@@ -2692,3 +2729,4 @@ function prettifyTime(timeSince)
 	}
     return timeString;
 }
+
