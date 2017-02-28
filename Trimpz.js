@@ -381,7 +381,7 @@ function AssignFreeWorkers() {
         "Lumberjack" : 0,
         "Farmer" : 0
     };
-    if (game.global.world < 100 && getRemainingTimeForBreeding()>1) return;
+    if (game.global.world < 200 && getRemainingTimeForBreeding()>6) return;
     if (trimps.owned === 0 || game.global.firing) {
         return;
     }
@@ -411,6 +411,11 @@ function AssignFreeWorkers() {
     var totalMultipliers;
     var assignThisMany;
     while (free > 0) {
+        if (game.jobs.Miner.locked !== 0)
+        {
+            buy.Farmer += free;
+            break;
+        }
         if (free > maxFreeForAssignOneAtATime && game.jobs.Miner.locked === 0){
             totalMultipliers = constants.getMinerMultiplier() + constants.getLumberjackMultiplier() + 1; //1 for default/reference farmer
             assignThisMany = constants.getMinerMultiplier() / totalMultipliers * (free - maxFreeForAssignOneAtATime);
@@ -708,17 +713,17 @@ function UpgradeNonEquipment() {
                     FocusWorkersOn("Farmer");
                     return true;
                 }
-                if (aResource === "metal" && needed > game.resources.metal.owned) {
+                if (game.jobs.Miner.locked === 0 && aResource === "metal" && needed > game.resources.metal.owned) {
                     setGather("metal");
                     FocusWorkersOn("Miner");
                     return true;
                 }
-                if (aResource === "science" && needed > game.resources.science.owned && document.getElementById('scienceCollectBtn').style.display == 'block') {
+                if (game.jobs.Scientist.locked === 0 && aResource === "science" && needed > game.resources.science.owned && document.getElementById('scienceCollectBtn').style.display == 'block') {
                     setGather("science");
                     FocusWorkersOn("Scientist");
                     return true;
                 }
-                if (aResource === "wood" && needed > game.resources.wood.owned) {
+                if (game.jobs.Lumberjack.locked === 0 && aResource === "wood" && needed > game.resources.wood.owned) {
                     setGather("wood");
                     FocusWorkersOn("Lumberjack");
                     return true;
@@ -745,6 +750,7 @@ function UpgradeAndGather() {
     var collectingForNonEquipment = UpgradeNonEquipment();
     if (collectingForNonEquipment)
         return true;
+    if (game.jobs.Scientist.locked !== 0 ) return;
     if (game.global.autoCraftModifier < 5000 && (game.global.buildingsQueue.length > 0 &&
         (game.global.buildingsQueue[0] !== "Trap.1") || game.global.buildingsQueue.length > 1)) {
         setGather("buildings");
@@ -855,7 +861,11 @@ function BuyBuildings() {
     }
     
     if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax/100)
+    {
+        game.global.buyAmt = 2;
         BuyBuilding("Nursery", constants.getNurseryCostRatio());
+        game.global.buyAmt = 1;
+    }
 
     BuyBuilding("Hut", constants.getHousingCostRatio());
     BuyBuilding("House", constants.getHousingCostRatio());
@@ -864,7 +874,9 @@ function BuyBuildings() {
     BuyBuilding("Resort", constants.getHousingCostRatio());
     BuyBuilding("Gateway", constants.getHousingCostRatio());
     if (game.buildings.Warpstation.locked === 1 || GetNonUpgradePrice(game.buildings.Warpstation, "gems") > GetNonUpgradePrice(game.buildings.Collector) * game.buildings.Warpstation.increase.by / game.buildings.Collector.increase.by) {
+        game.global.buyAmt = 2;
         BuyBuilding("Collector", 1);
+        game.global.buyAmt = 1;
     }
 
     if (game.upgrades.Gigastation.done === game.upgrades.Gigastation.allowed && game.upgrades.Gigastation.done >= trimpzSettings["gsForEqWs"].value) {
@@ -1013,7 +1025,7 @@ function BuyEquipmentOrUpgrade(bestEquipGainPerMetal, bestUpgradeGainPerMetal, b
     else if (CanBuyNonUpgrade(game.equipment[bestEquipment], constants.getEquipmentCostRatio()) === true) {
         var upgrade = Object.keys(game.upgrades).filter(function(a){return game.upgrades[a].prestiges === bestEquipment;})[0];
         var upgradeStats = GetRatioForEquipmentUpgrade(upgrade, game.equipment[bestEquipment]);
-        if (upgradeStats.gainPerMetal < bestEquipGainPerMetal || (game.global.world>230 && game.equipment[bestEquipment].level<50)) {
+        if (upgradeStats.gainPerMetal < bestEquipGainPerMetal || (game.global.world>230 && game.equipment[bestEquipment].level<40) || game.global.world>=trimpzSettings["voidMapsAt"].value-10) {
             buyEquipment(bestEquipment, true, true);
             return true;
         }
@@ -1080,7 +1092,8 @@ function FindAndBuyEquipment(stat, justgetcost) {
 function BuyMetalEquipment() {
     "use strict";
     
-    FindAndBuyEquipment("Health");
+    if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax/70)
+        FindAndBuyEquipment("Health");
     FindAndBuyEquipment("Attack");
         
     BuyCheapEquipmentUpgrades();
@@ -1312,26 +1325,69 @@ function calculateDamageLocal(number, isTrimp, world, calcForMap) { //number = b
     //if (game.global.titimpLeft >= 1 && isTrimp && game.global.mapsActive){
     //    number *= 2;
     //}
-    if (game.global.achievementBonus > 0 && isTrimp){
-        number *= (1 + (game.global.achievementBonus / 100));
+    if (isTrimp)
+    {
+        if (!calcForMap && game.global.mapBonus > 0){
+            number *= ((game.global.mapBonus * 0.2) + 1);
+        }
+        if (game.global.antiStacks > 0){
+            number *= ((game.global.antiStacks * game.portal.Anticipation.level * game.portal.Anticipation.modifier) + 1);
+        }
+        if (game.global.achievementBonus > 0){
+            number *= (1 + (game.global.achievementBonus / 100));
+        }
+        if (game.global.challengeActive == "Discipline"){
+            fluctuation = .995;
+        }
+        else if (game.portal.Range.level > 0){
+            minFluct = fluctuation - (.02 * game.portal.Range.level);
+        }
+        if (game.global.roboTrimpLevel > 0){
+            number *= ((0.2 * game.global.roboTrimpLevel) + 1);
+        }
+        if (game.goldenUpgrades.Battle.currentBonus > 0){
+    			number *= game.goldenUpgrades.Battle.currentBonus + 1;
+    	}
+    	if (game.global.totalSquaredReward > 0){
+    		number *= ((game.global.totalSquaredReward / 100) + 1)
+    	}
+    	if (game.global.challengeActive == "Daily"){
+    		if (typeof game.global.dailyChallenge.minDamage !== 'undefined'){
+    			if (minFluct == -1) minFluct = fluctuation;
+    			minFluct += dailyModifiers.minDamage.getMult(game.global.dailyChallenge.minDamage.strength);
+    		}
+    		if (typeof game.global.dailyChallenge.maxDamage !== 'undefined'){
+    			if (maxFluct == -1) maxFluct = fluctuation;
+    			maxFluct += dailyModifiers.maxDamage.getMult(game.global.dailyChallenge.maxDamage.strength);
+    		}
+    		if (typeof game.global.dailyChallenge.weakness !== 'undefined'){
+    			number *= dailyModifiers.weakness.getMult(game.global.dailyChallenge.weakness.strength, game.global.dailyChallenge.weakness.stacks);
+    		}
+    		if (typeof game.global.dailyChallenge.oddTrimpNerf !== 'undefined' && ((world % 2) == 1)){
+    				number *= dailyModifiers.oddTrimpNerf.getMult(game.global.dailyChallenge.oddTrimpNerf.strength);
+    		}
+    		if (typeof game.global.dailyChallenge.evenTrimpBuff !== 'undefined' && ((world % 2) == 0)){
+    				number *= dailyModifiers.evenTrimpBuff.getMult(game.global.dailyChallenge.evenTrimpBuff.strength);
+    		}
+    		if (typeof game.global.dailyChallenge.rampage !== 'undefined'){
+    			number *= dailyModifiers.rampage.getMult(game.global.dailyChallenge.rampage.strength, game.global.dailyChallenge.rampage.stacks);
+    		}
+    	}
     }
-    if (game.global.challengeActive == "Discipline" && isTrimp){
-        fluctuation = .995;
-    }
-    else if (game.portal.Range.level > 0 && isTrimp){
-        minFluct = fluctuation - (.02 * game.portal.Range.level);
-    }
-    if (game.global.challengeActive == "Coordinate" && !isTrimp){
-        number *= getBadCoordLevelLocal(world);
-    }
-    if (!isTrimp && game.global.challengeActive == "Meditate"){
-        number *= 1.5;
-    }
-    if (!isTrimp && game.global.challengeActive == "Corrupted"){
-        number *= 3;
-    }
-    if (isTrimp && game.global.roboTrimpLevel > 0){
-        number *= ((0.2 * game.global.roboTrimpLevel) + 1);
+    else
+    {
+        if (game.global.challengeActive == "Coordinate"){
+            number *= getBadCoordLevelLocal(world);
+        }
+        if (game.global.challengeActive == "Meditate"){
+            number *= 1.5;
+        }
+        if (game.global.challengeActive == "Corrupted"){
+            number *= 3;
+        }
+        if (game.global.challengeActive == "Watch") {
+            number *= 1.25;
+        }
     }
     //if (!isTrimp && game.global.challengeActive == "Nom" && typeof cell.nomStacks !== 'undefined'){
     //    number *= Math.pow(1.25, cell.nomStacks);
@@ -1339,23 +1395,12 @@ function calculateDamageLocal(number, isTrimp, world, calcForMap) { //number = b
     //if (!isTrimp && game.global.usingShriek) {
     //    number *= game.mapUnlocks.roboTrimp.getShriekValue();
     //}
-    if (!isTrimp && game.global.challengeActive == "Watch") {
-        number *= 1.25;
-    }
+    if (minFluct > 1) minFluct = 1;
     if (maxFluct == -1) maxFluct = fluctuation;
     if (minFluct == -1) minFluct = fluctuation;
     var min = Math.floor(number * (1 - minFluct));
     var max = Math.ceil(number + (number * maxFluct));
-    if (!calcForMap && isTrimp && game.global.mapBonus > 0){
-        var mapBonusMult = 1 + (0.2 * game.global.mapBonus);
-        min *= mapBonusMult;
-        max *= mapBonusMult;
-    }
-    if (game.global.antiStacks > 0 && isTrimp){
-        var antiMult = (game.global.antiStacks * game.portal.Anticipation.level * game.portal.Anticipation.modifier) + 1;
-        min *= antiMult;
-        max *= antiMult;
-    }
+    
     number = (max + min)/2;
     return number;
 }
@@ -1603,7 +1648,10 @@ function ManageRepeatMaps() {
 //            if (!ableToOverkillAllMobs())
             if (mapBonus < 9)
             {
-                if(addSpecials(true, true, getCurrentMapObject()) > 1 )
+                var specials = addSpecials(true, true, getCurrentMapObject());
+                if (specials > 2 )
+                    shouldRepeat = true;
+                else if (specials==2 && (getCurrentMapObject().level-1) % 10 < 5)
                     shouldRepeat = true;
 /*                prestige = trimpzSettings["prestige"].value;
                 var mapDrop = game.global.mapGridArray[game.global.mapGridArray.length - 1].special;
@@ -1662,11 +1710,6 @@ function RunPrimaryUniqueMaps(){
         }
     }
     
-    if (game.talents.blacksmith.purchased && game.buildings.Nursery.locked && game.global.world ===47){
-        RunNewMap(game.global.world);
-        return true;
-    }
-
     if (game.global.challengeActive === "Electricity" && game.global.world >= 80) {
         for (map in game.global.mapsOwnedArray) {
             theMap = game.global.mapsOwnedArray[map];
@@ -1822,13 +1865,21 @@ function RunMaps() {
     if (game.global.repeatMap){
         repeatClicked();
     }
+    
+    var skipCheck = false;
 
-/*    if (game.global.preMapsActive === false && game.resources.trimps.owned < game.resources.trimps.realMax() && game.resources.trimps.soldiers !== 0 && game.global.world!=47) {
-        return;
-    }*/
-    if (game.global.lastBreedTime<30000 && game.resources.trimps.soldiers !== 0) return;
-//    if (getRemainingTimeForBreeding()>5) return;
-    if (game.global.lastClearedCell > 40)
+    if (game.global.challengeActive == "Daily")
+    {
+        if (typeof game.global.dailyChallenge.plague !== 'undefined' || typeof game.global.dailyChallenge.bogged !== 'undefined')
+            skipCheck = true;
+    }
+    else if (game.global.challengeActive === "Electricity" || game.global.challengeActive === "Nom" || game.global.challengeActive === "Toxicity")
+        skipCheck = true;
+    else if (game.global.antiStacks<25 && game.global.lastClearedCell>50)
+        skipCheck = true;
+        
+    if (game.global.lastBreedTime<30000 && !skipCheck) return;
+    if (game.global.lastClearedCell > 50 && game.global.world != trimpzSettings["voidMapsAt"].value)
     {
         if (game.global.preMapsActive === true)
             RunWorld();
@@ -1952,7 +2003,6 @@ function CheckPortal() {
     var map;
     var theMap;
     var itemsAvailable;
-    if (game.global.world%10>7 || game.global.world%10==0) return;
     if (game.global.world >= trimpzSettings["portalAt"].value - 2 && !game.global.portalActive && (game.resources.trimps.soldiers === 0 || game.resources.trimps.owned === game.resources.trimps.realMax()))
     {
         if (game.global.mapsActive)
@@ -2120,18 +2170,18 @@ function RunVoidMaps() {
         }
         return;
     }
-    if (game.global.lastClearedCell > trimpzSettings["lastCell"].value && game.global.lastBreedTime>=30000 || game.global.lastClearedCell > 96) {
+//    if (game.global.lastClearedCell > trimpzSettings["lastCell"].value && game.global.lastBreedTime>=30000 || game.global.lastClearedCell > 96) {
 //        if (ableToRunVoidMap(game.global.world+1) === false && ableToRunVoidMap(game.global.world-2) === true && game.global.world%10<5 && game.global.world%10>0 || (shouldPortal && portalAtWorld == game.global.world))
-        if (trimpzSettings["voidMapsAt"].value <= game.global.world)
-        {
-            var theMap;
-            for (var map in game.global.mapsOwnedArray) {
-                theMap = game.global.mapsOwnedArray[map];
-                if (theMap.location == 'Void'){
-                    if (firstVoidMap == 0) firstVoidMap = game.global.world;
-                    RunMap(theMap);
-                    return;
-                }
+    if (trimpzSettings["voidMapsAt"].value <= game.global.world && ableToRunVoidMap(game.global.world+1) === false &&
+        game.global.lastClearedCell > trimpzSettings["lastCell"].value && (game.global.lastBreedTime>=30000 || game.global.lastClearedCell > 96))
+    {
+        var theMap;
+        for (var map in game.global.mapsOwnedArray) {
+            theMap = game.global.mapsOwnedArray[map];
+            if (theMap.location == 'Void'){
+                if (firstVoidMap == 0) firstVoidMap = game.global.world;
+                RunMap(theMap);
+                return;
             }
         }
     }
@@ -2580,7 +2630,16 @@ function BuyGoldenUpgrade()
 {
     if (getAvailableGoldenUpgrades() == 0) return;       //if we have nothing to buy, exit.
     //buy one upgrade per loop.
-    buyGoldenUpgrade("Helium");
+    if (game.global.runningChallengeSquared)
+    {
+        buyGoldenUpgrade("Battle");
+        return;
+    }
+    var nextAmt = game.goldenUpgrades.Void.nextAmt();
+    if (nextAmt <= 0.02)
+        buyGoldenUpgrade("Void");
+    else
+        buyGoldenUpgrade("Helium");
 }
 
 function ableToOverkillAllMobs(scryer)
@@ -2672,3 +2731,4 @@ function prettifyTime(timeSince)
 	}
     return timeString;
 }
+
