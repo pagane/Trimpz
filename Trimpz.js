@@ -1868,7 +1868,7 @@ function RunMaps() {
     
     var skipCheck = false;
 
-    if (game.global.challengeActive == "Daily")
+    if (game.global.challengeActive == "Daily" || game.global.challengeActive === "Electricity" || game.global.challengeActive === "Nom" || game.global.challengeActive === "Toxicity")
     {
         if (typeof game.global.dailyChallenge.plague !== 'undefined' || typeof game.global.dailyChallenge.bogged !== 'undefined')
             skipCheck = true;
