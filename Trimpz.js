@@ -1868,7 +1868,7 @@ function RunMaps() {
     
     var skipCheck = false;
 
-    if (game.global.challengeActive == "Daily")
+    if (game.global.challengeActive == "Daily" || game.global.challengeActive === "Electricity" || game.global.challengeActive === "Nom" || game.global.challengeActive === "Toxicity")
     {
         if (typeof game.global.dailyChallenge.plague !== 'undefined' || typeof game.global.dailyChallenge.bogged !== 'undefined')
             skipCheck = true;
@@ -2628,6 +2628,11 @@ function BuyGoldenUpgrade()
 {
     if (getAvailableGoldenUpgrades() == 0) return;       //if we have nothing to buy, exit.
     //buy one upgrade per loop.
+    if (game.global.runningChallengeSquared)
+    {
+        buyGoldenUpgrade("Battle");
+        return;
+    }
     var nextAmt = game.goldenUpgrades.Void.nextAmt();
     if (nextAmt <= 0.02)
         buyGoldenUpgrade("Void");
