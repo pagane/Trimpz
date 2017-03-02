@@ -1699,6 +1699,8 @@ function ManageRepeatMaps() {
 function RunPrimaryUniqueMaps(){
     var map;
     var theMap;
+    
+    if (game.global.runningChallengeSquared) return false;
 
     if (game.upgrades.Bounty.done === 0 && game.upgrades.Bounty.locked === 1) {
         for (map in game.global.mapsOwnedArray) {
