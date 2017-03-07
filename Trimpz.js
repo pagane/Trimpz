@@ -694,6 +694,7 @@ function UpgradeNonEquipment() {
                 else
                     warpsAtLastGiga = game.buildings.Warpstation.owned;
             }
+            if (game.global.challengeActive == "Trapper" && upgrade == 'Coordination' && ableToOneShotAllMobs()) continue;
             if (upgrade == 'Coordination' && !canAffordCoordinationTrimps())
             {
                 if (unusedCoordsAt==0 && game.global.lastClearedCell>60)
@@ -1699,6 +1700,8 @@ function ManageRepeatMaps() {
 function RunPrimaryUniqueMaps(){
     var map;
     var theMap;
+    
+    if (game.global.runningChallengeSquared) return false;
 
     if (game.upgrades.Bounty.done === 0 && game.upgrades.Bounty.locked === 1) {
         for (map in game.global.mapsOwnedArray) {
@@ -1868,11 +1871,13 @@ function RunMaps() {
     
     var skipCheck = false;
 
-    if (game.global.challengeActive == "Daily" || game.global.challengeActive === "Electricity" || game.global.challengeActive === "Nom" || game.global.challengeActive === "Toxicity")
+    if (game.global.challengeActive == "Daily")
     {
         if (typeof game.global.dailyChallenge.plague !== 'undefined' || typeof game.global.dailyChallenge.bogged !== 'undefined')
             skipCheck = true;
     }
+    else if (game.global.challengeActive === "Electricity" || game.global.challengeActive === "Nom" || game.global.challengeActive === "Toxicity")
+        skipCheck = true;
     else if (game.global.antiStacks<25 && game.global.lastClearedCell>50)
         skipCheck = true;
         
