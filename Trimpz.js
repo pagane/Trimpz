@@ -563,6 +563,9 @@ function ClickAllNonEquipmentUpgrades() {
         if (upgrade === "Shieldblock"){
             continue;
         }
+        if (upgrade === "Coordination"){
+            continue;
+        }
         if (typeof game.upgrades[upgrade].prestiges == 'undefined' && game.upgrades[upgrade].locked === 0) {
             buyUpgrade(upgrade,true,true);  //Upgrade!
         }
