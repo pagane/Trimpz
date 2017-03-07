@@ -563,6 +563,9 @@ function ClickAllNonEquipmentUpgrades() {
         if (upgrade === "Shieldblock"){
             continue;
         }
+        if (upgrade === "Coordination"){
+            continue;
+        }
         if (typeof game.upgrades[upgrade].prestiges == 'undefined' && game.upgrades[upgrade].locked === 0) {
             buyUpgrade(upgrade,true,true);  //Upgrade!
         }
@@ -694,6 +697,7 @@ function UpgradeNonEquipment() {
                 else
                     warpsAtLastGiga = game.buildings.Warpstation.owned;
             }
+            if (game.global.challengeActive == "Trapper" && upgrade == 'Coordination' && ableToOneShotAllMobs()) continue;
             if (upgrade == 'Coordination' && !canAffordCoordinationTrimps())
             {
                 if (unusedCoordsAt==0 && game.global.lastClearedCell>60)
@@ -1699,6 +1703,8 @@ function ManageRepeatMaps() {
 function RunPrimaryUniqueMaps(){
     var map;
     var theMap;
+    
+    if (game.global.runningChallengeSquared) return false;
 
     if (game.upgrades.Bounty.done === 0 && game.upgrades.Bounty.locked === 1) {
         for (map in game.global.mapsOwnedArray) {
