@@ -563,6 +563,9 @@ function ClickAllNonEquipmentUpgrades() {
         if (upgrade === "Shieldblock"){
             continue;
         }
+        if (upgrade === "Coordination"){
+            continue;
+        }
         if (typeof game.upgrades[upgrade].prestiges == 'undefined' && game.upgrades[upgrade].locked === 0) {
             buyUpgrade(upgrade,true,true);  //Upgrade!
         }
@@ -694,6 +697,7 @@ function UpgradeNonEquipment() {
                 else
                     warpsAtLastGiga = game.buildings.Warpstation.owned;
             }
+            if (game.global.challengeActive == "Trapper" && upgrade == 'Coordination' && ableToOverkillAllMobs()) continue;
             if (upgrade == 'Coordination' && !canAffordCoordinationTrimps())
             {
                 if (unusedCoordsAt==0 && game.global.lastClearedCell>60)
