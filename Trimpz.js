@@ -694,7 +694,7 @@ function UpgradeNonEquipment() {
                 else
                     warpsAtLastGiga = game.buildings.Warpstation.owned;
             }
-            if (game.global.challengeActive == "Trapper" && upgrade == 'Coordination' && ableToOverkillAllMobs(false)) continue;
+            if (game.global.challengeActive == "Trapper" && upgrade == 'Coordination' && ableToOneShotAllMobs()) continue;
             if (upgrade == 'Coordination' && !canAffordCoordinationTrimps())
             {
                 if (unusedCoordsAt==0 && game.global.lastClearedCell>60)
