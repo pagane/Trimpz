@@ -697,7 +697,7 @@ function UpgradeNonEquipment() {
                 else
                     warpsAtLastGiga = game.buildings.Warpstation.owned;
             }
-            if (game.global.challengeActive == "Trapper" && upgrade == 'Coordination' && ableToOneShotAllMobs()) continue;
+            if (game.global.challengeActive == "Trapper" && upgrade == 'Coordination' && ableToOverkillAllMobs()) continue;
             if (upgrade == 'Coordination' && !canAffordCoordinationTrimps())
             {
                 if (unusedCoordsAt==0 && game.global.lastClearedCell>60)
@@ -864,7 +864,7 @@ function BuyBuildings() {
         BuyBuilding("Tribute", constants.getTributeCostRatio());
     }
     
-    if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax/100)
+    if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax/50)
     {
         game.global.buyAmt = 2;
         BuyBuilding("Nursery", constants.getNurseryCostRatio());
