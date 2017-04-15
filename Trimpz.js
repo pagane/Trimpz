@@ -1938,6 +1938,8 @@ function CheckLateGame() {
         cancelTooltip();
     else if(game.global.spireActive && document.getElementById("tipTitle").innerHTML == "Spire")
         cancelTooltip();
+    else if(mutations.Magma.active() && game.global.world == mutations.Magma.start() && document.getElementById("tipTitle").innerHTML == "The Magma")
+        cancelTooltip();
         
     if (game.global.world === 1 && helium !== -1) {
         constants = constantsSets[0];
@@ -2074,7 +2076,8 @@ function CheckPortal() {
                 break;
         }
         ClickButton("activatePortalBtn");
-        document.getElementsByClassName("activatePortalBtn")[0].click();
+//        document.getElementsByClassName("activatePortalBtn")[0].click();
+        activatePortal();
         return true;
     } else if (trimpzSettings["autoPortal"].value && game.global.mapBonus==10 && game.global.formation == 2 && !ableToOneShotAllMobs(true)){
         if (!shouldPortal && (portalAtWorld != game.global.world+1))
