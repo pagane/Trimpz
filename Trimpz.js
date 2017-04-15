@@ -2076,7 +2076,7 @@ function CheckPortal() {
                 break;
         }
         ClickButton("activatePortalBtn");
-        document.getElementsByClassName("activatePortalBtn")[0].click();
+//        document.getElementsByClassName("activatePortalBtn")[0].click();
         activatePortal();
         return true;
     } else if (trimpzSettings["autoPortal"].value && game.global.mapBonus==10 && game.global.formation == 2 && !ableToOneShotAllMobs(true)){
