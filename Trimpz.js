@@ -1650,7 +1650,7 @@ function ManageRepeatMaps() {
     if (mapRunStatus) {
         if (mapRunStatus === "Prestige") {
 //            if (!ableToOverkillAllMobs())
-            if (mapBonus < 9)
+            if (!ableToOverkillAllMobs() && mapBonus < 9)
             {
                 var specials = addSpecials(true, true, getCurrentMapObject());
                 if (specials > 2 )
