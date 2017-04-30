@@ -669,6 +669,7 @@ function CanBuyWarpstationSoon(){
     }
     var buildStringArray = buildstring.split(" ");
     var minutesIndex = buildStringArray.indexOf("Mins");
+    if (typeof minutesIndex == 'undefined') return true;
     var minutesString = buildStringArray[minutesIndex - 1].split("(")[1];
     var minutes = parseInt(minutesString, 10);
 
