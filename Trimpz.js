@@ -664,7 +664,8 @@ function CanBuyWarpstationSoon(){
     if (buildstring.indexOf("Days") > -1 || buildstring.indexOf("Hours") > -1 || buildstring.indexOf("Long") > -1){
         return false;
     }
-    if (buildstring.indexOf("Mins") == -1){
+    return true;
+/*    if (buildstring.indexOf("Mins") == -1){
         return true;
     }
     var buildStringArray = buildstring.split(" ");
@@ -680,7 +681,7 @@ function CanBuyWarpstationSoon(){
     var minutes2Index = buildStringArray.lastIndexOf("Mins");
     var minutes2String = buildStringArray[minutes2Index - 1].split("(")[1];
     var minutes2 = parseInt(minutes2String, 10);
-    return !(minutes > MaxMinutesToWait || minutes2 > MaxMinutesToWait);
+    return !(minutes > MaxMinutesToWait || minutes2 > MaxMinutesToWait);*/
 }
 
 function UpgradeNonEquipment() {
