@@ -1887,7 +1887,7 @@ function RunMaps() {
         skipCheck = true;
         
     if (game.global.lastBreedTime<30000 && !skipCheck) return;
-    if (game.global.lastClearedCell > 50 && game.global.world != trimpzSettings["voidMapsAt"].value)
+    if (game.global.lastClearedCell > 50 && game.global.world < trimpzSettings["voidMapsAt"].value - 5)
     {
         if (game.global.preMapsActive === true)
             RunWorld();
