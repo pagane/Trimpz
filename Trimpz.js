@@ -2173,6 +2173,7 @@ function RunVoidMaps() {
     if (game.global.mapsActive === true && game.global.preMapsActive === false){ //no map ability(wait one) or already running a map(repeat should be off)
         if (getCurrentMapObject().location == "Void")
         {
+            if (game.global.lastClearedMapCell <=5 && game.global.antiStacks<30 && game.global.lastBreedTime>=30000) goto run_map;
             if (ableToRunVoidMap(game.global.world+1) === true)
                 game.options.menu.repeatVoids.enabled = 0;
             else
@@ -2186,6 +2187,7 @@ function RunVoidMaps() {
     if (trimpzSettings["voidMapsAt"].value <= game.global.world && ableToRunVoidMap(game.global.world+1) === false &&
         game.global.lastClearedCell > trimpzSettings["lastCell"].value && (game.global.lastBreedTime>=30000 || game.global.lastClearedCell > 96))
     {
+        run_map:
         var theMap;
         for (var map in game.global.mapsOwnedArray) {
             theMap = game.global.mapsOwnedArray[map];
