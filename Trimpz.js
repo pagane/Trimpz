@@ -1226,6 +1226,8 @@ function RunNewMap(zoneToCreate) {
         console.log('Cost: ' + cost);
         console.log('Fragments: ' + game.resources.fragments.owned);
     }
+    if (game.global.challengeActive == "Metal")
+        document.getElementById("biomeAdvMapsSelect").value = "Mountain";
     cost = updateMapCost(true);
     if (cost * 4 < game.resources.fragments.owned){
         document.getElementById("lootAdvMapsRange").value = highFragmentLoot;
