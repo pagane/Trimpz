@@ -2730,7 +2730,7 @@ function ableToOneShotAllMobs(portal)
         soldierAttack *= (1 + (0.2 * game.global.mapBonus));
         
     if (getEmpowerment() == "Poison")
-        soldierAttack += Math.ceil(game.empowerments.Poison.getModifier() * getSoldierAttack(game.global.world, true);
+        soldierAttack += Math.ceil(game.empowerments.Poison.getModifier() * getSoldierAttack(game.global.world, true));
 
     if (portal) soldierAttack *= 2.2;
 
