@@ -381,7 +381,7 @@ function AssignFreeWorkers() {
         "Lumberjack" : 0,
         "Farmer" : 0
     };
-    if (game.global.world < 200 && getRemainingTimeForBreeding()>6) return;
+    if (game.global.world < 250 && getRemainingTimeForBreeding()>6) return;
     if (trimps.owned === 0 || game.global.firing) {
         return;
     }
@@ -1335,6 +1335,9 @@ function calculateDamageLocal(number, isTrimp, world, calcForMap) { //number = b
     //}
     if (isTrimp)
     {
+        if (game.challenges.Electricity.stacks > 0) { //Electricity
+			number *= (1 - (game.challenges.Electricity.stacks * 0.1));
+		}
         if (!calcForMap && game.global.mapBonus > 0){
             number *= ((game.global.mapBonus * 0.2) + 1);
         }
@@ -1353,12 +1356,18 @@ function calculateDamageLocal(number, isTrimp, world, calcForMap) { //number = b
         if (game.global.roboTrimpLevel > 0){
             number *= ((0.2 * game.global.roboTrimpLevel) + 1);
         }
+        if (game.global.challengeActive == "Lead" && ((world % 2) == 1)){
+			number *= 1.5;
+		}
         if (game.goldenUpgrades.Battle.currentBonus > 0){
     			number *= game.goldenUpgrades.Battle.currentBonus + 1;
     	}
     	if (game.global.totalSquaredReward > 0){
     		number *= ((game.global.totalSquaredReward / 100) + 1)
     	}
+    	if (getEmpowerment() == "Ice"){
+			number *= 1 + (1 - game.empowerments.Ice.getCombatModifier());
+		}
     	if (game.global.challengeActive == "Daily"){
     		if (typeof game.global.dailyChallenge.minDamage !== 'undefined'){
     			if (minFluct == -1) minFluct = fluctuation;
@@ -1539,6 +1548,9 @@ function getLevelOfOneShotMap(){
     var soldierAttack = getSoldierAttack(game.global.world, true);
     if (game.global.formation == 2)
         soldierAttack /= 8; //Maps will be run with less attack in Scryer formation.
+        
+    if (getEmpowerment() == "Poison")
+        soldierAttack += Math.ceil(game.empowerments.Poison.getModifier() * soldierAttack)
 
     for (var mapLevel = game.global.world; mapLevel > 6; mapLevel--) {
         var maxEnemyHealth = getAverageEnemyHealthForLevel(mapLevel, true, false);
@@ -2288,6 +2300,7 @@ function MainLoop(){
     BuyGoldenUpgrade();
 +   Shriek();
     AssignFreeWorkers();
+    ManageGenerator();
     Fight();
 //    UpgradeStorage();
     MaxToxicStacks();
@@ -2716,6 +2729,9 @@ function ableToOneShotAllMobs(portal)
     else
         soldierAttack *= (1 + (0.2 * game.global.mapBonus));
         
+    if (getEmpowerment() == "Poison")
+        soldierAttack += Math.ceil(game.empowerments.Poison.getModifier() * getSoldierAttack(game.global.world, true);)
+
     if (portal) soldierAttack *= 2.2;
 
     return soldierAttack>enemyHealth;
@@ -2744,5 +2760,15 @@ function prettifyTime(timeSince)
 		if (x != 3) timeString += ":";
 	}
     return timeString;
+}
+
+function ManageGenerator()
+{
+    if (game.global.world>trimpzSettings["voidMapsAt"].value)
+        changeGeneratorState(0);
+    else if (game.global.world<trimpzSettings["voidMapsAt"].value - 2 && game.global.magmaFuel>game.generatorUpgrades.Capacity.modifier)
+        changeGeneratorState(0);
+    else
+        changeGeneratorState(2);
 }
 
