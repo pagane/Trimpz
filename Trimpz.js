@@ -484,7 +484,7 @@ function AssignFreeWorkers() {
 function Fight() {
     "use strict";
     
-    if (game.global.world<200)
+    if (game.resources.trimps.soldiers==0)
     {
         var cellNum = game.global.lastClearedCell + 1;
         var cell = game.global.gridArray[cellNum];
@@ -2246,7 +2246,7 @@ function TurnOffIncompatibleSettings() {
         game.options.menu.exitTo.enabled = 1;
         toggleSetting("exitTo", null, false, true);
     }
-    if (game.global.pauseFight) pauseFight();
+    if (!game.global.pauseFight) pauseFight();
 }
 
 function FocusOnBreeding(){
@@ -2303,7 +2303,6 @@ function MainLoop(){
 +   Shriek();
     AssignFreeWorkers();
     ManageGenerator();
-    Fight();
 //    UpgradeStorage();
     MaxToxicStacks();
     RunVoidMaps();
@@ -2322,6 +2321,7 @@ function MainLoop(){
     FocusOnBreeding();
     CheckFormation();
     RunMaps();
+    Fight();
 }
 
 function CreateButtonForPausing() {
