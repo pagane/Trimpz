@@ -1846,6 +1846,8 @@ function RunBetterMaps(){
         if (ableToOneShotAllMobs()) {
             return false;
         }
+        if (getEmpowerment() == "Wind" && game.empowerments.Wind.currentDebuffPower < game.empowerments.Wind.maxStacks)
+            return false;
         if (game.options.menu.mapLoot.enabled != 1)
             toggleSetting("mapLoot");
         oneShotMapLevel = game.portal.Overkill.level ? getLevelOfOverkillMap() : getLevelOfOneShotMap();
