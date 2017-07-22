@@ -484,7 +484,7 @@ function AssignFreeWorkers() {
 function Fight() {
     "use strict";
     
-    if (game.resources.trimps.soldiers==0)
+    if (game.resources.trimps.soldiers==0 || game.global.fighting==false)
     {
         var cellNum = game.global.lastClearedCell + 1;
         var cell = game.global.gridArray[cellNum];
