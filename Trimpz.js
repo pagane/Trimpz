@@ -1212,13 +1212,13 @@ function RunNewMap(zoneToCreate) {
     adjustMap('size', size);
     document.getElementById("lootAdvMapsRange").value = loot;
     adjustMap('loot', loot);
-    document.getElementById("biomeAdvMapsSelect").value = biome;
+    biomeAdvMapsSelect.value = biome;
     if (typeof zoneToCreate != 'undefined') {
         document.getElementById("mapLevelInput").value = zoneToCreate;
     }
     var cost = updateMapCost(true);
     if (cost * 4 < game.resources.fragments.owned){
-        document.getElementById("biomeAdvMapsSelect").value = "Plentiful";
+        biomeAdvMapsSelect.value = "Plentiful";
     }
     else
     {
@@ -1227,7 +1227,7 @@ function RunNewMap(zoneToCreate) {
         console.log('Fragments: ' + game.resources.fragments.owned);
     }
     if (game.global.challengeActive == "Metal")
-        document.getElementById("biomeAdvMapsSelect").value = "Mountain";
+        biomeAdvMapsSelect.value = "Mountain";
     cost = updateMapCost(true);
     if (cost * 4 < game.resources.fragments.owned){
         document.getElementById("lootAdvMapsRange").value = highFragmentLoot;
