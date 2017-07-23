@@ -1901,6 +1901,8 @@ function RunMaps() {
         skipCheck = true;
     else if (game.global.antiStacks<25 && game.global.lastClearedCell>50)
         skipCheck = true;
+    else if (game.global.lastClearedCell==-1 && game.resources.trimps.soldiers === 0)
+        skipCheck = true;
         
     if (game.global.lastBreedTime<30000 && !skipCheck) return;
     if (game.global.lastClearedCell > 50 && game.global.world < trimpzSettings["voidMapsAt"].value - 5)
@@ -2258,7 +2260,7 @@ function FocusOnBreeding(){
         clearQueue("Warpstation");
     }*/
     if (game.global.world > 10 && game.resources.trimps.soldiers === 0 && getRemainingTimeForBreeding() > 1){
-        fightManual();
+//        fightManual();
         if (!game.global.mapsActive)
             ReallocateWorkers();
     }
