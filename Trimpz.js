@@ -1206,11 +1206,11 @@ function RunNewMap(zoneToCreate) {
     var highFragmentLoot = 9;
     var biome = "Plentiful";
 
-    document.getElementById("difficultyAdvMapsRange").value = difficulty;
+    difficultyAdvMapsRange.value = difficulty;
     adjustMap('difficulty', difficulty);
-    document.getElementById("sizeAdvMapsRange").value = size;
+    sizeAdvMapsRange.value = size;
     adjustMap('size', size);
-    document.getElementById("lootAdvMapsRange").value = loot;
+    lootAdvMapsRange.value = loot;
     adjustMap('loot', loot);
     biomeAdvMapsSelect.value = biome;
     if (typeof zoneToCreate != 'undefined') {
