@@ -484,7 +484,7 @@ function AssignFreeWorkers() {
 function Fight() {
     "use strict";
     
-    if (game.global.world<200)
+    if (game.resources.trimps.soldiers==0 || game.global.fighting==false)
     {
         var cellNum = game.global.lastClearedCell + 1;
         var cell = game.global.gridArray[cellNum];
@@ -1846,6 +1846,8 @@ function RunBetterMaps(){
         if (ableToOneShotAllMobs()) {
             return false;
         }
+        if (getEmpowerment() == "Wind" && game.empowerments.Wind.currentDebuffPower < game.empowerments.Wind.maxStacks)
+            return false;
         if (game.options.menu.mapLoot.enabled != 1)
             toggleSetting("mapLoot");
         oneShotMapLevel = game.portal.Overkill.level ? getLevelOfOverkillMap() : getLevelOfOneShotMap();
@@ -1898,6 +1900,8 @@ function RunMaps() {
     else if (game.global.challengeActive === "Electricity" || game.global.challengeActive === "Nom" || game.global.challengeActive === "Toxicity")
         skipCheck = true;
     else if (game.global.antiStacks<25 && game.global.lastClearedCell>50)
+        skipCheck = true;
+    else if (game.global.lastClearedCell==-1)
         skipCheck = true;
         
     if (game.global.lastBreedTime<30000 && !skipCheck) return;
@@ -2244,7 +2248,7 @@ function TurnOffIncompatibleSettings() {
         game.options.menu.exitTo.enabled = 1;
         toggleSetting("exitTo", null, false, true);
     }
-    if (game.global.pauseFight) pauseFight();
+    if (!game.global.pauseFight) pauseFight();
 }
 
 function FocusOnBreeding(){
@@ -2301,7 +2305,6 @@ function MainLoop(){
 +   Shriek();
     AssignFreeWorkers();
     ManageGenerator();
-    Fight();
 //    UpgradeStorage();
     MaxToxicStacks();
     RunVoidMaps();
@@ -2320,6 +2323,7 @@ function MainLoop(){
     FocusOnBreeding();
     CheckFormation();
     RunMaps();
+    Fight();
 }
 
 function CreateButtonForPausing() {
@@ -2764,6 +2768,7 @@ function prettifyTime(timeSince)
 
 function ManageGenerator()
 {
+    if (game.global.world<230) return;
     if (game.global.world>trimpzSettings["voidMapsAt"].value)
         changeGeneratorState(0);
     else if (game.global.world<trimpzSettings["voidMapsAt"].value - 2 && game.global.magmaFuel>game.generatorUpgrades.Capacity.modifier)
