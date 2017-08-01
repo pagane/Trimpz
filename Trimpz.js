@@ -1671,7 +1671,6 @@ function ManageRepeatMaps() {
 
     if (mapRunStatus) {
         if (mapRunStatus === "Prestige") {
-//            if (!ableToOverkillAllMobs())
             if (!ableToOverkillAllMobs() && mapBonus < 9)
             {
                 var specials = addSpecials(true, true, getCurrentMapObject());
@@ -1787,7 +1786,7 @@ function RunPrestigeMaps(){
     
     prestige = trimpzSettings["prestige"].value;
 
-    if (ableToOverkillAllMobs(true) || game.global.mapBonus == 10) return;
+    if (ableToOverkillAllMobs() || game.global.mapBonus == 10) return;
     for (item in prestiges)
     {
         if (prestige !== "Off" && game.mapUnlocks[prestiges[item]].last <= game.global.world - 5 && !isPrestigeFull(null,prestiges[item])){
