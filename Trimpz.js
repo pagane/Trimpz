@@ -2681,7 +2681,7 @@ function BuyGoldenUpgrade()
 function ableToOverkillAllMobs(scryer)
 {
     var enemyHealth = getAverageEnemyHealthForLevel(game.global.world, false, false);
-    var soldierAttack = getSoldierAttack(game.global.world, true);
+    var soldierAttack = getSoldierAttack(game.global.world, false);
 
     if (game.global.formation == 4 && !(game.global.mapsActive === true && game.global.preMapsActive === false)) soldierAttack/=8;
     if (scryer) soldierAttack/=8;
