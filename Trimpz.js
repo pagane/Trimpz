@@ -566,9 +566,6 @@ function ClickAllNonEquipmentUpgrades() {
         if (upgrade === "Explorers"){
             continue;
         }
-        if (upgrade === "Egg"){
-            continue;
-        }
         if (upgrade === "Coordination"){
             continue;
         }
@@ -716,9 +713,6 @@ function UpgradeNonEquipment() {
                 continue;
             }
             if (upgrade === "Explorers"){
-                continue;
-            }
-            if (upgrade === "Egg"){
                 continue;
             }
             for (aResource in game.upgrades[upgrade].cost.resources) {
