@@ -1211,7 +1211,7 @@ function RunNewMap(zoneToCreate) {
     var loot = 0; //0-9
     var highFragmentLoot = 9;
     var biome = "Plentiful";
-    int i;
+    var i;
     
     if (game.global.challengeActive == "Metal")
         biome = "Mountain";
