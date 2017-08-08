@@ -1211,6 +1211,10 @@ function RunNewMap(zoneToCreate) {
     var loot = 0; //0-9
     var highFragmentLoot = 9;
     var biome = "Plentiful";
+    int i;
+    
+    if (game.global.challengeActive == "Metal")
+        biome = "Mountain";
 
     difficultyAdvMapsRange.value = difficulty;
     adjustMap('difficulty', difficulty);
@@ -1218,28 +1222,29 @@ function RunNewMap(zoneToCreate) {
     adjustMap('size', size);
     lootAdvMapsRange.value = loot;
     adjustMap('loot', loot);
-    biomeAdvMapsSelect.value = biome;
-    if (typeof zoneToCreate != 'undefined') {
-        document.getElementById("mapLevelInput").value = zoneToCreate;
+    
+    for (i=0; i<10; i++)
+    {
+        biomeAdvMapsSelect.value = biome;
+        if (document.getElementById("biomeAdvMapsSelect").value == biome) break;
     }
+    if (i==10) console.log('Cannot select biome 10 times');
+    if (typeof zoneToCreate != 'undefined') {
+        for (i=0; i<10; i++)
+        {
+            document.getElementById("mapLevelInput").value = zoneToCreate;
+            if (parseInt(document.getElementById("mapLevelInput").value, 10) == zoneToCreate) break;
+        }
+        if (i==10) console.log('Cannot select level 10 times');
+    }
+    
     var cost = updateMapCost(true);
     if (cost * 4 < game.resources.fragments.owned){
-        biomeAdvMapsSelect.value = "Plentiful";
-    }
-    else
-    {
-        console.log('Cannot run plentiful map')
-        console.log('Cost: ' + cost);
-        console.log('Fragments: ' + game.resources.fragments.owned);
-    }
-    if (game.global.challengeActive == "Metal")
-        biomeAdvMapsSelect.value = "Mountain";
-    cost = updateMapCost(true);
-    if (cost * 4 < game.resources.fragments.owned){
-        document.getElementById("lootAdvMapsRange").value = highFragmentLoot;
+        lootAdvMapsRange.value = highFragmentLoot;
         adjustMap('loot', loot);
+        cost = updateMapCost(true);
     }
-    cost = updateMapCost(true);
+    
     while (cost > game.resources.fragments.owned){
         if (size === 1){
             difficulty--;
