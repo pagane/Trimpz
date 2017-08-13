@@ -1266,8 +1266,12 @@ function RunNewMap(zoneToCreate) {
         cost = updateMapCost(true);
     }
     GotoMapsScreen();
+    console.log('Buying map level ' + zoneToCreate);
+    console.log('Buying map biome ' + biome);
     buyMap();
     newMap = game.global.mapsOwnedArray[game.global.mapsOwnedArray.length - 1];
+    console.log('New map level' + newMap.level);
+    console.log('New map biome' + newMap.location);
     RunMap(newMap);
 }
 
