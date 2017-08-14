@@ -772,6 +772,13 @@ function UpgradeAndGather() {
     } else {
         setGather("science");
     }
+    if (game.global.mapsActive === true && game.global.preMapsActive === false)
+    {
+        var map = getCurrentMapObject()
+        var specials = addSpecials(true, true, map);
+        if ((specials==3 || specials==2) && map.level%10 == 1)
+            return true;
+    }
     return false;
 }
 /**
@@ -1266,12 +1273,12 @@ function RunNewMap(zoneToCreate) {
         cost = updateMapCost(true);
     }
     GotoMapsScreen();
-    console.log('Buying map level ' + zoneToCreate);
-    console.log('Buying map biome ' + biome);
+//    console.log('Buying map level ' + zoneToCreate);
+//    console.log('Buying map biome ' + biome);
     buyMap();
     newMap = game.global.mapsOwnedArray[game.global.mapsOwnedArray.length - 1];
-    console.log('New map level' + newMap.level);
-    console.log('New map biome' + newMap.location);
+//    console.log('New map level' + newMap.level);
+//    console.log('New map biome' + newMap.location);
     RunMap(newMap);
 }
 
@@ -1893,6 +1900,8 @@ function RunMaps() {
     if (game.global.world < 7){
         return;
     }
+    
+    if (game.global.world >= 448 && game.global.world <=450) return;
 
     if (game.global.mapsActive === true && game.global.preMapsActive === false) {
         ManageRepeatMaps();
