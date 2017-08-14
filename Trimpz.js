@@ -1215,11 +1215,9 @@ function RunNewMap(zoneToCreate) {
     var newMap;
     var size = 9;   //0-9
     var difficulty = 9; //0-9
-    var loot = 0; //0-9
-    var highFragmentLoot = 9;
+    var loot = 9; //0-9
     var biome = "Plentiful";
-    var i;
-    
+
     GotoMapsScreen();
 
     if (game.global.challengeActive == "Metal")
@@ -1231,29 +1229,14 @@ function RunNewMap(zoneToCreate) {
     adjustMap('size', size);
     lootAdvMapsRange.value = loot;
     adjustMap('loot', loot);
+    biomeAdvMapsSelect.value = biome;
     
-    for (i=0; i<10; i++)
-    {
-        biomeAdvMapsSelect.value = biome;
-        if (document.getElementById("biomeAdvMapsSelect").value == biome) break;
-    }
-    if (i==10) console.log('Cannot select biome 10 times');
     if (typeof zoneToCreate != 'undefined') {
-        for (i=0; i<10; i++)
-        {
-            document.getElementById("mapLevelInput").value = zoneToCreate;
-            if (parseInt(document.getElementById("mapLevelInput").value, 10) == zoneToCreate) break;
-        }
-        if (i==10) console.log('Cannot select level 10 times');
+        document.getElementById("mapLevelInput").value = zoneToCreate;
     }
     
     var cost = updateMapCost(true);
-    if (cost * 4 < game.resources.fragments.owned){
-        lootAdvMapsRange.value = highFragmentLoot;
-        adjustMap('loot', loot);
-        cost = updateMapCost(true);
-    }
-    
+
     while (cost > game.resources.fragments.owned){
         if (size === 1){
             difficulty--;
@@ -1274,12 +1257,8 @@ function RunNewMap(zoneToCreate) {
         adjustMap('difficulty', difficulty);
         cost = updateMapCost(true);
     }
-//    console.log('Buying map level ' + zoneToCreate);
-//    console.log('Buying map biome ' + biome);
     buyMap();
     newMap = game.global.mapsOwnedArray[game.global.mapsOwnedArray.length - 1];
-//    console.log('New map level' + newMap.level);
-//    console.log('New map biome' + newMap.location);
     RunMap(newMap);
 }
 
