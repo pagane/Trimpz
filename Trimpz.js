@@ -563,6 +563,9 @@ function ClickAllNonEquipmentUpgrades() {
         if (upgrade === "Shieldblock"){
             continue;
         }
+        if (upgrade === "Explorers"){
+            continue;
+        }
         if (upgrade === "Coordination"){
             continue;
         }
@@ -709,6 +712,9 @@ function UpgradeNonEquipment() {
             if (upgrade === "Shieldblock"){
                 continue;
             }
+            if (upgrade === "Explorers"){
+                continue;
+            }
             for (aResource in game.upgrades[upgrade].cost.resources) {
                 needed = game.upgrades[upgrade].cost.resources[aResource];
                 if (typeof needed[1] != 'undefined') {
@@ -765,6 +771,13 @@ function UpgradeAndGather() {
         setGather("metal");
     } else {
         setGather("science");
+    }
+    if (game.global.mapsActive === true && game.global.preMapsActive === false)
+    {
+        var map = getCurrentMapObject()
+        var specials = addSpecials(true, true, map);
+        if ((specials==3 || specials==2) && map.level%10 == 1)
+            return true;
     }
     return false;
 }
@@ -1202,38 +1215,28 @@ function RunNewMap(zoneToCreate) {
     var newMap;
     var size = 9;   //0-9
     var difficulty = 9; //0-9
-    var loot = 0; //0-9
-    var highFragmentLoot = 9;
+    var loot = 9; //0-9
     var biome = "Plentiful";
 
-    document.getElementById("difficultyAdvMapsRange").value = difficulty;
+    GotoMapsScreen();
+
+    if (game.global.challengeActive == "Metal")
+        biome = "Mountain";
+
+    difficultyAdvMapsRange.value = difficulty;
     adjustMap('difficulty', difficulty);
-    document.getElementById("sizeAdvMapsRange").value = size;
+    sizeAdvMapsRange.value = size;
     adjustMap('size', size);
-    document.getElementById("lootAdvMapsRange").value = loot;
+    lootAdvMapsRange.value = loot;
     adjustMap('loot', loot);
-    document.getElementById("biomeAdvMapsSelect").value = biome;
+    biomeAdvMapsSelect.value = biome;
+    
     if (typeof zoneToCreate != 'undefined') {
         document.getElementById("mapLevelInput").value = zoneToCreate;
     }
+    
     var cost = updateMapCost(true);
-    if (cost * 4 < game.resources.fragments.owned){
-        document.getElementById("biomeAdvMapsSelect").value = "Plentiful";
-    }
-    else
-    {
-        console.log('Cannot run plentiful map')
-        console.log('Cost: ' + cost);
-        console.log('Fragments: ' + game.resources.fragments.owned);
-    }
-    if (game.global.challengeActive == "Metal")
-        document.getElementById("biomeAdvMapsSelect").value = "Mountain";
-    cost = updateMapCost(true);
-    if (cost * 4 < game.resources.fragments.owned){
-        document.getElementById("lootAdvMapsRange").value = highFragmentLoot;
-        adjustMap('loot', loot);
-    }
-    cost = updateMapCost(true);
+
     while (cost > game.resources.fragments.owned){
         if (size === 1){
             difficulty--;
@@ -1254,7 +1257,6 @@ function RunNewMap(zoneToCreate) {
         adjustMap('difficulty', difficulty);
         cost = updateMapCost(true);
     }
-    GotoMapsScreen();
     buyMap();
     newMap = game.global.mapsOwnedArray[game.global.mapsOwnedArray.length - 1];
     RunMap(newMap);
@@ -1665,7 +1667,6 @@ function ManageRepeatMaps() {
 
     if (mapRunStatus) {
         if (mapRunStatus === "Prestige") {
-//            if (!ableToOverkillAllMobs())
             if (!ableToOverkillAllMobs() && mapBonus < 9)
             {
                 var specials = addSpecials(true, true, getCurrentMapObject());
@@ -1781,7 +1782,7 @@ function RunPrestigeMaps(){
     
     prestige = trimpzSettings["prestige"].value;
 
-    if (ableToOverkillAllMobs(true) || game.global.mapBonus == 10) return;
+    if (ableToOverkillAllMobs() || game.global.mapBonus == 10) return;
     for (item in prestiges)
     {
         if (prestige !== "Off" && game.mapUnlocks[prestiges[item]].last <= game.global.world - 5 && !isPrestigeFull(null,prestiges[item])){
@@ -1879,6 +1880,8 @@ function RunMaps() {
     if (game.global.world < 7){
         return;
     }
+    
+    if (game.global.world >= 448 && game.global.world <=450) return;
 
     if (game.global.mapsActive === true && game.global.preMapsActive === false) {
         ManageRepeatMaps();
@@ -1901,7 +1904,7 @@ function RunMaps() {
         skipCheck = true;
     else if (game.global.antiStacks<25 && game.global.lastClearedCell>50)
         skipCheck = true;
-    else if (game.global.lastClearedCell==-1)
+    else if (game.global.lastClearedCell==-1 && game.resources.trimps.soldiers === 0)
         skipCheck = true;
         
     if (game.global.lastBreedTime<30000 && !skipCheck) return;
@@ -2260,7 +2263,7 @@ function FocusOnBreeding(){
         clearQueue("Warpstation");
     }*/
     if (game.global.world > 10 && game.resources.trimps.soldiers === 0 && getRemainingTimeForBreeding() > 1){
-        fightManual();
+//        fightManual();
         if (!game.global.mapsActive)
             ReallocateWorkers();
     }
@@ -2676,7 +2679,7 @@ function BuyGoldenUpgrade()
 function ableToOverkillAllMobs(scryer)
 {
     var enemyHealth = getAverageEnemyHealthForLevel(game.global.world, false, false);
-    var soldierAttack = getSoldierAttack(game.global.world, true);
+    var soldierAttack = getSoldierAttack(game.global.world, false);
 
     if (game.global.formation == 4 && !(game.global.mapsActive === true && game.global.preMapsActive === false)) soldierAttack/=8;
     if (scryer) soldierAttack/=8;
