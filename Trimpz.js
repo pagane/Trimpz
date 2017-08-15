@@ -178,7 +178,7 @@ function saveSettings() {
 function initializeUiAndSettings() {
     "use strict";
     loadPageVariables();
-    document.head.appendChild(document.createElement('script')).src = 'https://cdn.rawgit.com/pagane/Trimpz/highhe/NewUI.js';
+    document.head.appendChild(document.createElement('script')).src = 'https://rawgit.com/pagane/Trimpz/highhe/NewUI.js';
 }
 
 function setMapRunStatus(status){
@@ -1112,7 +1112,7 @@ function BuyMetalEquipment() {
     "use strict";
     
 //    if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax/70)
-    if (game.global.soldierHealth/game.global.soldierHealthMax<0.03)
+    if (game.global.soldierHealth/game.global.soldierHealthMax<trimpzSettings["hpEquipment"].value)
         FindAndBuyEquipment("Health");
     FindAndBuyEquipment("Attack");
         
