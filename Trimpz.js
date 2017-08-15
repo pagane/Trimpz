@@ -1112,7 +1112,7 @@ function BuyMetalEquipment() {
     "use strict";
     
 //    if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax/70)
-    if (game.global.soldierHealth/game.global.soldierHealthMax<0.03)
+    if (game.global.soldierHealth/game.global.soldierHealthMax<trimpzSettings["hpEquipment"].value)
         FindAndBuyEquipment("Health");
     FindAndBuyEquipment("Attack");
         
