@@ -178,7 +178,7 @@ function saveSettings() {
 function initializeUiAndSettings() {
     "use strict";
     loadPageVariables();
-    document.head.appendChild(document.createElement('script')).src = 'https://cdn.rawgit.com/pagane/Trimpz/highhe/NewUI.js';
+    document.head.appendChild(document.createElement('script')).src = 'https://rawgit.com/pagane/Trimpz/highhe/NewUI.js';
 }
 
 function setMapRunStatus(status){
