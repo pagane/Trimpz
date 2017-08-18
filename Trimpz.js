@@ -563,9 +563,6 @@ function ClickAllNonEquipmentUpgrades() {
         if (upgrade === "Shieldblock"){
             continue;
         }
-        if (upgrade === "Explorers"){
-            continue;
-        }
         if (upgrade === "Coordination"){
             continue;
         }
@@ -710,9 +707,6 @@ function UpgradeNonEquipment() {
                 continue;
             }
             if (upgrade === "Shieldblock"){
-                continue;
-            }
-            if (upgrade === "Explorers"){
                 continue;
             }
             for (aResource in game.upgrades[upgrade].cost.resources) {
