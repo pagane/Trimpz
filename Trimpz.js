@@ -2664,11 +2664,12 @@ function BuyGoldenUpgrade()
         buyGoldenUpgrade("Battle");
         return;
     }
+    
     var nextAmt = game.goldenUpgrades.Void.nextAmt();
     if (nextAmt <= 0.02)
         buyGoldenUpgrade("Void");
     else
-        buyGoldenUpgrade("Helium");
+        buyGoldenUpgrade(trimpzSettings["goldenUpgrade"].value);
 }
 
 function ableToOverkillAllMobs(scryer)
