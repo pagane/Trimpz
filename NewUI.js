@@ -25,6 +25,7 @@ createSetting('gsForEqWs', 'GS for EQ/WS ratio', 'Minimum owned Gigastations bef
 createSetting('eqWsRatio', 'EQ/WS ratio', 'Best Equipment to Warpstation cost ratio for buying Warpstations.  Default value of 5 means no Warpstations will be bought until the Best Equipment improvement costs more than 5 times the Warpstation cost.', 'value', 5);
 createSetting('autoPortal', 'Auto portal', 'Portal automatically when you reach max He/h', 'boolean', false);
 createSetting('hpEquipment', 'HP to buy equipment', 'Determines when to buy HP equipment. Default value of 0.03 means hp boosting equipment will be bought when HP drops below 3%', 'value', 0.03);
+createSetting('goldenUpgrade', 'Golden upgrade', 'Golden upgrade to buy', 'dropdown', 'Helium', ['Helium', 'Battle', 'Void']);
 //createSetting('ignoreAllButDagger', 'Level up only dagger', 'Level up only dagger', 'boolean', true);
 saveSettings();
 updateValueFields();
