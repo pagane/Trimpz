@@ -381,6 +381,13 @@ function AssignFreeWorkers() {
         "Lumberjack" : 0,
         "Farmer" : 0
     };
+    if (game.global.world < 5 && game.jobs.Scientist.locked === 0 && game.jobs.Scientist.owned<1000)
+    {
+        game.global.buyAmt = 1000;
+        buyJob("Scientist", null, true);
+        game.global.buyAmt = 1;
+    }
+
     if (game.global.world < 250 && getRemainingTimeForBreeding()>6) return;
     if (trimps.owned === 0 || game.global.firing) {
         return;
@@ -563,9 +570,6 @@ function ClickAllNonEquipmentUpgrades() {
         if (upgrade === "Shieldblock"){
             continue;
         }
-        if (upgrade === "Explorers"){
-            continue;
-        }
         if (upgrade === "Coordination"){
             continue;
         }
@@ -710,9 +714,6 @@ function UpgradeNonEquipment() {
                 continue;
             }
             if (upgrade === "Shieldblock"){
-                continue;
-            }
-            if (upgrade === "Explorers"){
                 continue;
             }
             for (aResource in game.upgrades[upgrade].cost.resources) {
@@ -1908,7 +1909,7 @@ function RunMaps() {
     else if (game.global.lastClearedCell==-1 && game.resources.trimps.soldiers === 0)
         skipCheck = true;
         
-    if (game.global.lastBreedTime<30000 && !skipCheck) return;
+    if (game.global.lastBreedTime<45000 && !skipCheck) return;
     if (game.global.lastClearedCell > 50 && game.global.world < trimpzSettings["voidMapsAt"].value - 5)
     {
         if (game.global.preMapsActive === true)
@@ -2195,7 +2196,7 @@ function RunVoidMaps() {
     if (game.global.mapsActive === true && game.global.preMapsActive === false){ //no map ability(wait one) or already running a map(repeat should be off)
         if (getCurrentMapObject().location == "Void")
         {
-//            if (game.global.lastClearedMapCell <=5 && game.global.antiStacks<30 && game.global.lastBreedTime>=30000) goto run_map;
+//            if (game.global.lastClearedMapCell <=5 && game.global.antiStacks<30 && game.global.lastBreedTime>=45000) goto run_map;
             if (ableToRunVoidMap(game.global.world+1) === true)
                 game.options.menu.repeatVoids.enabled = 0;
             else
@@ -2204,10 +2205,10 @@ function RunVoidMaps() {
         }
         return;
     }
-//    if (game.global.lastClearedCell > trimpzSettings["lastCell"].value && game.global.lastBreedTime>=30000 || game.global.lastClearedCell > 96) {
+//    if (game.global.lastClearedCell > trimpzSettings["lastCell"].value && game.global.lastBreedTime>=45000 || game.global.lastClearedCell > 96) {
 //        if (ableToRunVoidMap(game.global.world+1) === false && ableToRunVoidMap(game.global.world-2) === true && game.global.world%10<5 && game.global.world%10>0 || (shouldPortal && portalAtWorld == game.global.world))
     if (trimpzSettings["voidMapsAt"].value <= game.global.world && ableToRunVoidMap(game.global.world+1) === false &&
-        game.global.lastClearedCell > trimpzSettings["lastCell"].value && (game.global.lastBreedTime>=30000 || game.global.lastClearedCell > 96))
+        game.global.lastClearedCell > trimpzSettings["lastCell"].value && (game.global.lastBreedTime>=45000 || game.global.lastClearedCell > 96))
     {
         var theMap;
         for (var map in game.global.mapsOwnedArray) {
@@ -2670,11 +2671,12 @@ function BuyGoldenUpgrade()
         buyGoldenUpgrade("Battle");
         return;
     }
+    
     var nextAmt = game.goldenUpgrades.Void.nextAmt();
     if (nextAmt <= 0.02)
         buyGoldenUpgrade("Void");
     else
-        buyGoldenUpgrade("Helium");
+        buyGoldenUpgrade(trimpzSettings["goldenUpgrade"].value);
 }
 
 function ableToOverkillAllMobs(scryer)
