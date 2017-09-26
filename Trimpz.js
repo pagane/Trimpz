@@ -381,6 +381,14 @@ function AssignFreeWorkers() {
         "Lumberjack" : 0,
         "Farmer" : 0
     };
+    if (game.global.world < 5 && game.jobs.Scientist.locked === 0 && game.jobs.Scientist.owned<1000)
+    {
+        game.global.buyAmt = 1000;
+        buyJob("Scientist", null, true);
+    }
+    game.global.buyAmt = 1;
+
+    }
     if (game.global.world < 250 && getRemainingTimeForBreeding()>6) return;
     if (trimps.owned === 0 || game.global.firing) {
         return;
