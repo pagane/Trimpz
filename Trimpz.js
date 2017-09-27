@@ -1372,6 +1372,15 @@ function calculateDamageLocal(number, isTrimp, world, calcForMap) { //number = b
     	if (getEmpowerment() == "Ice"){
 			number *= 1 + (1 - game.empowerments.Ice.getCombatModifier());
 		}
+		if (game.talents.magmamancer.purchased){
+			number *= game.jobs.Magmamancer.getBonusPercent();
+		}
+		if (game.talents.stillRowing2.purchased){
+			number *= ((game.global.spireRows * 0.06) + 1);
+		}
+		if (game.talents.healthStrength.purchased && mutations.Healthy.active()){
+			number *= ((0.15 * mutations.Healthy.cellCount()) + 1);
+		}
     	if (game.global.challengeActive == "Daily"){
     		if (typeof game.global.dailyChallenge.minDamage !== 'undefined'){
     			if (minFluct == -1) minFluct = fluctuation;
@@ -1849,7 +1858,7 @@ function RunBetterMaps(){
         if (ableToOneShotAllMobs()) {
             return false;
         }
-        if (getEmpowerment() == "Wind" && game.empowerments.Wind.currentDebuffPower < game.empowerments.Wind.maxStacks)
+        if (getEmpowerment() == "Wind" && !game.global.runningChallengeSquared && game.empowerments.Wind.currentDebuffPower < game.empowerments.Wind.maxStacks)
             return false;
         if (game.options.menu.mapLoot.enabled != 1)
             toggleSetting("mapLoot");
@@ -2657,7 +2666,7 @@ function Shriek() {
     //exit if the cooldown is active, or we havent unlocked robotrimp.
     if (game.global.roboTrimpCooldown > 0 || !game.global.roboTrimpLevel) return;
     //activate the button when we are above the cutoff zone, and we are out of cooldown (and the button is inactive)
-    if (game.global.world >= 200 && !game.global.useShriek){
+    if (game.global.world >= 200 && game.global.world % 5 == 0 && !game.global.useShriek){
         magnetoShriek();
     }
 }
