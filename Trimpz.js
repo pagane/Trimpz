@@ -1675,6 +1675,8 @@ function ManageRepeatMaps() {
     var mapBonus = game.global.mapBonus;
     var item;
     var lastDrop;
+    
+    if (getCurrentMapObject().name.indexOf("Bionic") > -1) return;
 
     if (mapRunStatus) {
         if (mapRunStatus === "Prestige") {
