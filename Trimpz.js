@@ -2682,7 +2682,7 @@ function BuyGoldenUpgrade()
     }
     
     var nextAmt = game.goldenUpgrades.Void.nextAmt();
-    if (nextAmt <= 0.02)
+    if (nextAmt <= 0.1)
         buyGoldenUpgrade("Void");
     else
         buyGoldenUpgrade(trimpzSettings["goldenUpgrade"].value);
