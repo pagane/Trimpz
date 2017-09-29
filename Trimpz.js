@@ -1860,7 +1860,10 @@ function RunBetterMaps(){
         if (ableToOneShotAllMobs()) {
             return false;
         }
-        if (getEmpowerment() == "Wind" && !game.global.runningChallengeSquared && game.empowerments.Wind.currentDebuffPower < game.empowerments.Wind.maxStacks)
+        var cellNum = game.global.lastClearedCell + 1;
+        var cell = game.global.gridArray[cellNum];
+
+        if (getEmpowerment() == "Wind" && !game.global.runningChallengeSquared && (game.empowerments.Wind.currentDebuffPower < game.empowerments.Wind.maxStacks || cell.health/cell.maxHealth<0.2))
             return false;
         if (game.options.menu.mapLoot.enabled != 1)
             toggleSetting("mapLoot");
@@ -2337,6 +2340,7 @@ function MainLoop(){
     FocusOnBreeding();
     CheckFormation();
     RunMaps();
+    UpdateAntiStacks();
     Fight();
 }
 
@@ -2682,7 +2686,7 @@ function BuyGoldenUpgrade()
     }
     
     var nextAmt = game.goldenUpgrades.Void.nextAmt();
-    if (nextAmt <= 0.02)
+    if (nextAmt <= 0.1)
         buyGoldenUpgrade("Void");
     else
         buyGoldenUpgrade(trimpzSettings["goldenUpgrade"].value);
@@ -2792,3 +2796,12 @@ function ManageGenerator()
         changeGeneratorState(2);
 }
 
+function UpdateAntiStacks()
+{
+    if (game.global.mapsActive == false && game.global.antiStacks<25 && !(game.global.world%5==0 && game.global.lastClearedCell > 80) && game.global.lastBreedTime>=45000)
+    {
+        mapsClicked();
+        mapsClicked();
+        Fight();
+    }
+}
