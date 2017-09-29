@@ -2337,6 +2337,7 @@ function MainLoop(){
     FocusOnBreeding();
     CheckFormation();
     RunMaps();
+    UpdateAntiStacks();
     Fight();
 }
 
@@ -2792,3 +2793,8 @@ function ManageGenerator()
         changeGeneratorState(2);
 }
 
+function UpdateAntiStacks()
+{
+    if (game.global.antiStacks<25 && !(game.global.world%5==0 && game.global.lastClearedCell > 80) && game.global.lastBreedTime>=45000)
+        mapsClicked();
+}
