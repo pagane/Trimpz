@@ -1894,8 +1894,6 @@ function RunMaps() {
         return;
     }
     
-    if (game.global.world >= 448 && game.global.world <=450) return;
-
     if (game.global.mapsActive === true && game.global.preMapsActive === false) {
         ManageRepeatMaps();
         return;
@@ -2204,7 +2202,7 @@ function RunVoidMaps() {
     "use strict";
     if (game.global.totalVoidMaps<1) return;
     if (game.global.challengeActive == "Daily" && typeof game.global.dailyChallenge.oddTrimpNerf !== 'undefined' && ((game.global.world % 2) == 1)) return;//no voids on nerfed odd zones
-    if (game.global.mapsActive === true && game.global.preMapsActive === false){ //no map ability(wait one) or already running a map(repeat should be off)
+/*    if (game.global.mapsActive === true && game.global.preMapsActive === false){ //no map ability(wait one) or already running a map(repeat should be off)
         if (getCurrentMapObject().location == "Void")
         {
 //            if (game.global.lastClearedMapCell <=5 && game.global.antiStacks<30 && game.global.lastBreedTime>=45000) goto run_map;
@@ -2215,10 +2213,10 @@ function RunVoidMaps() {
             toggleSetting("repeatVoids", null, false, true);
         }
         return;
-    }
+    }*/
 //    if (game.global.lastClearedCell > trimpzSettings["lastCell"].value && game.global.lastBreedTime>=45000 || game.global.lastClearedCell > 96) {
 //        if (ableToRunVoidMap(game.global.world+1) === false && ableToRunVoidMap(game.global.world-2) === true && game.global.world%10<5 && game.global.world%10>0 || (shouldPortal && portalAtWorld == game.global.world))
-    if (trimpzSettings["voidMapsAt"].value <= game.global.world && ableToRunVoidMap(game.global.world+1) === false &&
+    if (trimpzSettings["voidMapsAt"].value <= game.global.world &&/* ableToRunVoidMap(game.global.world+1) === false &&*/
         game.global.lastClearedCell > trimpzSettings["lastCell"].value && (game.global.lastBreedTime>=45000 || game.global.lastClearedCell > 96))
     {
         var theMap;
