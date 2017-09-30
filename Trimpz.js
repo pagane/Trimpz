@@ -880,7 +880,7 @@ function BuyBuildings() {
         BuyBuilding("Tribute", constants.getTributeCostRatio());
     }
     
-    if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax/50)
+    if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax/50 && getEmpowerment() != "Ice")
     {
         game.global.buyAmt = 2;
         BuyBuilding("Nursery", constants.getNurseryCostRatio());
@@ -2135,7 +2135,7 @@ function CheckPortal() {
 
 function CheckFormation() {
     "use strict";
-    if (game.global.world < 60)
+    if (game.global.world < 60 || !trimpzSettings["autoStance"].value)
     {
         return;
     }
@@ -2787,7 +2787,7 @@ function prettifyTime(timeSince)
 
 function ManageGenerator()
 {
-    if (game.global.world<230) return;
+    if (game.global.world<230 || !trimpzSettings["autoDG"].value) return;
     if (game.global.world>trimpzSettings["voidMapsAt"].value)
         changeGeneratorState(0);
     else if (game.global.world<trimpzSettings["voidMapsAt"].value - 2 && game.global.magmaFuel>game.generatorUpgrades.Capacity.modifier)

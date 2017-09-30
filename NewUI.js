@@ -26,6 +26,8 @@ createSetting('eqWsRatio', 'EQ/WS ratio', 'Best Equipment to Warpstation cost ra
 createSetting('autoPortal', 'Auto portal', 'Portal automatically when you reach max He/h', 'boolean', false);
 createSetting('hpEquipment', 'HP to buy equipment', 'Determines when to buy HP equipment. Default value of 0.03 means hp boosting equipment will be bought when HP drops below 3%', 'value', 0.03);
 createSetting('goldenUpgrade', 'Golden upgrade', 'Golden upgrade to buy', 'dropdown', 'Helium', ['Helium', 'Battle', 'Void']);
+createSetting('autoDG', 'Auto DG', 'Automate DG for optimal population/magmite', 'boolean', true);
+createSetting('autoStance', 'Auto Stance', 'Automate manage stance', 'boolean', true);
 //createSetting('ignoreAllButDagger', 'Level up only dagger', 'Level up only dagger', 'boolean', true);
 saveSettings();
 updateValueFields();
