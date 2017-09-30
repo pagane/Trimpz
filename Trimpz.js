@@ -1863,7 +1863,7 @@ function RunBetterMaps(){
         var cellNum = game.global.lastClearedCell + 1;
         var cell = game.global.gridArray[cellNum];
 
-        if (getEmpowerment() == "Wind" && !game.global.runningChallengeSquared && (game.empowerments.Wind.currentDebuffPower < game.empowerments.Wind.maxStacks || cell.health/cell.maxHealth<0.2))
+        if (getEmpowerment() == "Wind" && !game.global.runningChallengeSquared && (game.empowerments.Wind.currentDebuffPower < game.empowerments.Wind.maxStacks || cell.health/cell.maxHealth<0.5))
             return false;
         if (game.options.menu.mapLoot.enabled != 1)
             toggleSetting("mapLoot");
