@@ -2140,6 +2140,11 @@ function CheckFormation() {
         return;
     }
     
+    if (game.global.world >= 506 && game.global.world <= 510 && !(game.global.mapsActive === true && game.global.preMapsActive === false))
+    {
+        setFormation("4");
+    }
+    
     var oneShotMapLevel = game.portal.Overkill.level ? getLevelOfOverkillMap() : getLevelOfOneShotMap();
     
     if (game.global.world===200 && (game.global.lastClearedCell+1) >= trimpzSettings["spireDominance"].value)
