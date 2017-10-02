@@ -2143,6 +2143,7 @@ function CheckFormation() {
     if (game.global.world >= 506 && game.global.world <= 510 && !(game.global.mapsActive === true && game.global.preMapsActive === false))
     {
         setFormation("4");
+        return;
     }
     
     var oneShotMapLevel = game.portal.Overkill.level ? getLevelOfOverkillMap() : getLevelOfOneShotMap();
