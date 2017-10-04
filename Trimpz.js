@@ -491,6 +491,9 @@ function AssignFreeWorkers() {
 function Fight() {
     "use strict";
     
+    if (game.jobs.Geneticist.locked == 0 && game.global.breedBack > 0)
+        return;
+    
     if (game.resources.trimps.soldiers==0 || game.global.fighting==false)
     {
         var cellNum = game.global.lastClearedCell + 1;
@@ -1113,7 +1116,7 @@ function BuyMetalEquipment() {
     "use strict";
     
 //    if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax/70)
-    if (game.global.soldierHealth/game.global.soldierHealthMax<trimpzSettings["hpEquipment"].value)
+    if (game.global.soldierHealth/game.global.soldierHealthMax<trimpzSettings["hpEquipment"].value && getEmpowerment() != "Ice")
         FindAndBuyEquipment("Health");
     FindAndBuyEquipment("Attack");
         
