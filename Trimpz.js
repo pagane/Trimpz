@@ -1116,7 +1116,7 @@ function BuyMetalEquipment() {
     "use strict";
     
 //    if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax/70)
-    if (game.global.soldierHealth/game.global.soldierHealthMax<trimpzSettings["hpEquipment"].value && getEmpowerment() != "Ice")
+    if (game.global.soldierHealth/game.global.soldierHealthMax<trimpzSettings["hpEquipment"].value && getEmpowerment() != "Ice" && !(game.global.mapsActive === true && game.global.preMapsActive === false && getCurrentMapObject().location === "Void" && game.global.totalVoidMaps != 1))
         FindAndBuyEquipment("Health");
     FindAndBuyEquipment("Attack");
         
