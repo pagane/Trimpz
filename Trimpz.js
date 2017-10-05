@@ -1566,7 +1566,7 @@ function getLevelOfOneShotMap(){
         soldierAttack /= 8; //Maps will be run with less attack in Scryer formation.
         
     if (getEmpowerment() == "Poison")
-        soldierAttack += Math.ceil(game.empowerments.Poison.getModifier() * soldierAttack)
+        soldierAttack += game.empowerments.Poison.currentDebuffPower;//Math.ceil(game.empowerments.Poison.getModifier() * soldierAttack)
 
     for (var mapLevel = game.global.world; mapLevel > 6; mapLevel--) {
         var maxEnemyHealth = getAverageEnemyHealthForLevel(mapLevel, true, false);
@@ -2762,7 +2762,7 @@ function ableToOneShotAllMobs(portal)
         soldierAttack *= (1 + (0.2 * game.global.mapBonus));
         
     if (getEmpowerment() == "Poison")
-        soldierAttack += Math.ceil(game.empowerments.Poison.getModifier() * getSoldierAttack(game.global.world, true));
+        soldierAttack += game.empowerments.Poison.currentDebuffPower;//Math.ceil(game.empowerments.Poison.getModifier() * getSoldierAttack(game.global.world, true));
 
     if (portal) soldierAttack *= 2.2;
 
