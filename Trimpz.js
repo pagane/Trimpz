@@ -491,6 +491,9 @@ function AssignFreeWorkers() {
 function Fight() {
     "use strict";
     
+    if (game.jobs.Geneticist.locked == 0 && game.global.breedBack > 0)
+        return;
+    
     if (game.resources.trimps.soldiers==0 || game.global.fighting==false)
     {
         var cellNum = game.global.lastClearedCell + 1;
@@ -880,7 +883,7 @@ function BuyBuildings() {
         BuyBuilding("Tribute", constants.getTributeCostRatio());
     }
     
-    if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax/50)
+    if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax/50 && getEmpowerment() != "Ice")
     {
         game.global.buyAmt = 2;
         BuyBuilding("Nursery", constants.getNurseryCostRatio());
@@ -1113,7 +1116,7 @@ function BuyMetalEquipment() {
     "use strict";
     
 //    if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax/70)
-    if (game.global.soldierHealth/game.global.soldierHealthMax<trimpzSettings["hpEquipment"].value)
+    if (game.global.soldierHealth/game.global.soldierHealthMax<trimpzSettings["hpEquipment"].value && getEmpowerment() != "Ice" && !(game.global.mapsActive === true && game.global.preMapsActive === false && getCurrentMapObject().location === "Void" && game.global.totalVoidMaps != 1))
         FindAndBuyEquipment("Health");
     FindAndBuyEquipment("Attack");
         
@@ -1563,7 +1566,7 @@ function getLevelOfOneShotMap(){
         soldierAttack /= 8; //Maps will be run with less attack in Scryer formation.
         
     if (getEmpowerment() == "Poison")
-        soldierAttack += Math.ceil(game.empowerments.Poison.getModifier() * soldierAttack)
+        soldierAttack += game.empowerments.Poison.currentDebuffPower;//Math.ceil(game.empowerments.Poison.getModifier() * soldierAttack)
 
     for (var mapLevel = game.global.world; mapLevel > 6; mapLevel--) {
         var maxEnemyHealth = getAverageEnemyHealthForLevel(mapLevel, true, false);
@@ -1863,7 +1866,7 @@ function RunBetterMaps(){
         var cellNum = game.global.lastClearedCell + 1;
         var cell = game.global.gridArray[cellNum];
 
-        if (getEmpowerment() == "Wind" && !game.global.runningChallengeSquared && (game.empowerments.Wind.currentDebuffPower < game.empowerments.Wind.maxStacks || cell.health/cell.maxHealth<0.2))
+        if (getEmpowerment() == "Wind" && !game.global.runningChallengeSquared && (game.empowerments.Wind.currentDebuffPower < game.empowerments.Wind.maxStacks || cell.health/cell.maxHealth<0.5))
             return false;
         if (game.options.menu.mapLoot.enabled != 1)
             toggleSetting("mapLoot");
@@ -2135,8 +2138,14 @@ function CheckPortal() {
 
 function CheckFormation() {
     "use strict";
-    if (game.global.world < 60)
+    if (game.global.world < 60 || !trimpzSettings["autoStance"].value)
     {
+        return;
+    }
+    
+    if (game.global.world >= 506 && game.global.world <= 510 && !(game.global.mapsActive === true && game.global.preMapsActive === false))
+    {
+        setFormation("4");
         return;
     }
     
@@ -2686,7 +2695,7 @@ function BuyGoldenUpgrade()
     }
     
     var nextAmt = game.goldenUpgrades.Void.nextAmt();
-    if (nextAmt <= 0.1)
+    if (nextAmt <= 0.1 || nextAmt == 0.14 || nextAmt == 0.16)
         buyGoldenUpgrade("Void");
     else
         buyGoldenUpgrade(trimpzSettings["goldenUpgrade"].value);
@@ -2753,7 +2762,7 @@ function ableToOneShotAllMobs(portal)
         soldierAttack *= (1 + (0.2 * game.global.mapBonus));
         
     if (getEmpowerment() == "Poison")
-        soldierAttack += Math.ceil(game.empowerments.Poison.getModifier() * getSoldierAttack(game.global.world, true));
+        soldierAttack += game.empowerments.Poison.currentDebuffPower;//Math.ceil(game.empowerments.Poison.getModifier() * getSoldierAttack(game.global.world, true));
 
     if (portal) soldierAttack *= 2.2;
 
@@ -2787,10 +2796,10 @@ function prettifyTime(timeSince)
 
 function ManageGenerator()
 {
-    if (game.global.world<230) return;
+    if (game.global.world<230 || !trimpzSettings["autoDG"].value) return;
     if (game.global.world>trimpzSettings["voidMapsAt"].value)
         changeGeneratorState(0);
-    else if (game.global.world<trimpzSettings["voidMapsAt"].value - 2 && game.global.magmaFuel>game.generatorUpgrades.Capacity.modifier)
+    else if ((game.global.world<trimpzSettings["voidMapsAt"].value - 1 && game.global.magmaFuel>game.generatorUpgrades.Capacity.modifier) || game.global.totalVoidMaps<1)
         changeGeneratorState(0);
     else
         changeGeneratorState(2);
