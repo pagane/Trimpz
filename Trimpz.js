@@ -1716,6 +1716,8 @@ function ManageRepeatMaps() {
             if (mapBonus < 9) {
                 shouldRepeat = !ableToOneShotAllMobs();
             }
+            if (ShouldStackWind() && ableToOneShotAllMobs(false, true))
+                shouldRepeat = false;
         }
         else if (mapRunStatus === "Loot") {
             shouldRepeat = !ableToOneShotAllMobs() || reallyNeedLoot();
@@ -1866,7 +1868,7 @@ function RunBetterMaps(){
         var cellNum = game.global.lastClearedCell + 1;
         var cell = game.global.gridArray[cellNum];
 
-        if (getEmpowerment() == "Wind" && !game.global.runningChallengeSquared && (game.empowerments.Wind.currentDebuffPower < game.empowerments.Wind.maxStacks || cell.health/cell.maxHealth<0.5))
+        if (ShouldStackWind() && ableToOneShotAllMobs(false, true) || cell.health/cell.maxHealth<0.5)// (game.empowerments.Wind.currentDebuffPower < game.empowerments.Wind.maxStacks || cell.health/cell.maxHealth<0.5))
             return false;
         if (game.options.menu.mapLoot.enabled != 1)
             toggleSetting("mapLoot");
@@ -2749,7 +2751,7 @@ function getChronoImpLoot(resource)
 	return chronoImpLoot;
 }
 
-function ableToOneShotAllMobs(portal)
+function ableToOneShotAllMobs(portal, wind)
 {
     var enemyHealth = getAverageEnemyHealthForLevel(game.global.world, false, false);
     var soldierAttack = getSoldierCritAttack(game.global.world, true);
@@ -2765,6 +2767,8 @@ function ableToOneShotAllMobs(portal)
         soldierAttack += game.empowerments.Poison.currentDebuffPower;//Math.ceil(game.empowerments.Poison.getModifier() * getSoldierAttack(game.global.world, true));
 
     if (portal) soldierAttack *= 2.2;
+    
+    if (wind) soldierAttack *= 30;
 
     return soldierAttack>enemyHealth;
 }
@@ -2807,10 +2811,15 @@ function ManageGenerator()
 
 function UpdateAntiStacks()
 {
-    if (game.global.mapsActive == false && game.global.antiStacks<25 && !(game.global.world%5==0 && game.global.lastClearedCell > 80) && game.global.lastBreedTime>=45000)
+    if (!ShouldStackWind() && game.global.mapsActive == false && game.global.antiStacks<40 && !(game.global.world%5==0 && game.global.lastClearedCell > 80) && game.global.lastBreedTime>=45000)
     {
         mapsClicked();
         mapsClicked();
         Fight();
     }
+}
+
+function ShouldStackWind()
+{
+    return getEmpowerment() == "Wind" && !game.global.runningChallengeSquared;
 }
