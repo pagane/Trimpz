@@ -2807,7 +2807,7 @@ function ManageGenerator()
 
 function UpdateAntiStacks()
 {
-    if (game.global.mapsActive == false && game.global.antiStacks<25 && !(game.global.world%5==0 && game.global.lastClearedCell > 80) && game.global.lastBreedTime>=45000)
+    if ((getEmpowerment() != "Wind" || game.global.runningChallengeSquared) && game.global.mapsActive == false && game.global.antiStacks<40 && !(game.global.world%5==0 && game.global.lastClearedCell > 80) && game.global.lastBreedTime>=45000)
     {
         mapsClicked();
         mapsClicked();
