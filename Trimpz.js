@@ -493,6 +493,8 @@ function Fight() {
     
     if (game.jobs.Geneticist.locked == 0 && game.global.breedBack > 0)
         return;
+        
+    if (trimpzSettings["forceFullStacks"].value && game.global.lastBreedTime<45000) return;
     
     if (game.resources.trimps.soldiers==0 || game.global.fighting==false)
     {

@@ -28,6 +28,7 @@ createSetting('hpEquipment', 'HP to buy equipment', 'Determines when to buy HP e
 createSetting('goldenUpgrade', 'Golden upgrade', 'Golden upgrade to buy', 'dropdown', 'Helium', ['Helium', 'Battle', 'Void']);
 createSetting('autoDG', 'Auto DG', 'Automate DG for optimal population/magmite', 'boolean', true);
 createSetting('autoStance', 'Auto Stance', 'Automate manage stance', 'boolean', true);
+createSetting('forceFullStacks', 'Attack at full stacks', 'Attack only when the anticipation stacks are full', 'boolean', false);
 //createSetting('ignoreAllButDagger', 'Level up only dagger', 'Level up only dagger', 'boolean', true);
 saveSettings();
 updateValueFields();
