@@ -2770,7 +2770,7 @@ function ableToOneShotAllMobs(portal, wind)
 
     if (portal) soldierAttack *= 2.2;
     
-    if (wind) soldierAttack *= 20;
+    if (wind) soldierAttack *= 40;
 
     return soldierAttack>enemyHealth;
 }
