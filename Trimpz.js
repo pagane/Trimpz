@@ -1812,6 +1812,7 @@ function RunPrestigeMaps(){
             siphonMapLevel = game.global.world - game.portal.Siphonology.level;
             oneShotMapLevel = game.portal.Overkill.level ? getLevelOfOverkillMap() : getLevelOfOneShotMap();
             mapLevelToRun = Math.max(oneShotMapLevel, siphonMapLevel, mapLevelWithDrop);
+            if (trimpzSettings["voidMapsAt"].value==game.global.world) mapLevelToRun = game.global.world;
             setMapRunStatus("Prestige");
             for (map in game.global.mapsOwnedArray){ //look for an existing map first
                 theMap = game.global.mapsOwnedArray[map];
@@ -2144,6 +2145,26 @@ function CheckFormation() {
     "use strict";
     if (game.global.world < 60 || !trimpzSettings["autoStance"].value)
     {
+        return;
+    }
+    
+    if (game.global.world>trimpzSettings["voidMapsAt"].value && ShouldStackWind())
+    {
+        var cellNum = game.global.lastClearedCell + 1;
+        var cell = game.global.gridArray[cellNum];
+        if (cell.corrupted == "corruptBleed")
+        {
+            setFormation("2");
+            return;
+        }
+        var soldierAttack = getSoldierCritAttack(game.global.world, true);
+        if (game.global.formation == 4) soldierAttack *= 8;
+        var stacksLeft = game.empowerments.Wind.maxStacks-game.empowerments.Wind.currentDebuffPower;
+        if (soldierAttack*stacksLeft>cell.health)
+            setFormation("4");
+        else
+            setFormation("2");
+        
         return;
     }
     
