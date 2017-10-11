@@ -2152,7 +2152,7 @@ function CheckFormation() {
     {
         var cellNum = game.global.lastClearedCell + 1;
         var cell = game.global.gridArray[cellNum];
-        if (cell.corrupted == "corruptBleed")
+        if (cell.corrupted == "corruptBleed" || cell.corrupted == "healthyBleed")
         {
             setFormation("2");
             return;
