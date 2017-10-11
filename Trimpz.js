@@ -2152,13 +2152,12 @@ function CheckFormation() {
     {
         var cellNum = game.global.lastClearedCell + 1;
         var cell = game.global.gridArray[cellNum];
-        if (cell.corrupted == "corruptBleed" || cell.corrupted == "healthyBleed")
+        if (cell.corrupted == "corruptBleed" || cell.corrupted == "healthyBleed" || cell.mutation == "Healthy" || cell.mutation == "Corruption")
         {
             setFormation("2");
             return;
         }
         var soldierAttack = getSoldierCritAttack(game.global.world, true);
-        if (game.global.formation == 4) soldierAttack *= 8;
         var stacksLeft = game.empowerments.Wind.maxStacks-game.empowerments.Wind.currentDebuffPower;
         if (soldierAttack*stacksLeft>cell.health)
             setFormation("4");
