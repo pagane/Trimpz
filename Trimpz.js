@@ -23,7 +23,7 @@ ConstantSet.prototype = {
     lumberjackMultiplier : 1,           //how many more lumberjacks than farmers? (multiplied)
     trainerCostRatio : 0.4,             //buy trainers with enough resources (0.2 = 20% of resources)
     explorerCostRatio : 0.2,            //buy explorers with enough resources (0.2 = 20% of resources)
-    magmamancerCostRatio : 0.01,        //buy magmamancers with enough resources (0.2 = 20% of resources)
+    magmamancerCostRatio : 0.99,        //buy magmamancers with enough resources (0.2 = 20% of resources)
     minFoodOwned : 15,                  //minimum food on hand, required for beginning of the game
     minWoodOwned : 15,                  //minimum wood on hand, required for beginning of the game
     minTrimpsOwned : 9,                 //minimum trimps on hand, required for beginning of the game
@@ -493,6 +493,8 @@ function Fight() {
     
     if (game.jobs.Geneticist.locked == 0 && game.global.breedBack > 0)
         return;
+        
+    if (trimpzSettings["forceFullStacks"].value && game.global.lastBreedTime<45000) return;
     
     if (game.resources.trimps.soldiers==0 || game.global.fighting==false)
     {
@@ -2230,7 +2232,7 @@ function RunVoidMaps() {
     }
 //    if (game.global.lastClearedCell > trimpzSettings["lastCell"].value && game.global.lastBreedTime>=45000 || game.global.lastClearedCell > 96) {
 //        if (ableToRunVoidMap(game.global.world+1) === false && ableToRunVoidMap(game.global.world-2) === true && game.global.world%10<5 && game.global.world%10>0 || (shouldPortal && portalAtWorld == game.global.world))
-    if (trimpzSettings["voidMapsAt"].value <= game.global.world &&/* ableToRunVoidMap(game.global.world+1) === false &&*/
+    if (trimpzSettings["voidMapsAt"].value == game.global.world &&/* ableToRunVoidMap(game.global.world+1) === false &&*/
         game.global.lastClearedCell > trimpzSettings["lastCell"].value && (game.global.lastBreedTime>=45000 || game.global.lastClearedCell > 96))
     {
         var theMap;
@@ -2768,7 +2770,7 @@ function ableToOneShotAllMobs(portal, wind)
 
     if (portal) soldierAttack *= 2.2;
     
-    if (wind) soldierAttack *= 30;
+    if (wind) soldierAttack *= 40;
 
     return soldierAttack>enemyHealth;
 }
@@ -2801,12 +2803,18 @@ function prettifyTime(timeSince)
 function ManageGenerator()
 {
     if (game.global.world<230 || !trimpzSettings["autoDG"].value) return;
-    if (game.global.world>trimpzSettings["voidMapsAt"].value)
+    if (game.global.world>trimpzSettings["voidMapsAt"].value-5)
+        changeGeneratorState(0);
+    else if (game.global.magmaFuel>game.generatorUpgrades.Capacity.modifier)
+        changeGeneratorState(0);
+    else
+        changeGeneratorState(2);
+/*    if (game.global.world>trimpzSettings["voidMapsAt"].value)
         changeGeneratorState(0);
     else if ((game.global.world<trimpzSettings["voidMapsAt"].value - 1 && game.global.magmaFuel>game.generatorUpgrades.Capacity.modifier) || game.global.totalVoidMaps<1)
         changeGeneratorState(0);
     else
-        changeGeneratorState(2);
+        changeGeneratorState(2);*/
 }
 
 function UpdateAntiStacks()
