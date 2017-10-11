@@ -23,7 +23,7 @@ ConstantSet.prototype = {
     lumberjackMultiplier : 1,           //how many more lumberjacks than farmers? (multiplied)
     trainerCostRatio : 0.4,             //buy trainers with enough resources (0.2 = 20% of resources)
     explorerCostRatio : 0.2,            //buy explorers with enough resources (0.2 = 20% of resources)
-    magmamancerCostRatio : 0.01,        //buy magmamancers with enough resources (0.2 = 20% of resources)
+    magmamancerCostRatio : 0.99,        //buy magmamancers with enough resources (0.2 = 20% of resources)
     minFoodOwned : 15,                  //minimum food on hand, required for beginning of the game
     minWoodOwned : 15,                  //minimum wood on hand, required for beginning of the game
     minTrimpsOwned : 9,                 //minimum trimps on hand, required for beginning of the game
