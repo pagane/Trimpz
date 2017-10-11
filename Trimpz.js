@@ -2148,26 +2148,6 @@ function CheckFormation() {
         return;
     }
     
-    if (game.global.world>trimpzSettings["voidMapsAt"].value && ShouldStackWind())
-    {
-        var cellNum = game.global.lastClearedCell + 1;
-        var cell = game.global.gridArray[cellNum];
-        if (cell.corrupted == "corruptBleed")
-        {
-            setFormation("2");
-            return;
-        }
-        var soldierAttack = getSoldierCritAttack(game.global.world, true);
-        if (game.global.formation == 4) soldierAttack *= 8;
-        var stacksLeft = game.empowerments.Wind.maxStacks-game.empowerments.Wind.currentDebuffPower;
-        if (soldierAttack*stacksLeft>cell.health)
-            setFormation("4");
-        else
-            setFormation("2");
-        
-        return;
-    }
-    
     if (game.global.world >= 506 && game.global.world <= 510 && !(game.global.mapsActive === true && game.global.preMapsActive === false))
     {
         setFormation("4");
@@ -2824,7 +2804,7 @@ function prettifyTime(timeSince)
 function ManageGenerator()
 {
     if (game.global.world<230 || !trimpzSettings["autoDG"].value) return;
-    if (game.global.world>trimpzSettings["voidMapsAt"].value-5)
+    if (game.global.world>trimpzSettings["voidMapsAt"].value-10)
         changeGeneratorState(0);
     else if (game.global.magmaFuel>game.generatorUpgrades.Capacity.modifier)
         changeGeneratorState(0);
