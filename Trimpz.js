@@ -2804,7 +2804,7 @@ function prettifyTime(timeSince)
 function ManageGenerator()
 {
     if (game.global.world<230 || !trimpzSettings["autoDG"].value) return;
-    if (game.global.world>trimpzSettings["voidMapsAt"].value-5)
+    if (game.global.world>trimpzSettings["voidMapsAt"].value-10)
         changeGeneratorState(0);
     else if (game.global.magmaFuel>game.generatorUpgrades.Capacity.modifier)
         changeGeneratorState(0);
