@@ -2148,25 +2148,6 @@ function CheckFormation() {
         return;
     }
     
-    if (game.global.world>trimpzSettings["voidMapsAt"].value && ShouldStackWind())
-    {
-        var cellNum = game.global.lastClearedCell + 1;
-        var cell = game.global.gridArray[cellNum];
-        if (cell.corrupted == "corruptBleed" || cell.corrupted == "healthyBleed" || cell.mutation == "Healthy" || cell.mutation == "Corruption")
-        {
-            setFormation("2");
-            return;
-        }
-        var soldierAttack = getSoldierCritAttack(game.global.world, true);
-        var stacksLeft = game.empowerments.Wind.maxStacks-game.empowerments.Wind.currentDebuffPower;
-        if (soldierAttack*stacksLeft>cell.health)
-            setFormation("4");
-        else
-            setFormation("2");
-        
-        return;
-    }
-    
     if (game.global.world >= 506 && game.global.world <= 510 && !(game.global.mapsActive === true && game.global.preMapsActive === false))
     {
         setFormation("4");
