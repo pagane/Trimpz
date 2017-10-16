@@ -1118,11 +1118,21 @@ function BuyMetalEquipment() {
     "use strict";
     
 //    if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax/70)
-    if (game.global.soldierHealth/game.global.soldierHealthMax<trimpzSettings["hpEquipment"].value && getEmpowerment() != "Ice" && !(game.global.mapsActive === true && game.global.preMapsActive === false && getCurrentMapObject().location === "Void" && game.global.totalVoidMaps != 1) && !(ShouldStackWind() && game.global.antiStacks<45 && game.global.lastBreedTime>=45000))
+    if (game.global.soldierHealth/game.global.soldierHealthMax<trimpzSettings["hpEquipment"].value && getEmpowerment() != "Ice" && !(IsRunningVoidMap() && game.global.totalVoidMaps != 1) && !LetTrimpsDie())
         FindAndBuyEquipment("Health");
     FindAndBuyEquipment("Attack");
         
     BuyCheapEquipmentUpgrades();
+}
+
+function LetTrimpsDie()
+{
+    return game.global.antiStacks<45 && game.global.lastBreedTime>=45000 && game.global.lastClearedCell<80;
+}
+
+function IsRunningVoidMap()
+{
+    return game.global.mapsActive === true && game.global.preMapsActive === false && getCurrentMapObject().location === "Void";
 }
 
 /**
