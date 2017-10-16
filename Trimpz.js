@@ -1127,7 +1127,7 @@ function BuyMetalEquipment() {
 
 function LetTrimpsDie()
 {
-    return game.global.antiStacks<45 && game.global.lastBreedTime>=45000 && game.global.lastClearedCell<80;
+    return game.global.antiStacks<45 && game.global.lastBreedTime>=45000 && game.global.lastClearedCell<80 && !trimpzSettings["keepAlive"].value;
 }
 
 function IsRunningVoidMap()
