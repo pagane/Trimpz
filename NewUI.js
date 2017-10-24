@@ -30,6 +30,7 @@ createSetting('autoDG', 'Auto DG', 'Automate DG for optimal population/magmite',
 createSetting('autoStance', 'Auto Stance', 'Automate manage stance', 'boolean', true);
 createSetting('forceFullStacks', 'Attack at full stacks', 'Attack only when the anticipation stacks are full', 'boolean', false);
 createSetting('keepAlive', 'Keep trimps alive', 'Try to keep trimps alive as long as possible', 'boolean', false);
+createSetting('buildNurseries', 'Build Nurseries', 'Auto build nurseries when needed', 'boolean', true);
 //createSetting('ignoreAllButDagger', 'Level up only dagger', 'Level up only dagger', 'boolean', true);
 saveSettings();
 updateValueFields();

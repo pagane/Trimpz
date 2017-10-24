@@ -885,7 +885,7 @@ function BuyBuildings() {
         BuyBuilding("Tribute", constants.getTributeCostRatio());
     }
     
-    if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax/50 && getEmpowerment() != "Ice")
+    if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax/50 && getEmpowerment() != "Ice" && trimpzSettings["buildNurseries"].value)
     {
         game.global.buyAmt = 2;
         BuyBuilding("Nursery", constants.getNurseryCostRatio());
