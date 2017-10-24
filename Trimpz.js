@@ -885,7 +885,7 @@ function BuyBuildings() {
         BuyBuilding("Tribute", constants.getTributeCostRatio());
     }
     
-    if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax/50 && getEmpowerment() != "Ice")
+    if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax/50 && getEmpowerment() != "Ice" && trimpzSettings["buildNurseries"].value)
     {
         game.global.buyAmt = 2;
         BuyBuilding("Nursery", constants.getNurseryCostRatio());
@@ -1127,7 +1127,7 @@ function BuyMetalEquipment() {
 
 function LetTrimpsDie()
 {
-    return game.global.antiStacks<45 && game.global.lastBreedTime>=45000 && game.global.lastClearedCell<80;
+    return game.global.antiStacks<45 && game.global.lastBreedTime>=45000 && game.global.lastClearedCell<80 && !trimpzSettings["keepAlive"].value;
 }
 
 function IsRunningVoidMap()
@@ -2228,7 +2228,7 @@ function MaxToxicStacks() {
 function RunVoidMaps() {
     "use strict";
     if (game.global.totalVoidMaps<1) return;
-    if (game.global.challengeActive == "Daily" && typeof game.global.dailyChallenge.oddTrimpNerf !== 'undefined' && ((game.global.world % 2) == 1)) return;//no voids on nerfed odd zones
+//    if (game.global.challengeActive == "Daily" && typeof game.global.dailyChallenge.oddTrimpNerf !== 'undefined' && ((game.global.world % 2) == 1)) return;//no voids on nerfed odd zones
     if (game.global.mapsActive === true && game.global.preMapsActive === false){ //no map ability(wait one) or already running a map(repeat should be off)
 /*        if (getCurrentMapObject().location == "Void")
         {
@@ -2244,7 +2244,7 @@ function RunVoidMaps() {
 //    if (game.global.lastClearedCell > trimpzSettings["lastCell"].value && game.global.lastBreedTime>=45000 || game.global.lastClearedCell > 96) {
 //        if (ableToRunVoidMap(game.global.world+1) === false && ableToRunVoidMap(game.global.world-2) === true && game.global.world%10<5 && game.global.world%10>0 || (shouldPortal && portalAtWorld == game.global.world))
     if (trimpzSettings["voidMapsAt"].value == game.global.world &&/* ableToRunVoidMap(game.global.world+1) === false &&*/
-        game.global.lastClearedCell > trimpzSettings["lastCell"].value && (game.global.lastBreedTime>=45000 || game.global.lastClearedCell > 96))
+        game.global.lastClearedCell > trimpzSettings["lastCell"].value && (game.global.lastBreedTime>=45000 || game.global.lastClearedCell > 94))
     {
         var theMap;
         for (var map in game.global.mapsOwnedArray) {
@@ -2781,7 +2781,7 @@ function ableToOneShotAllMobs(portal, wind)
 
     if (portal) soldierAttack *= 2.2;
     
-    if (wind) soldierAttack *= 40;
+    if (wind) soldierAttack *= 30;
 
     return soldierAttack>enemyHealth;
 }
@@ -2814,7 +2814,7 @@ function prettifyTime(timeSince)
 function ManageGenerator()
 {
     if (game.global.world<230 || !trimpzSettings["autoDG"].value) return;
-    if (game.global.world>trimpzSettings["voidMapsAt"].value-10)
+    if (game.global.world>trimpzSettings["voidMapsAt"].value-50)
         changeGeneratorState(0);
     else if (game.global.magmaFuel>game.generatorUpgrades.Capacity.modifier)
         changeGeneratorState(0);
