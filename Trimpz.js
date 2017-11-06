@@ -404,7 +404,14 @@ function AssignFreeWorkers() {
         game.global.buyAmt = 1;
     }*/
 
-    if (free <= 0) return;
+    if (free <= 0)
+    {
+        if (game.jobs.Magmamancer.locked === 0 && CanBuyWorkerWithResource(game.jobs.Magmamancer, constants.getMagmamancerCostRatio(), gems, buy.Magmamancer) !== -1)
+        {
+            buyJob("Magmamancer", null, true);
+        }
+        return;
+    }
     var breedCount = (trimps.owned - trimps.employed > 2) ? Math.floor(trimps.owned - trimps.employed) : 0;
     if (free > trimps.owned){
         free = Math.floor(trimps.owned / 3);
