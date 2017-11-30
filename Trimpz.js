@@ -155,6 +155,7 @@ var warpsAtLastGiga = 0;
 var beginPortalTime;
 var firstVoidMap = 0;
 var firstOverkillFail = 0;
+var lastFutureMapLevel = 0;
 var prestiges = ["Dagadder", "Bootboost", "Megamace", "Hellishmet", "Polierarm", "Pantastic", "Axeidic", "Smoldershoulder", "Greatersword", "Bestplate", "Harmbalest", "GambesOP"];
 
 //Loads the automation settings from browser cache
@@ -1256,8 +1257,13 @@ function RunNewMap(zoneToCreate, extra) {
     {
         document.getElementById('advExtraLevelSelect').value = extra;
         cost = updateMapCost(true);
-        if (cost < game.resources.fragments.owned) break;
+        if (cost < game.resources.fragments.owned)
+        {
+            lastFutureMapLevel = game.global.world+extra;
+            break;
+        }
         extra--;
+        if (game.global.world+extra<=lastFutureMapLevel) extra = 0;
     }
     if (extra == 0)
     {
@@ -1888,10 +1894,13 @@ function RunPrestigeMaps(){
 
 function RunFuturePrestigeMaps(){
     "use strict";
-
-    if (!game.talents.blacksmith.purchased || game.global.challengeActive == "Mapology") return false;
-    if (game.global.world % 10 != 0 || getEmpowerment() != "Poison") return false;
+    var extra = 5;
+    if (trimpzSettings["voidMapsAt"].value == game.global.world) extra = 9;
     
+    if (game.global.world+extra <= lastFutureMap) return false;
+
+    if (!game.talents.blacksmith.purchased || game.global.challengeActive == "Mapology" || getEmpowerment() != "Poison") return false;
+    if (game.global.world % 10 != 0 && trimpzSettings["voidMapsAt"].value != game.global.world) return false;
     
  	var smithWorld = .5;
 	if (game.talents.blacksmith3.purchased) smithWorld = .9;
@@ -1899,19 +1908,19 @@ function RunFuturePrestigeMaps(){
 	smithWorld =  Math.floor((game.global.highestLevelCleared + 1) * smithWorld);
 	if (game.global.world <= smithWorld) return false;
 
-    var mapLevelToRun = game.global.world+5;
+    var mapLevelToRun = game.global.world+extra;
     setMapRunStatus("Prestige");
     for (var map in game.global.mapsOwnedArray){ //look for an existing map first
         var theMap = game.global.mapsOwnedArray[map];
         if (uniqueMaps.indexOf(theMap.name) > -1 || theMap.name.indexOf("Bionic Wonderland") > -1){
             continue;
         }
-        if (theMap.level === mapLevelToRun) {
+        if (theMap.level >= mapLevelToRun && theMap.level>lastFutureMap) {
             RunMap(game.global.mapsOwnedArray[map]);
             return true;
         }
     }
-    RunNewMap(game.global.world, 5);
+    RunNewMap(game.global.world, extra);
     return true;
 }
 
