@@ -155,6 +155,7 @@ var warpsAtLastGiga = 0;
 var beginPortalTime;
 var firstVoidMap = 0;
 var firstOverkillFail = 0;
+var lastFutureMapLevel = 0;
 var prestiges = ["Dagadder", "Bootboost", "Megamace", "Hellishmet", "Polierarm", "Pantastic", "Axeidic", "Smoldershoulder", "Greatersword", "Bestplate", "Harmbalest", "GambesOP"];
 
 //Loads the automation settings from browser cache
@@ -1256,10 +1257,16 @@ function RunNewMap(zoneToCreate, extra) {
     {
         document.getElementById('advExtraLevelSelect').value = extra;
         cost = updateMapCost(true);
-        if (cost < game.resources.fragments.owned) break;
+        if (cost < game.resources.fragments.owned)
+        {
+            lastFutureMapLevel = game.global.world+extra;
+            break;
+        }
         extra--;
+        if (game.global.world+extra<=lastFutureMapLevel) extra = 0;
     }
     if (extra == 0)
+    {
         RunWorld(); // no fragments
         return;
     }
@@ -1887,9 +1894,10 @@ function RunPrestigeMaps(){
 
 function RunFuturePrestigeMaps(){
     "use strict";
+    var extra = 5;
 
-    if (!game.talents.blacksmith.purchased || game.global.challengeActive == "Mapology") return false;
-    if (game.global.world % 10 != 0 || getEmpowerment() != "Poison") return false;
+    if (!game.talents.blacksmith.purchased || game.global.challengeActive == "Mapology" || getEmpowerment() != "Poison") return false;
+    if (game.global.world % 10 != 0 && trimpzSettings["voidMapsAt"].value != game.global.world) return false;
     
     
  	var smithWorld = .5;
@@ -1910,6 +1918,7 @@ function RunFuturePrestigeMaps(){
             return true;
         }
     }
+    if (trimpzSettings["voidMapsAt"].value == game.global.world) extra = 9;
     RunNewMap(game.global.world, 5);
     return true;
 }
