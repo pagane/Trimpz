@@ -155,6 +155,7 @@ var warpsAtLastGiga = 0;
 var beginPortalTime;
 var firstVoidMap = 0;
 var firstOverkillFail = 0;
+var lastFutureMapLevel = 0;
 var prestiges = ["Dagadder", "Bootboost", "Megamace", "Hellishmet", "Polierarm", "Pantastic", "Axeidic", "Smoldershoulder", "Greatersword", "Bestplate", "Harmbalest", "GambesOP"];
 
 //Loads the automation settings from browser cache
@@ -1235,7 +1236,7 @@ function GotoMapsScreen() {
 //    }
 }
 
-function RunNewMap(zoneToCreate) {
+function RunNewMap(zoneToCreate, extra) {
     "use strict";
     var newMap;
     var size = 9;   //0-9
@@ -1248,6 +1249,28 @@ function RunNewMap(zoneToCreate) {
     if (game.global.challengeActive == "Metal")
         biome = "Mountain";
 
+    if (typeof zoneToCreate != 'undefined') {
+        document.getElementById("mapLevelInput").value = zoneToCreate;
+    }
+    
+    while (extra>0)
+    {
+        document.getElementById('advExtraLevelSelect').value = extra;
+        cost = updateMapCost(true);
+        if (cost < game.resources.fragments.owned)
+        {
+            lastFutureMapLevel = game.global.world+extra;
+            break;
+        }
+        extra--;
+        if (game.global.world+extra<=lastFutureMapLevel) extra = 0;
+    }
+    if (extra == 0)
+    {
+        RunWorld(); // no fragments
+        return;
+    }
+    
     difficultyAdvMapsRange.value = difficulty;
     adjustMap('difficulty', difficulty);
     sizeAdvMapsRange.value = size;
@@ -1255,10 +1278,6 @@ function RunNewMap(zoneToCreate) {
     lootAdvMapsRange.value = loot;
     adjustMap('loot', loot);
     biomeAdvMapsSelect.value = biome;
-    
-    if (typeof zoneToCreate != 'undefined') {
-        document.getElementById("mapLevelInput").value = zoneToCreate;
-    }
     
     var cost = updateMapCost(true);
 
@@ -1285,14 +1304,14 @@ function RunNewMap(zoneToCreate) {
     
     if (mapRunStatus === "Prestige")
     {
-        document.getElementById('advSpecialSelect').value = mapSpecialModifierConfig.p;
+        document.getElementById('advSpecialSelect').value = "p";
         cost = updateMapCost(true);
         if (cost > game.resources.fragments.owned)
             document.getElementById('advSpecialSelect').value = "0";
     }
     else
     {
-        document.getElementById('advSpecialSelect').value = mapSpecialModifierConfig.fa;
+        document.getElementById('advSpecialSelect').value = "fa";
         cost = updateMapCost(true);
         if (cost > game.resources.fragments.owned)
             document.getElementById('advSpecialSelect').value = "0";
@@ -1873,6 +1892,38 @@ function RunPrestigeMaps(){
     return false;
 }
 
+function RunFuturePrestigeMaps(){
+    "use strict";
+    var extra = 5;
+    if (trimpzSettings["voidMapsAt"].value == game.global.world) extra = 9;
+    
+    if (game.global.world+extra <= lastFutureMap) return false;
+
+    if (!game.talents.blacksmith.purchased || game.global.challengeActive == "Mapology" || getEmpowerment() != "Poison") return false;
+    if (game.global.world % 10 != 0 && trimpzSettings["voidMapsAt"].value != game.global.world) return false;
+    
+ 	var smithWorld = .5;
+	if (game.talents.blacksmith3.purchased) smithWorld = .9;
+	else if (game.talents.blacksmith2.purchased) smithWorld = 0.75;
+	smithWorld =  Math.floor((game.global.highestLevelCleared + 1) * smithWorld);
+	if (game.global.world <= smithWorld) return false;
+
+    var mapLevelToRun = game.global.world+extra;
+    setMapRunStatus("Prestige");
+    for (var map in game.global.mapsOwnedArray){ //look for an existing map first
+        var theMap = game.global.mapsOwnedArray[map];
+        if (uniqueMaps.indexOf(theMap.name) > -1 || theMap.name.indexOf("Bionic Wonderland") > -1){
+            continue;
+        }
+        if (theMap.level >= mapLevelToRun && theMap.level>lastFutureMap) {
+            RunMap(game.global.mapsOwnedArray[map]);
+            return true;
+        }
+    }
+    RunNewMap(game.global.world, extra);
+    return true;
+}
+
 /**
  * @return {boolean}
  */
@@ -1982,6 +2033,7 @@ function RunMaps() {
         recycleBelow(true);
 
     if (RunPrimaryUniqueMaps()) return;
+    if (RunFuturePrestigeMaps()) return;
     if (RunPrestigeMaps()) return;
     if (RunBetterMaps()) return;
 //    if (RunUpgradeMaps()) return;
@@ -2845,7 +2897,7 @@ function prettifyTime(timeSince)
 function ManageGenerator()
 {
     if (game.global.world<230 || !trimpzSettings["autoDG"].value) return;
-    if (game.global.world>trimpzSettings["voidMapsAt"].value-60 || game.global.world<400)
+    if (game.global.world>trimpzSettings["voidMapsAt"].value-50 || game.global.world<420)
         changeGeneratorState(0);
     else if (game.global.magmaFuel>game.generatorUpgrades.Capacity.modifier)
         changeGeneratorState(0);
