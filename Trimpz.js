@@ -79,7 +79,7 @@ var constantsLateLateGame = new ConstantSet({
     zoneToStartAt : 55,
     minerMultiplier : 1,
     lumberjackMultiplier : 0.5,
-    explorerCostRatio : 0.01,
+//    explorerCostRatio : 0.01,
     housingCostRatio : 0.5,
     gymCostRatio : 0.8,
     tributeCostRatio : 0.9,
@@ -98,7 +98,6 @@ var constantsEndGame = new ConstantSet({
     zoneToStartAt : 60,
     minerMultiplier : 4,
     lumberjackMultiplier : 0.33,
-    explorerCostRatio: 0,
     housingCostRatio : 0,
     gymCostRatio : 0.5,
     tributeCostRatio : 0.7,
@@ -110,7 +109,6 @@ var constantsCorruption = new ConstantSet({
     zoneToStartAt : 180,
     minerMultiplier : 1000,
     lumberjackMultiplier : 2,
-    explorerCostRatio: 0,
     housingCostRatio : 0,
     gymCostRatio : 0.2,
     tributeCostRatio : 0.7,
@@ -123,7 +121,6 @@ var constantsMagma = new ConstantSet({
     zoneToStartAt : 230,
     minerMultiplier : 1000,
     lumberjackMultiplier : 2,
-    explorerCostRatio: 0,
     housingCostRatio : 0,
     gymCostRatio : 0.2,
     tributeCostRatio : 0.7,
@@ -404,7 +401,18 @@ function AssignFreeWorkers() {
         game.global.buyAmt = 1;
     }*/
 
-    if (free <= 0) return;
+    if (free <= 0)
+    {
+        if (game.jobs.Magmamancer.locked === 0 && CanBuyWorkerWithResource(game.jobs.Magmamancer, constants.getMagmamancerCostRatio(), gems, buy.Magmamancer) !== -1)
+        {
+            buyJob("Magmamancer", null, true);
+        }
+        if (game.jobs.Explorer.locked === 0 && CanBuyWorkerWithResource(game.jobs.Explorer, constants.getExplorerCostRatio(), food, buy.Explorer)) !== -1)
+        {
+            buyJob("Explorer", null, true);
+        }
+        return;
+    }
     var breedCount = (trimps.owned - trimps.employed > 2) ? Math.floor(trimps.owned - trimps.employed) : 0;
     if (free > trimps.owned){
         free = Math.floor(trimps.owned / 3);
@@ -885,7 +893,7 @@ function BuyBuildings() {
         BuyBuilding("Tribute", constants.getTributeCostRatio());
     }
     
-    if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax/50 && getEmpowerment() != "Ice")
+    if (getEnemyAttackForLevel(game.global.world)>game.global.soldierHealthMax/50 && getEmpowerment() != "Ice" && trimpzSettings["buildNurseries"].value)
     {
         game.global.buyAmt = 2;
         BuyBuilding("Nursery", constants.getNurseryCostRatio());
@@ -1274,6 +1282,29 @@ function RunNewMap(zoneToCreate) {
         adjustMap('difficulty', difficulty);
         cost = updateMapCost(true);
     }
+    
+    if (mapRunStatus === "Prestige")
+    {
+        document.getElementById('advSpecialSelect').value = mapSpecialModifierConfig.p;
+        cost = updateMapCost(true);
+        if (cost > game.resources.fragments.owned)
+            document.getElementById('advSpecialSelect').value = "0";
+    }
+    else
+    {
+        document.getElementById('advSpecialSelect').value = mapSpecialModifierConfig.fa;
+        cost = updateMapCost(true);
+        if (cost > game.resources.fragments.owned)
+            document.getElementById('advSpecialSelect').value = "0";
+    }
+    if (checkSlidersForPerfect())
+    {
+        document.getElementById('advPerfectCheckbox').checked = true;
+        cost = updateMapCost(true);
+        if (cost > game.resources.fragments.owned)
+            document.getElementById('advPerfectCheckbox').checked = false;
+    }
+    
     buyMap();
     newMap = game.global.mapsOwnedArray[game.global.mapsOwnedArray.length - 1];
     RunMap(newMap);
@@ -2228,7 +2259,7 @@ function MaxToxicStacks() {
 function RunVoidMaps() {
     "use strict";
     if (game.global.totalVoidMaps<1) return;
-    if (game.global.challengeActive == "Daily" && typeof game.global.dailyChallenge.oddTrimpNerf !== 'undefined' && ((game.global.world % 2) == 1)) return;//no voids on nerfed odd zones
+//    if (game.global.challengeActive == "Daily" && typeof game.global.dailyChallenge.oddTrimpNerf !== 'undefined' && ((game.global.world % 2) == 1)) return;//no voids on nerfed odd zones
     if (game.global.mapsActive === true && game.global.preMapsActive === false){ //no map ability(wait one) or already running a map(repeat should be off)
 /*        if (getCurrentMapObject().location == "Void")
         {
@@ -2244,7 +2275,7 @@ function RunVoidMaps() {
 //    if (game.global.lastClearedCell > trimpzSettings["lastCell"].value && game.global.lastBreedTime>=45000 || game.global.lastClearedCell > 96) {
 //        if (ableToRunVoidMap(game.global.world+1) === false && ableToRunVoidMap(game.global.world-2) === true && game.global.world%10<5 && game.global.world%10>0 || (shouldPortal && portalAtWorld == game.global.world))
     if (trimpzSettings["voidMapsAt"].value == game.global.world &&/* ableToRunVoidMap(game.global.world+1) === false &&*/
-        game.global.lastClearedCell > trimpzSettings["lastCell"].value && (game.global.lastBreedTime>=45000 || game.global.lastClearedCell > 96))
+        game.global.lastClearedCell > trimpzSettings["lastCell"].value && (game.global.lastBreedTime>=45000 || game.global.lastClearedCell > 94))
     {
         var theMap;
         for (var map in game.global.mapsOwnedArray) {
@@ -2781,7 +2812,7 @@ function ableToOneShotAllMobs(portal, wind)
 
     if (portal) soldierAttack *= 2.2;
     
-    if (wind) soldierAttack *= 40;
+    if (wind) soldierAttack *= 30;
 
     return soldierAttack>enemyHealth;
 }
@@ -2814,7 +2845,7 @@ function prettifyTime(timeSince)
 function ManageGenerator()
 {
     if (game.global.world<230 || !trimpzSettings["autoDG"].value) return;
-    if (game.global.world>trimpzSettings["voidMapsAt"].value-10)
+    if (game.global.world>trimpzSettings["voidMapsAt"].value-60 || game.global.world<400)
         changeGeneratorState(0);
     else if (game.global.magmaFuel>game.generatorUpgrades.Capacity.modifier)
         changeGeneratorState(0);
