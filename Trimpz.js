@@ -2060,7 +2060,7 @@ function ReallocateWorkers() {
             continue;
         }
         workersToFire = Math.floor(jobObj.owned);
-        if (job == "Scientist")
+        if (jobName == "Scientist")
         {
             workersToFire -= 10000;
             if (workersToFire<0) workersToFire = 0;
