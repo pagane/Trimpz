@@ -1897,7 +1897,7 @@ function RunFuturePrestigeMaps(){
     var extra = 5;
     if (trimpzSettings["voidMapsAt"].value == game.global.world) extra = 9;
     
-    if (game.global.world+extra <= lastFutureMap) return false;
+    if (game.global.world+extra <= lastFutureMapLevel) return false;
 
     if (!game.talents.blacksmith.purchased || game.global.challengeActive == "Mapology" || getEmpowerment() != "Poison") return false;
     if (game.global.world % 10 != 0 && trimpzSettings["voidMapsAt"].value != game.global.world) return false;
@@ -1915,7 +1915,7 @@ function RunFuturePrestigeMaps(){
         if (uniqueMaps.indexOf(theMap.name) > -1 || theMap.name.indexOf("Bionic Wonderland") > -1){
             continue;
         }
-        if (theMap.level >= mapLevelToRun && theMap.level>lastFutureMap) {
+        if (theMap.level >= mapLevelToRun && theMap.level>lastFutureMapLevel) {
             RunMap(game.global.mapsOwnedArray[map]);
             return true;
         }
@@ -2060,6 +2060,11 @@ function ReallocateWorkers() {
             continue;
         }
         workersToFire = Math.floor(jobObj.owned);
+        if (job == "Scientist")
+        {
+            workersToFire -= 10000;
+            if (workersToFire<0) workersToFire = 0;
+        }
         game.global.buyAmt = workersToFire;
         buyJob(jobName, null, true);
     }
@@ -2786,7 +2791,7 @@ function BuyGoldenUpgrade()
 {
     if (getAvailableGoldenUpgrades() == 0) return;       //if we have nothing to buy, exit.
     //buy one upgrade per loop.
-    if (game.global.runningChallengeSquared)
+    if (game.global.runningChallengeSquared || trimpzSettings["goldenUpgrade"].value == "Battle")
     {
         buyGoldenUpgrade("Battle");
         return;
