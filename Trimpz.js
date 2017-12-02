@@ -381,7 +381,7 @@ function AssignFreeWorkers() {
     };
     if (game.global.world < 5 && game.jobs.Scientist.locked === 0 && game.jobs.Scientist.owned<1000)
     {
-        game.global.buyAmt = 1000;
+        game.global.buyAmt = 10000;
         buyJob("Scientist", null, true);
         game.global.buyAmt = 1;
     }
@@ -1255,6 +1255,14 @@ function RunNewMap(zoneToCreate, extra) {
     
     while (extra>0)
     {
+        difficultyAdvMapsRange.value = 0;
+        adjustMap('difficulty', 0);
+        sizeAdvMapsRange.value = 0;
+        adjustMap('size', 0);
+        lootAdvMapsRange.value = 0;
+        adjustMap('loot', 0);
+        biomeAdvMapsSelect.value = "Random";
+        
         document.getElementById('advExtraLevelSelect').value = extra;
         cost = updateMapCost(true);
         if (cost < game.resources.fragments.owned)
@@ -1271,37 +1279,6 @@ function RunNewMap(zoneToCreate, extra) {
         return;
     }
     
-    difficultyAdvMapsRange.value = difficulty;
-    adjustMap('difficulty', difficulty);
-    sizeAdvMapsRange.value = size;
-    adjustMap('size', size);
-    lootAdvMapsRange.value = loot;
-    adjustMap('loot', loot);
-    biomeAdvMapsSelect.value = biome;
-    
-    var cost = updateMapCost(true);
-
-    while (cost > game.resources.fragments.owned){
-        if (size === 1){
-            difficulty--;
-            if (difficulty === 1) {
-                if (game.global.preMapsActive){
-                    RunWorld();
-                }
-                return;         //need more fragments!
-            }
-        } else if (loot > 1) {
-            loot--;
-        } else {
-            size--;
-        }
-        document.getElementById("sizeAdvMapsRange").value = size;
-        adjustMap('size', size);
-        document.getElementById("difficultyAdvMapsRange").value = difficulty;
-        adjustMap('difficulty', difficulty);
-        cost = updateMapCost(true);
-    }
-    
     if (mapRunStatus === "Prestige")
     {
         document.getElementById('advSpecialSelect').value = "p";
@@ -1309,20 +1286,64 @@ function RunNewMap(zoneToCreate, extra) {
         if (cost > game.resources.fragments.owned)
             document.getElementById('advSpecialSelect').value = "0";
     }
-    else
+
+    difficultyAdvMapsRange.value = difficulty;
+    adjustMap('difficulty', difficulty);
+    sizeAdvMapsRange.value = size;
+    adjustMap('size', size);
+    lootAdvMapsRange.value = loot;
+    adjustMap('loot', loot);
+    
+    var cost = updateMapCost(true);
+
+    while (cost > game.resources.fragments.owned){
+        if (loot>0)
+        {
+            loot--;
+            lootAdvMapsRange.value = loot;
+            adjustMap('loot', loot);
+        }
+        else if (difficulty>0)
+        {
+            difficulty--;
+            difficultyAdvMapsRange.value = difficulty;
+            adjustMap('difficulty', difficulty);
+        }
+        else if (size>0)
+        {
+            size--;
+            sizeAdvMapsRange.value = size;
+            adjustMap('size', size);
+        }
+        else
+        {
+            if (game.global.preMapsActive){
+                RunWorld();
+            }
+            return;         //need more fragments!
+        }
+        cost = updateMapCost(true);
+    }
+    
+    biomeAdvMapsSelect.value = biome;
+    cost = updateMapCost(true);
+    if (cost > game.resources.fragments.owned)
+        biomeAdvMapsSelect.value = "Random";
+
+    if (mapRunStatus !== "Prestige")
     {
         document.getElementById('advSpecialSelect').value = "fa";
         cost = updateMapCost(true);
         if (cost > game.resources.fragments.owned)
             document.getElementById('advSpecialSelect').value = "0";
     }
-    if (checkSlidersForPerfect())
+/*    if (checkSlidersForPerfect())
     {
         document.getElementById('advPerfectCheckbox').checked = true;
         cost = updateMapCost(true);
         if (cost > game.resources.fragments.owned)
             document.getElementById('advPerfectCheckbox').checked = false;
-    }
+    }*/
     
     buyMap();
     newMap = game.global.mapsOwnedArray[game.global.mapsOwnedArray.length - 1];
@@ -1894,14 +1915,21 @@ function RunPrestigeMaps(){
 
 function RunFuturePrestigeMaps(){
     "use strict";
-    var extra = 5;
-    if (trimpzSettings["voidMapsAt"].value == game.global.world) extra = 9;
-    
-    if (game.global.world+extra <= lastFutureMapLevel) return false;
+    var extra = 10;
 
     if (!game.talents.blacksmith.purchased || game.global.challengeActive == "Mapology" || getEmpowerment() != "Poison") return false;
     if (game.global.world % 10 != 0 && trimpzSettings["voidMapsAt"].value != game.global.world) return false;
+
+    var diff = (game.global.world+extra)%10;
+    while (diff%5 != 0)
+    {
+        extra--;
+        diff--;
+    }
+//    if (trimpzSettings["voidMapsAt"].value == game.global.world) extra = 10;
     
+    if (game.global.world+extra <= lastFutureMapLevel) return false;
+
  	var smithWorld = .5;
 	if (game.talents.blacksmith3.purchased) smithWorld = .9;
 	else if (game.talents.blacksmith2.purchased) smithWorld = 0.75;
@@ -2186,6 +2214,7 @@ function CheckPortal() {
         warpsAtLastGiga = 0;
         firstVoidMap = 0;
         firstOverkillFail = 0;
+        lastFutureMapLevel = 0;
 
         saveSettings();
         ClickButton("portalBtn");
