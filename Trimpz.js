@@ -1279,7 +1279,7 @@ function RunNewMap(zoneToCreate, extra) {
         return;
     }
     
-    if (mapRunStatus === "Prestige")
+    if (mapRunStatus === "Prestige" || mapRunStatus === "Future")
     {
         document.getElementById('advSpecialSelect').value = "p";
         cost = updateMapCost(true);
@@ -1330,7 +1330,7 @@ function RunNewMap(zoneToCreate, extra) {
     if (cost > game.resources.fragments.owned)
         biomeAdvMapsSelect.value = "Random";
 
-    if (mapRunStatus !== "Prestige")
+    if (mapRunStatus !== "Prestige" && mapRunStatus !== "Future")
     {
         document.getElementById('advSpecialSelect').value = "fa";
         cost = updateMapCost(true);
@@ -1765,35 +1765,20 @@ function ManageRepeatMaps() {
     if (getCurrentMapObject().name.indexOf("Bionic") > -1) return;
 
     if (mapRunStatus) {
-        if (mapRunStatus === "Prestige") {
+        if (mapRunStatus === "Future")
+        {
+            var specials = addSpecials(true, true, getCurrentMapObject());
+            if (specials > 1 )
+                shouldRepeat = true;
+        }
+        else if (mapRunStatus === "Prestige") {
             if (!ableToOverkillAllMobs() && mapBonus < 9)
             {
                 var specials = addSpecials(true, true, getCurrentMapObject());
                 if (specials > 2 )
                     shouldRepeat = true;
                 else if (specials==2 && (getCurrentMapObject().level-1) % 10 < 5)
-                    shouldRepeat = true;
-/*                prestige = trimpzSettings["prestige"].value;
-                var mapDrop = game.global.mapGridArray[game.global.mapGridArray.length - 1].special;
-                if (mapDrop)
-                {
-                    lastDrop = game.mapUnlocks[mapDrop].last;
-                    for (item in prestiges)
-                    {
-                        lastDrop = game.mapUnlocks[prestiges[item]].last;
-                        if (mapDrop && !isPrestigeFull(null, prestiges[item]) && lastDrop < game.global.world - 5)
-                        {
-                            shouldRepeat = true;
-                            break;
-                        }
-                        if (prestiges[item]==prestige) break;
-                    }
-                    var lastDrop = game.mapUnlocks[prestige].last;
-                    if (!isPrestigeFull(null, prestige) && mapDrop && lastDrop <= game.global.world - 5) {
-                        shouldRepeat = !(mapDrop === prestige && ~~((lastDrop-1)/10) >= ~~((game.global.world-1)/10)-1);
-                    }
-                }*/
-            }
+                    shouldRepeat = true;            }
         }
         else if (mapRunStatus === "Bonus") {
             if (mapBonus < 9) {
@@ -1921,6 +1906,11 @@ function RunFuturePrestigeMaps(){
     if (game.global.world % 10 != 0 && trimpzSettings["voidMapsAt"].value != game.global.world) return false;
 
     var diff = (game.global.world+extra)%10;
+    if (diff == 0)
+    {
+        extra--;
+        diff--;
+    }
     while (diff%5 != 0)
     {
         extra--;
@@ -1937,7 +1927,7 @@ function RunFuturePrestigeMaps(){
 	if (game.global.world <= smithWorld) return false;
 
     var mapLevelToRun = game.global.world+extra;
-    setMapRunStatus("Prestige");
+    setMapRunStatus("Future");
     for (var map in game.global.mapsOwnedArray){ //look for an existing map first
         var theMap = game.global.mapsOwnedArray[map];
         if (uniqueMaps.indexOf(theMap.name) > -1 || theMap.name.indexOf("Bionic Wonderland") > -1){
