@@ -30,7 +30,7 @@ ConstantSet.prototype = {
     minScienceOwned : 10,               //minimum science on hand, required for beginning of the game
     housingCostRatio : 0.3,             //buy housing with enough resources (0.2 = 20% of resources)
     gymCostRatio : 0.6,                 //buy gyms with enough resources (0.2 = 20% of resources)
-    maxGyms : 10000,                    //maximum number of gyms to buy
+    maxGyms : 90000,                    //maximum number of gyms to buy
     tributeCostRatio : 0.5,             //buy tributes with enough resources (0.2 = 20% of resources)
     nurseryCostRatio : 0.5,             //buy nursery with enough resources (0.2 = 20% of resources)
     maxLevel : 10,                      //maximum level of all equipment per tier unless it's really cheap(see constant above)
@@ -381,7 +381,7 @@ function AssignFreeWorkers() {
     };
     if (game.global.world < 5 && game.jobs.Scientist.locked === 0 && game.jobs.Scientist.owned<1000)
     {
-        game.global.buyAmt = 10000;
+        game.global.buyAmt = 50000;
         buyJob("Scientist", null, true);
         game.global.buyAmt = 1;
     }
@@ -2080,7 +2080,7 @@ function ReallocateWorkers() {
         workersToFire = Math.floor(jobObj.owned);
         if (jobName == "Scientist")
         {
-            workersToFire -= 10000;
+            workersToFire -= 50000;
             if (workersToFire<0) workersToFire = 0;
         }
         game.global.buyAmt = workersToFire;
@@ -2351,7 +2351,7 @@ function RunVoidMaps() {
 //    if (game.global.lastClearedCell > trimpzSettings["lastCell"].value && game.global.lastBreedTime>=45000 || game.global.lastClearedCell > 96) {
 //        if (ableToRunVoidMap(game.global.world+1) === false && ableToRunVoidMap(game.global.world-2) === true && game.global.world%10<5 && game.global.world%10>0 || (shouldPortal && portalAtWorld == game.global.world))
     if (trimpzSettings["voidMapsAt"].value == game.global.world &&/* ableToRunVoidMap(game.global.world+1) === false &&*/
-        game.global.lastClearedCell > trimpzSettings["lastCell"].value && (game.global.lastBreedTime>=45000 || game.global.lastClearedCell > 94))
+        game.global.lastClearedCell > trimpzSettings["lastCell"].value && (game.global.lastBreedTime>=45000 || game.global.lastClearedCell > 90))
     {
         var theMap;
         for (var map in game.global.mapsOwnedArray) {
