@@ -1608,6 +1608,13 @@ function getAverageEnemyHealthForLevel(worldLevel, isMap, isVoid) {  //adapted f
 		}
     }
 	if (game.global.challengeActive == "Meditate" || game.global.challengeActive == "Toxicity" || game.global.challengeActive == "Balance") amt *= 2;
+	if (game.global.challengeActive == "Obliterated")
+	{
+		var oblitMult = 1e12;
+		var zoneModifier = Math.floor(world / 10);
+		oblitMult *= Math.pow(10, zoneModifier);
+		amt *= oblitMult;
+	}
     if (game.global.challengeActive == "Daily")
     {
 		if (typeof game.global.dailyChallenge.badHealth !== 'undefined'){
@@ -1615,6 +1622,9 @@ function getAverageEnemyHealthForLevel(worldLevel, isMap, isVoid) {  //adapted f
 		}
 		if (typeof game.global.dailyChallenge.badMapHealth !== 'undefined' && (isMap || isVoid)){
 			amt *= dailyModifiers.badMapHealth.getMult(game.global.dailyChallenge.badMapHealth.strength);
+		}
+		if (typeof game.global.dailyChallenge.empower !== 'undefined' && !isMap && !isVoid){
+			amt *= dailyModifiers.empower.getMult(game.global.dailyChallenge.empower.strength, game.global.dailyChallenge.empower.stacks);
 		}
 	}	
 	return Math.floor(amt);
