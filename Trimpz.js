@@ -381,7 +381,7 @@ function AssignFreeWorkers() {
     };
     if (game.global.world < 5 && game.jobs.Scientist.locked === 0 && game.jobs.Scientist.owned<1000)
     {
-        game.global.buyAmt = 50000;
+        game.global.buyAmt = 100000;
         buyJob("Scientist", null, true);
         game.global.buyAmt = 1;
     }
@@ -2090,7 +2090,7 @@ function ReallocateWorkers() {
         workersToFire = Math.floor(jobObj.owned);
         if (jobName == "Scientist")
         {
-            workersToFire -= 50000;
+            workersToFire -= 100000;
             if (workersToFire<0) workersToFire = 0;
         }
         game.global.buyAmt = workersToFire;
